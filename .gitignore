@@ -14,3 +14,10 @@ outputs/**/*
 !outputs/*/
 !outputs/*/.gitkeep
 tasks/phone/
+
+# Team state (personal)
+tasks/goals.md
+tasks/approvals.json
+tasks/approvals.lock
+tasks/approvals.tmp
+tasks/requests/

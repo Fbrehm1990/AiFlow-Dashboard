@@ -12,7 +12,7 @@
   --fg:#e4ebff; --muted:#8792b0;
   --accent:#46e3ff; --accent-2:#8f7bff; --accent-ink:#04111c; --accent-soft:rgba(70,227,255,.10);
   --ok:#38f2a6; --ok-soft:rgba(56,242,166,.12); --warn:#ffc65c; --warn-soft:rgba(255,198,92,.12); --bad:#ff5d7a; --bad-soft:rgba(255,93,122,.12);
-  --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6;
+  --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5;
   --glow:0 0 0 1px rgba(70,227,255,.35), 0 0 18px rgba(70,227,255,.18);
   --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -208,9 +208,12 @@ a{color:var(--accent)}
 <div id="toastRoot"></div>
 
 <script>
-const TYPES = {research:"Research", code:"Code", brief:"Brief", docs:"Docs & data"};
+const TYPES = {research:"Research", web:"Website", marketing:"Marketing", code:"Code", brief:"Brief", docs:"Docs & data", plan:"Plan"};
 const TYPE_NOTE = {
-  research:"A cited report with a recommendation.",
+  research:"Researcher: a cited report with a recommendation.",
+  web:"Web builder: builds a site. Going live needs your approval.",
+  marketing:"Marketer: posts, TikTok scripts, Google Ads, outreach drafts. Publishing needs your approval.",
+  plan:"Manager: plans it and assigns the work to the team.",
   code:"Works on a branch and leaves a draft PR or patch. Name the repo in the details.",
   brief:"A short, cited news or status brief.",
   docs:"Documents, spreadsheets or data cleanup. Originals are never changed."};
@@ -285,7 +288,11 @@ function homeView(){
   const st = S.stats || {}, pend = INBOX.filter(d => d.status === "new").length;
   const counts = [["queue", (st.queued || 0) + pend, "Queued"], ["queue", st.running || 0, "Running"], ["results", st.doneToday || 0, "Done today"], ["blocked", (S.blocked || []).length, "Blocked"]];
   const latest = (S.done || []).slice(0, 3);
-  return `${statusCard()}
+  const aps = S.approvals || [];
+  const apCard = aps.length ? `<div class="card"><div class="card-h"><h2>Waiting for your approval</h2><span class="n">${aps.length}</span></div><ul class="list">
+    ${aps.slice(0, 5).map(a => `<li class="row"><div class="main"><div class="meta"><span class="pill wait">${esc(a.agent)}</span><span>${esc(a.platform || a.kind)}${a.spend ? " · " + esc(a.spend) : ""}</span></div><div class="t">${esc(a.title)}</div></div></li>`).join("")}</ul>
+    <div class="empty" style="padding-top:4px">Approve or reject these on your PC dashboard, under Approvals.</div></div>` : "";
+  return `${statusCard()}${apCard}
     <div class="counts">${counts.map(([t, n, l]) => `<button class="count ${l === "Blocked" && n ? "alert" : ""}" data-go="${t}"><div class="v">${n}</div><div class="l">${l}</div></button>`).join("")}</div>
     <div class="card"><div class="card-h"><h2>Latest results</h2></div>
       ${latest.length ? `<ul class="list">${latest.map(doneRow).join("")}</ul>` : `<div class="empty">Finished tasks will show up here.</div>`}</div>

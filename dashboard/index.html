@@ -19,6 +19,7 @@
   --accent:#46e3ff; --accent-2:#8f7bff; --accent-ink:#04111c; --accent-soft:rgba(70,227,255,.10);
   --danger:#ff5d7a; --danger-soft:rgba(255,93,122,.12); --ok:#38f2a6; --ok-soft:rgba(56,242,166,.12); --warn:#ffc65c; --warn-soft:rgba(255,198,92,.12);
   --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --other:#8792b0;
+  --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5;
   --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
   --glow:0 0 0 1px rgba(70,227,255,.35), 0 0 18px rgba(70,227,255,.18);
@@ -393,6 +394,40 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .md code,.md pre{background:rgba(110,160,255,.08)}
 .toast{background:rgba(8,14,28,.96);color:var(--text);border:1px solid var(--border-hi);box-shadow:var(--glow)}
 .reason{border:1px solid rgba(255,93,122,.25)}
+/* team */
+.agents{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.agent{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.agent.busy{border-color:color-mix(in srgb,var(--c) 55%,transparent);box-shadow:0 0 22px color-mix(in srgb,var(--c) 22%,transparent)}
+.agent .top{display:flex;gap:12px;align-items:center}
+.emblem{width:44px;height:44px;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:15px;color:var(--c);
+  clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.agent h3{font-size:16px;letter-spacing:.03em}
+.agent .role{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--c)}
+.agent .does{color:var(--muted);font-size:12.5px;min-height:36px}
+.agent .now{font-size:13px;padding:8px 10px;border-radius:9px;background:rgba(110,160,255,.06);border:1px solid var(--border);min-height:40px}
+.agent .now b{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);display:block}
+.agent .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}
+.agent .nums div{font-family:var(--display);font-size:18px;color:#fff}
+.agent .nums span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:1100px){.agents{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.agents{grid-template-columns:1fr}}
+/* approvals */
+.ap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;padding:14px 16px;border-top:1px solid var(--border)}
+.ap:first-child{border-top:0}
+.ap .t{font-weight:600;font-size:14.5px}
+.ap .d{color:var(--muted);font-size:13px;margin-top:3px}
+.ap .spend{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:12px;color:var(--warn);border:1px solid rgba(255,198,92,.3);border-radius:6px;padding:1px 8px}
+.ap .res{margin-top:6px;font-size:13px}
+.ap .acts{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.ap .note{grid-column:1/-1;display:flex;gap:8px}
+.ap .note input{flex:1}
+.pill.pending{background:var(--warn-soft);color:var(--warn)}
+.pill.approved{background:var(--ok-soft);color:var(--ok)}
+.pill.rejected,.pill.failed{background:var(--danger-soft);color:var(--danger)}
+.pill.done{background:var(--accent-soft);color:var(--accent)}
+.btn.ok{border-color:rgba(56,242,166,.45);color:var(--ok)}
+.btn.no{border-color:rgba(255,93,122,.4);color:var(--danger)}
+@media (max-width:640px){.ap{grid-template-columns:1fr}.ap .acts{justify-content:flex-start}}
 @media (prefers-reduced-motion:reduce){.seg-run,.seg-done{box-shadow:none}}
 </style>
 </head>
@@ -408,6 +443,8 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16.5 14.6c2.3.2 4 1.7 4.5 4.4"/></symbol>
+  <symbol id="i-approve" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></symbol>
 </svg>
 
 <div class="app">
@@ -415,6 +452,9 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
     <a class="brand" href="#/"><span class="logo">✓</span>AI Workflow</a>
     <nav class="nav">
       <a href="#/" data-route=""><svg class="i"><use href="#i-home"/></svg>Overview</a>
+      <div class="nav-label">Team</div>
+      <a href="#/team" data-route="team"><svg class="i"><use href="#i-team"/></svg>Team &amp; goals</a>
+      <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
       <div class="nav-label">Tasks</div>
       <a href="#/queued" data-route="queued"><svg class="i"><use href="#i-queue"/></svg>Queued<span class="badge" id="bQueued"></span></a>
       <a href="#/running" data-route="running"><svg class="i"><use href="#i-run"/></svg>In progress<span class="badge" id="bRunning"></span></a>
@@ -524,6 +564,44 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
       </div>
     </div>
 
+    <!-- Team -->
+    <div id="teamPage" class="hidden col">
+      <div class="agents" id="agents"></div>
+      <div class="grid">
+        <section class="card">
+          <div class="card-h"><h2>Goals</h2><span class="spacer"></span><span class="hint">The Manager plans toward these every morning</span></div>
+          <div class="card-b">
+            <textarea id="goals" rows="16" spellcheck="false" style="font-family:var(--mono);font-size:12.5px"></textarea>
+            <div class="form-foot"><button class="btn primary" id="saveGoals">Save goals</button><span class="hint" id="goalsState"></span></div>
+          </div>
+        </section>
+        <div class="col">
+          <section class="card">
+            <div class="card-h"><h2>Latest plan</h2></div>
+            <ul class="list" id="plans"></ul>
+          </section>
+          <section class="card">
+            <div class="card-h"><h2>How the team works</h2></div>
+            <div class="card-b hint" style="line-height:1.6">
+              Every morning the <b>Manager</b> reviews the team's work, checks it against your goals, and assigns
+              tasks (marked <i>from Manager</i>). Remove any you don't want from Queued; it won't add them again.
+              The specialists work them at 9 AM, 12 PM and 3 PM. Anything public or paid, such as posts, ads,
+              emails or going live, waits in <b>Approvals</b> for your decision.
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approvals -->
+    <div id="approvalsPage" class="hidden">
+      <section class="card">
+        <div class="filters" id="apFilters"></div>
+        <ul class="list" id="approvalsList"></ul>
+        <div class="help">Approving a <b>deploy</b> lets the team put that site live on Netlify at the next approvals run (10:30, 1:30, 4:30, 7:30). Approved <b>posts, ads and emails</b> are ready for you to publish: open the draft, copy, and post or send it yourself. No agent ever posts, sends or spends.</div>
+      </section>
+    </div>
+
     <!-- Resources -->
     <div id="resources" class="hidden">
       <section class="card">
@@ -538,7 +616,7 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
         <div data-panel="outputs">
           <div class="toolbar">
             <input type="text" id="outSearch" placeholder="Search outputs…">
-            <select id="outKind"><option value="">All types</option><option value="research">Research</option><option value="code">Code</option><option value="briefs">Briefs</option><option value="docs">Docs</option><option value="digests">Digests</option></select>
+            <select id="outKind"><option value="">All types</option><option value="research">Research</option><option value="web">Web</option><option value="marketing">Marketing</option><option value="plans">Plans</option><option value="code">Code</option><option value="briefs">Briefs</option><option value="docs">Docs</option><option value="digests">Digests</option></select>
           </div>
           <table><thead><tr><th>Title</th><th class="nowrap">Type</th><th class="nowrap hide-sm">Updated</th></tr></thead><tbody id="outputs"></tbody></table>
         </div>
@@ -601,12 +679,22 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 
 <script>
 const TYPES = {
-  research:{label:"Research", hint:"Cited, multi-source report with a recommendation → outputs/research"},
-  code:{label:"Code", hint:"Works on an ai/ branch and leaves a draft PR or patch for review; never merges → outputs/code"},
-  brief:{label:"Brief", hint:"Short, cited news or status brief → outputs/briefs"},
-  docs:{label:"Docs & data", hint:"Documents, spreadsheets and data cleanup; originals are never changed → outputs/docs"},
+  research:{label:"Research", hint:"Researcher · cited report with a recommendation → outputs/research"},
+  web:{label:"Website", hint:"Web builder · builds a site in CLIENT WEBSITES; going live needs your approval → outputs/web"},
+  marketing:{label:"Marketing", hint:"Marketer · posts, TikTok scripts, Google Ads, outreach drafts; publishing needs your approval → outputs/marketing"},
+  code:{label:"Code", hint:"Web builder · works on an ai/ branch and leaves a draft PR or patch; never merges → outputs/code"},
+  brief:{label:"Brief", hint:"Researcher · short, cited news or status brief → outputs/briefs"},
+  docs:{label:"Docs & data", hint:"Researcher · documents, spreadsheets and data cleanup; originals are never changed → outputs/docs"},
+  plan:{label:"Plan", hint:"Manager · plans something and assigns the work to the team → outputs/plans"},
 };
-const KIND_TYPE = {research:"research", code:"code", briefs:"brief", docs:"docs", digests:"other"};
+const KIND_TYPE = {research:"research", web:"web", marketing:"marketing", plans:"plan", code:"code", briefs:"brief", docs:"docs", digests:"plan"};
+const AGENTS = [
+  {name:"Manager", key:"manager", role:"Operations lead", does:"Plans toward your goals, assigns work, reviews quality, reports daily", types:["plan","digest"], color:"--plan", assign:"plan"},
+  {name:"Researcher", key:"researcher", role:"Research & leads", does:"Leads, markets, competitors, pricing, briefs and data work", types:["research","brief","docs"], color:"--research", assign:"research"},
+  {name:"Web builder", key:"web-builder", role:"Websites", does:"Demo and client sites, fixes and audits, Netlify-ready builds", types:["web","code"], color:"--web", assign:"web"},
+  {name:"Marketer", key:"marketer", role:"Social & ads", does:"Facebook/Instagram, TikTok, Google Ads and email outreach drafts", types:["marketing"], color:"--marketing", assign:"marketing"},
+];
+const agentOf = type => AGENTS.find(a => a.types.includes(type)) || AGENTS[1];
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cssType = t => `--c:var(--${TYPES[t] || t==="other" ? t : "other"})`;
@@ -692,7 +780,9 @@ function render(){
   const cutoff = Date.now() - 3*864e5;
   const blocked = S.done.filter(d => d.status==="blocked").slice(0,5);
   const code = S.outputs.filter(o => o.kind==="code" && o.ext===".md" && new Date(o.modified) > cutoff).slice(0,5);
+  const pendingAps = (S.approvals || []).filter(a => a.status === "pending").slice(0, 5);
   const rv = [
+    ...pendingAps.map(a => `<li class="item"><div class="main"><div class="meta"><span class="pill pending">Approve?</span><span class="hint">${esc(a.agent)} · ${esc(a.platform || a.kind)}</span></div><a class="linky t" href="#/approvals">${esc(a.title)}</a></div></li>`),
     ...blocked.map(d => `<li class="item"><div class="main"><div class="meta"><span class="pill blocked">Blocked</span>${typeTag(d.type)}<span class="hint">${esc(d.date)}</span></div><div class="t">${esc(d.title)}</div>${d.output?`<div class="d">${esc(d.output)}</div>`:""}</div></li>`),
     ...code.map(o => `<li class="item"><div class="main"><div class="meta">${typeTag("code")}<span class="hint">${rel(o.modified)}</span></div><button class="linky t" data-view="${esc(o.path)}">${esc(o.title)}</button><div class="d">Review the PR or patch</div></div></li>`),
   ];
@@ -701,7 +791,7 @@ function render(){
 
   // latest: newest brief + digest
   const latestOf = k => S.outputs.find(o => o.kind===k);
-  const latest = [["briefs","Morning brief"],["digests","Evening digest"]].map(([k,label]) => {
+  const latest = [["plans","Manager's plan"],["briefs","Morning brief"],["digests","Evening report"]].map(([k,label]) => {
     const o = latestOf(k);
     return `<li class="item"><div class="main"><div class="hint">${label}</div>${o ? `<button class="linky t" data-view="${esc(o.path)}">${esc(o.title)}</button> <span class="hint">· ${rel(o.modified)}</span>` : `<div class="d">None yet</div>`}</div></li>`;
   });
@@ -719,6 +809,7 @@ function render(){
   const repos = new Set(S.tasks.concat(S.done).map(t => (/(?:repo:\s*)([^;—\n]+)/.exec(t.details || t.title || "") || [])[1]).filter(Boolean).map(s=>s.trim()));
   $("#repoList").innerHTML = [...repos].map(r => `<option value="${esc(r)}">`).join("");
   renderPage();
+  renderTeamPages();
   if (route === "resources") renderAnalytics();
 }
 
@@ -909,6 +1000,8 @@ const PAGES = {
   done:      {title:"Done", desc:"Finished tasks and their results."},
   blocked:   {title:"Blocked", desc:"Tasks a run couldn't finish, and why. Retry with more information, or dismiss."},
   resources: {title:"Resources", desc:"Outputs, history, run logs, recurring jobs and analytics."},
+  team:      {title:"Team & goals", desc:"Your AI team: who's doing what, and the goals they work toward."},
+  approvals: {title:"Approvals", desc:"Anything public or paid waits here for your decision."},
 };
 const TASK_PAGES = ["queued", "running", "done", "blocked"];
 const ORDER = {high:0, normal:1, low:2};
@@ -923,6 +1016,8 @@ function go(){
   $("#home").classList.toggle("hidden", route !== "");
   $("#page").classList.toggle("hidden", !TASK_PAGES.includes(route));
   $("#resources").classList.toggle("hidden", route !== "resources");
+  $("#teamPage").classList.toggle("hidden", route !== "team");
+  $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
   document.querySelectorAll("#pageBody [data-only]").forEach(el => el.classList.toggle("hidden", el.dataset.only !== route));
   // The activity card lives on the Overview and on In progress.
   (route === "running" ? $("#actPage") : $("#actHome")).append($("#actCard"));
@@ -930,9 +1025,109 @@ function go(){
   $("#resBtn").classList.toggle("active", route === "resources");
   $("#pageTitle").textContent = PAGES[route].title; $("#pageDesc").textContent = PAGES[route].desc;
   document.title = route ? `${PAGES[route].title} · AI Workflow` : "AI Workflow";
-  if (S){ renderPage(); if (route === "resources") renderAnalytics(); }
+  if (S){ renderPage(); renderTeamPages(); if (route === "resources") renderAnalytics(); }
   if (changed) window.scrollTo({top:0});
 }
+
+/* ---------- team + approvals ---------- */
+let apFilter = "pending", goalsDirty = false, noteFor = null;
+const KIND_LABEL = {post:"Post", ad:"Ad campaign", email:"Email outreach", deploy:"Go live (Netlify)", other:"Request"};
+
+function renderTeamPages(){
+  if (!S) return;
+  const aps = S.approvals || [];
+  const pending = aps.filter(a => a.status === "pending").length;
+  $("#bApprovals").textContent = pending || "";
+  $("#bApprovals").classList.toggle("alert", pending > 0);
+  if (route === "team") renderTeam();
+  if (route === "approvals" && noteFor === null) renderApprovals();
+}
+
+function renderTeam(){
+  const {state} = runState();
+  const live = state !== "idle" ? Object.entries(S.progress?.tasks || {}).map(([title, t]) => ({title, ...t})) : [];
+  const weekAgo = new Date(Date.now() - 6*864e5).toLocaleDateString("en-CA");
+  $("#agents").innerHTML = AGENTS.map(a => {
+    const now = live.find(t => a.types.includes(t.type));
+    const done7 = S.done.filter(d => d.status === "done" && a.types.includes(d.type) && d.date >= weekAgo).length;
+    const open = S.tasks.filter(t => a.types.includes(t.type)).length;
+    const waiting = (S.approvals || []).filter(x => x.status === "pending" && x.agent === a.name).length;
+    const initials = a.name.split(" ").map(w => w[0]).join("").slice(0, 2);
+    return `<div class="agent ${now ? "busy" : ""}" style="--c:var(${a.color})">
+      <div class="top"><span class="emblem">${initials}</span><div><h3>${esc(a.name)}</h3><div class="role">${esc(a.role)}</div></div></div>
+      <div class="does">${esc(a.does)}</div>
+      <div class="now">${now ? `<b>Working · step ${now.step}/${now.total}</b>${esc(now.title)}` : `<b>Idle</b>${open ? `${open} task${open>1?"s":""} waiting in the queue` : "Nothing assigned"}`}</div>
+      <div class="nums"><div>${done7}<span>Done 7d</span></div><div>${open}<span>Queued</span></div><div>${waiting}<span>Awaiting you</span></div></div>
+      <button class="btn sm" data-assign="${a.assign}">Assign a task</button>
+    </div>`;
+  }).join("");
+  if (!goalsDirty) $("#goals").value = S.goals || "";
+  const plans = S.outputs.filter(o => o.kind === "plans").slice(0, 3);
+  $("#plans").innerHTML = plans.length ? plans.map(o => `<li class="item"><div class="main"><button class="linky t" data-view="${esc(o.path)}">${esc(o.title)}</button><div class="d">${rel(o.modified)}</div></div></li>`).join("")
+    : `<li class="empty">The Manager writes its first plan at 8:30 AM.</li>`;
+}
+
+function renderApprovals(){
+  const aps = S.approvals || [];
+  const counts = s => aps.filter(a => s === "all" || a.status === s).length;
+  $("#apFilters").innerHTML = [["pending","Waiting"],["approved","Approved"],["done","Done"],["rejected","Rejected"],["all","All"]].map(([k,l]) =>
+    `<button class="chip" data-apf="${k}" aria-pressed="${k===apFilter}">${l} · ${counts(k) + (k==="done" ? counts("failed") : 0)}</button>`).join("");
+  const list = aps.filter(a => apFilter === "all" || a.status === apFilter || (apFilter === "done" && a.status === "failed"));
+  $("#approvalsList").innerHTML = list.length ? list.map(a => {
+    const ag = AGENTS.find(x => x.name === a.agent) || AGENTS[0];
+    const url = (a.result || "").match(/https?:\/\/\S+/);
+    const next = a.status === "approved" ? (a.kind === "deploy" ? "Goes live at the next approvals run." : "Approved. Ready for you to publish.") : "";
+    return `<li class="ap" data-ap="${esc(a.id)}">
+      <div style="min-width:0">
+        <div class="meta"><span class="pill ${a.status}">${esc(a.status)}</span><span class="tag" style="--c:var(${ag.color})">${esc(a.agent)}</span>
+          <span class="hint">${esc(KIND_LABEL[a.kind] || a.kind)}${a.platform ? " · " + esc(a.platform) : ""} · ${esc(rel(a.created))}</span></div>
+        <div class="t">${esc(a.title)}</div>
+        ${a.summary ? `<div class="d">${esc(a.summary)}</div>` : ""}
+        ${a.spend ? `<span class="spend">Proposed spend: ${esc(a.spend)}</span>` : ""}
+        ${a.note ? `<div class="d">Your note: ${esc(a.note)}</div>` : ""}
+        ${next ? `<div class="res" style="color:var(--ok)">${next}</div>` : ""}
+        ${a.result ? `<div class="res">${url ? `<a href="${esc(url[0])}" target="_blank" rel="noopener">${esc(a.result)}</a>` : esc(a.result)}</div>` : ""}
+      </div>
+      <div class="acts">
+        ${a.file ? `<button class="btn sm" data-view="${esc(a.file)}">Open</button>` : ""}
+        ${a.status === "pending" ? `<button class="btn sm ok" data-decide="approved">Approve</button><button class="btn sm no" data-decide="rejected">Reject…</button>` : ""}
+        ${a.status === "approved" || a.status === "rejected" ? `<button class="btn sm ghost" data-decide="pending">Undo</button>` : ""}
+      </div>
+    </li>`;
+  }).join("") : `<li class="empty">${apFilter === "pending" ? "Nothing is waiting for you." : "Nothing here yet."}</li>`;
+}
+
+async function decide(id, decision, note = ""){
+  try{ await api("/api/approvals/decide", {id, decision, note}); toast({approved:"Approved", rejected:"Rejected", pending:"Moved back to waiting"}[decision]); }
+  catch(err){ toast(err.message, true); }
+  noteFor = null; load();
+}
+
+$("#approvalsPage").addEventListener("click", e => {
+  const f = e.target.closest("[data-apf]"); if (f){ apFilter = f.dataset.apf; noteFor = null; renderApprovals(); return; }
+  const b = e.target.closest("[data-decide]"); if (!b) return;
+  const id = b.closest("[data-ap]").dataset.ap;
+  if (b.dataset.decide !== "rejected") return decide(id, b.dataset.decide);
+  // Reject asks for an optional note the team will read
+  noteFor = id;
+  const li = b.closest("[data-ap]");
+  li.querySelector(".note")?.remove();
+  li.insertAdjacentHTML("beforeend", `<form class="note" data-note><input type="text" name="note" placeholder="Optional: what should change? The team reads this." maxlength="300"><button class="btn sm no">Reject</button><button type="button" class="btn sm ghost" data-cancelnote>Cancel</button></form>`);
+  li.querySelector("input").focus();
+});
+$("#approvalsPage").addEventListener("submit", e => { e.preventDefault(); const f = e.target; decide(f.closest("[data-ap]").dataset.ap, "rejected", f.note.value); });
+$("#approvalsPage").addEventListener("click", e => { if (e.target.closest("[data-cancelnote]")){ noteFor = null; renderApprovals(); } });
+
+$("#agents").addEventListener("click", e => {
+  const b = e.target.closest("[data-assign]"); if (!b) return;
+  currentType = b.dataset.assign; renderTypeSeg(); location.hash = "#/queued";
+  setTimeout(() => $("#title").focus(), 60);
+});
+$("#goals").addEventListener("input", () => { goalsDirty = true; $("#goalsState").textContent = "Unsaved changes"; });
+$("#saveGoals").addEventListener("click", async () => {
+  try{ await api("/api/goals", {text: $("#goals").value}); goalsDirty = false; $("#goalsState").textContent = "Saved. The Manager uses these at its next plan."; toast("Goals saved"); }
+  catch(err){ toast(err.message, true); }
+});
 
 /* ---------- analytics (Resources → Analytics) ---------- */
 function renderAnalytics(){

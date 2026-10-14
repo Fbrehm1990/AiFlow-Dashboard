@@ -22,6 +22,9 @@ STEPS = {
     "docs": ["Reading inputs", "Transforming", "Checking output", "Writing notes"],
     "brief": ["Gathering news", "Writing brief"],
     "digest": ["Reading today's work", "Writing digest"],
+    "web": ["Planning the site", "Building", "Checking quality", "Handing off"],
+    "marketing": ["Researching audience", "Drafting", "Reviewing", "Submitting for approval"],
+    "plan": ["Reviewing work", "Planning", "Assigning tasks"],
     "other": ["Working"],
 }
 

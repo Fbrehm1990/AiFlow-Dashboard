@@ -21,15 +21,19 @@ HERE = Path(__file__).resolve().parent
 INBOX = ROOT / "tasks" / "inbox.md"
 DONE = ROOT / "tasks" / "done.md"
 RECURRING = ROOT / "tasks" / "recurring.md"
+GOALS = ROOT / "tasks" / "goals.md"
+APPROVALS = ROOT / "tasks" / "approvals.json"
 STATUS = ROOT / "tasks" / "status.json"
 READABLE = [ROOT / "outputs", ROOT / "logs", ROOT / "tasks"]
 OPENABLE_EXT = {".md", ".txt", ".csv", ".docx", ".xlsx", ".pptx", ".pdf", ".html", ".png", ".jpg", ".jpeg", ".patch", ".json"}
-TYPES = ["research", "code", "brief", "docs"]
+TYPES = ["research", "web", "marketing", "code", "brief", "docs", "plan"]
 PRIORITIES = ["high", "normal", "low"]
 
 # Mirrors the schedules in the Claude app (sidebar → Scheduled). Edit here if you change them there.
 SCHEDULES = [
     {"id": "ai-brief", "name": "Morning brief", "days": [0, 1, 2, 3, 4], "times": ["07:00"]},
+    {"id": "ai-manager", "name": "Manager plan", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["08:33"]},
+    {"id": "ai-approvals", "name": "Approved deploys", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["10:30", "13:30", "16:30", "19:30"]},
     {"id": "ai-queue", "name": "Queue worker", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["09:00", "12:00", "15:00"]},
     {"id": "ai-evening-digest", "name": "Evening digest", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["18:06"]},
 ]
@@ -139,6 +143,8 @@ def state():
         "logs": list_logs(),
         "schedules": SCHEDULES,
         "recurring": read(RECURRING),
+        "goals": read(GOALS),
+        "approvals": read_approvals(),
         "progress": read_status(),
         "stats": {
             "queued": sum(t["state"] == "queued" for t in tasks),
@@ -230,6 +236,31 @@ def edit_task(body, action):
     write(INBOX, "\n".join(lines) + "\n")
 
 
+def read_approvals():
+    try:
+        return json.loads(read(APPROVALS) or '{"items": []}').get("items", [])
+    except json.JSONDecodeError:
+        return []
+
+
+def decide_approval(body):
+    """Owner's decision on an agent's request. Only the dashboard (the owner) can approve or reject."""
+    decision = body.get("decision")
+    if decision not in ("approved", "rejected", "pending"):
+        raise ValueError("decision must be approved, rejected or pending")
+    import team  # shares the approvals file lock with the agents' helper
+    with team.Locked():
+        data = team.load()
+        item = next((i for i in data["items"] if i["id"] == body.get("id")), None)
+        if not item:
+            raise ValueError("That request no longer exists; refresh and try again")
+        if item["status"] not in ("pending", "approved", "rejected"):
+            raise ValueError("That request has already been carried out")
+        item.update(status=decision, note=one_line(body.get("note", "")),
+                    decided=datetime.now().isoformat(timespec="seconds") if decision != "pending" else None)
+        team.save(data)
+
+
 def dismiss_done(raw):
     """Mark a blocked entry in done.md as dismissed ([-]); the line itself stays as history."""
     lines = read(DONE).splitlines()
@@ -292,6 +323,10 @@ class Handler(BaseHTTPRequestHandler):
                 edit_task(body, route.rsplit("/", 1)[1])
             elif route == "/api/done/dismiss":
                 dismiss_done(body.get("raw", ""))
+            elif route == "/api/goals":
+                write(GOALS, str(body.get("text", "")).replace("\r\n", "\n"))
+            elif route == "/api/approvals/decide":
+                decide_approval(body)
             elif route == "/api/recurring":
                 write(RECURRING, str(body.get("text", "")).replace("\r\n", "\n"))
             elif route == "/api/open":
@@ -312,7 +347,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def seed_task_files():
     """First start on a fresh clone: create the personal task files from the committed examples."""
-    for p in (INBOX, DONE, RECURRING):
+    for p in (INBOX, DONE, RECURRING, GOALS):
         ex = p.with_name(p.stem + ".example.md")
         if not p.exists() and ex.exists():
             write(p, read(ex))
