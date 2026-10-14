@@ -24,6 +24,7 @@ DONE = ROOT / "tasks" / "done.md"
 RECURRING = ROOT / "tasks" / "recurring.md"
 GOALS = ROOT / "tasks" / "goals.md"
 APPROVALS = ROOT / "tasks" / "approvals.json"
+HISTORY = ROOT / "tasks" / "history.jsonl"
 STATUS = ROOT / "tasks" / "status.json"
 READABLE = [ROOT / "outputs", ROOT / "logs", ROOT / "tasks"]
 OPENABLE_EXT = {".md", ".txt", ".csv", ".docx", ".xlsx", ".pptx", ".pdf", ".html", ".png", ".jpg", ".jpeg", ".patch", ".json"}
@@ -170,6 +171,7 @@ def state():
         "sites": list_sites(),
         "approvals": read_approvals(),
         "progress": read_status(),
+        "history": read_history(),
         "stats": {
             "queued": sum(t["state"] == "queued" for t in tasks),
             "running": sum(t["state"] == "running" for t in tasks),
@@ -214,6 +216,35 @@ def add_task(body):
             end = i + 1
     lines[end:end] = [line, *extra]
     write(INBOX, "\n".join(lines) + "\n")
+    record_handoff(typ, title, summary, str(body.get("details") or ""))
+
+
+def record_handoff(typ, title, summary, details):
+    """Append who sent a task to whom to tasks/history.jsonl, for the crew hand-off trails and the timeline."""
+    if summary.startswith("step of your task"):
+        origin = "Manager"
+        first = details.splitlines()[0] if details else ""
+        project = first.split("Part of your request:", 1)[1].strip() if "Part of your request:" in first else title
+    elif summary.startswith("from Manager"):
+        origin, project = "Manager", title
+    elif summary.startswith("added from phone"):
+        origin, project = "You (phone)", title
+    else:
+        origin, project = "You", title
+    ev = {"ts": datetime.now().isoformat(timespec="seconds"), "event": "added", "title": title,
+          "type": typ, "from": origin, "project": project}
+    with open(HISTORY, "a", encoding="utf-8") as f:
+        f.write(json.dumps(ev) + "\n")
+
+
+def read_history(limit=400):
+    out = []
+    for ln in read(HISTORY).splitlines()[-limit:]:
+        try:
+            out.append(json.loads(ln))
+        except json.JSONDecodeError:
+            pass
+    return out
 
 
 def block_end(lines, i):

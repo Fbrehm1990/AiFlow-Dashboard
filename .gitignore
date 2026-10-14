@@ -22,3 +22,4 @@ tasks/approvals.lock
 tasks/approvals.tmp
 tasks/requests/
 tasks/dispatch.lock
+tasks/history.jsonl
