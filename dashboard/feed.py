@@ -150,7 +150,12 @@ def runs():
         if p.stat().st_mtime < cutoff:
             continue
         c = load_file(p, "main")
-        m = re.search(r'<scheduled-task name="([^"]+)"', c["meta"].get("first_prompt", ""))
+        fp = c["meta"].get("first_prompt", "")
+        m = re.search(r'<scheduled-task name="([^"]+)"', fp)
+        if not m:  # headless CLI runs started by dashboard/dispatch.py
+            m = re.search(r'<ai-workflow-run name="([^"]+)"', fp)
+            if m:
+                m = re.match(r"(.*)", "ai-" + m.group(1))
         if not m:
             continue
         live = time.time() - p.stat().st_mtime < LIVE_SECONDS

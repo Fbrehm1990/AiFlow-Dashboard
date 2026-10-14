@@ -20,8 +20,10 @@ description: Process the task inbox unattended. Routes "Team decides" tasks thro
      have room.
    - **Several steps.** The Manager has already submitted them as new tasks (marked "step of your task").
      Move the original to `tasks/done.md` as `- [x] … [auto] <title> → routed into N steps: <step titles>`.
-   Triage counts toward this run's 3 tasks only when it turned into a single task that ran.
-5. Process up to **3 tasks** this run (raise the limit only if they are small). For each task:
+   Triage counts toward this run's 6 tasks only when it turned into a single task that ran.
+5. Work in batches of up to 3 tasks at a time. When a batch finishes, re-read the inbox and take the next
+   batch, including steps the Manager split out of an owner task. Stop when the queue is empty or you've
+   finished **6 tasks** this run; anything left starts a new run at the next dispatch check. For each task:
    - Mark it `[~]` in the inbox and save the file.
    - Hand it to the right team member: Agent tool with `subagent_type` from the team table in `CLAUDE.md`
      (`researcher`, `web-builder`, `marketer`, `manager`), giving the full task text, the skill to follow,

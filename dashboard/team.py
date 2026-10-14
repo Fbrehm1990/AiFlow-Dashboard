@@ -166,6 +166,11 @@ def submit(a):
         if ns.by not in AGENTS or ns.type not in server.TYPES or ns.priority not in server.PRIORITIES or not getattr(ns, "title", ""):
             raise SystemExit("team: add-task needs by, type, title (and a valid priority)")
         add_task(ns)
+        try:  # start the team now if no run is active (a running queue worker picks it up itself)
+            import dispatch
+            print(json.dumps({"dispatch": " ".join(dispatch.start())}))
+        except Exception as e:
+            print(json.dumps({"dispatch": f"skipped: {e}"}))
     elif action == "approval-add":
         for k in ("platform", "summary", "file", "action", "spend", "site_dir", "site_name"):
             setattr(ns, k, getattr(ns, k, None))

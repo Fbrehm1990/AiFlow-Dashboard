@@ -82,7 +82,8 @@ def build():
                  for d in st["done"] if d["status"] == "done"][:25],
         "blocked": [{"title": d["title"], "type": d["type"], "date": d["date"], "reason": d["reason"]}
                     for d in st["done"] if d["status"] == "blocked"][:25],
-        "schedules": [{"name": s["name"], "next": next_run(s, now)} for s in server.SCHEDULES],
+        "schedules": [{"name": s["name"], "next": next_run(s, now), "event": bool(s.get("event"))}
+                      for s in server.SCHEDULES],
         "approvals": [{"title": a["title"], "agent": a["agent"], "kind": a["kind"], "platform": a.get("platform", ""),
                        "spend": a.get("spend", ""), "created": a["created"]}
                       for a in st.get("approvals", []) if a["status"] == "pending"][:20],

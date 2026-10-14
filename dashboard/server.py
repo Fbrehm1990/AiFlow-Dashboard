@@ -35,7 +35,11 @@ SCHEDULES = [
     {"id": "ai-brief", "name": "Morning brief", "days": [0, 1, 2, 3, 4], "times": ["07:00"]},
     {"id": "ai-manager", "name": "Manager plan", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["08:33"]},
     {"id": "ai-approvals", "name": "Approved deploys", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["10:30", "13:30", "16:30", "19:30"]},
-    {"id": "ai-queue", "name": "Queue worker", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["09:00", "12:00", "15:00"]},
+    {"id": "ai-phone-sync", "name": "Dispatch check", "days": [0, 1, 2, 3, 4, 5, 6],
+     "times": [f"{h:02d}:{m:02d}" for h in range(7, 23) for m in (0, 30)],
+     "note": "Every 30 min, 7 AM–11 PM: starts the team when tasks are waiting, syncs the phone"},
+    {"id": "ai-queue", "name": "Queue worker", "days": [0, 1, 2, 3, 4, 5, 6], "times": [], "event": True,
+     "note": "Starts automatically when tasks are waiting"},
     {"id": "ai-evening-digest", "name": "Evening digest", "days": [0, 1, 2, 3, 4, 5, 6], "times": ["18:06"]},
 ]
 
@@ -256,6 +260,20 @@ def edit_task(body, action):
     write(INBOX, "\n".join(lines) + "\n")
 
 
+def kick_dispatch():
+    """Start the team right away if work is waiting (needs the Claude Code CLI; otherwise the 30-min check does it)."""
+    import threading
+
+    def go():
+        try:
+            import dispatch
+            state, why = dispatch.start()
+            print(f"dispatch: {state}: {why}", flush=True)
+        except Exception as e:  # never let a failed launch break the dashboard
+            print(f"dispatch failed: {e}", flush=True)
+    threading.Thread(target=go, daemon=True).start()
+
+
 def read_approvals():
     try:
         return json.loads(read(APPROVALS) or '{"items": []}').get("items", [])
@@ -339,6 +357,7 @@ class Handler(BaseHTTPRequestHandler):
             route = urlparse(self.path).path
             if route == "/api/tasks":
                 add_task(body)
+                kick_dispatch()
             elif route in ("/api/tasks/delete", "/api/tasks/reset", "/api/tasks/priority", "/api/tasks/edit", "/api/tasks/move"):
                 edit_task(body, route.rsplit("/", 1)[1])
             elif route == "/api/done/dismiss":

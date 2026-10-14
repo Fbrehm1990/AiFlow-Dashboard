@@ -21,3 +21,4 @@ tasks/approvals.json
 tasks/approvals.lock
 tasks/approvals.tmp
 tasks/requests/
+tasks/dispatch.lock
