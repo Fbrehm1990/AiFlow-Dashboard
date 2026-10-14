@@ -28,6 +28,12 @@ Win web design clients.
 ## Channels
 Facebook / Instagram, TikTok, Google Ads (proposals only, the owner approves every dollar), email outreach (drafts only).
 
+## Agreed clients
+<!-- When a business agrees to work with you, add a line here. Only these get a live site on Netlify.
+     Example: - Example Diner: agreed 2026-10-20, real hours and menu in outputs/docs/diner-info.md -->
+(none yet: demo sites stay on this computer)
+
 ## Rules for the team
+- Demo sites stay local (outputs/sites). Nothing goes on Netlify until the business is listed under Agreed clients.
 - Ad spend: propose only; never more than [fill in] per day without asking.
 - Never contact a business; the owner does all outreach after approving it.

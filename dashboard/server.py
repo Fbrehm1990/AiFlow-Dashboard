@@ -2,6 +2,7 @@
 
 Stdlib only. Binds to 127.0.0.1 and rejects foreign Host headers and cross-site writes.
 """
+import html
 import json
 import os
 import re
@@ -104,6 +105,8 @@ def list_outputs():
     for p in base.rglob("*"):
         if not p.is_file() or p.name.startswith("."):  # skip .gitkeep and other hidden files
             continue
+        if p.relative_to(base).parts[0] == "sites":  # demo sites are listed by list_sites()
+            continue
         rel = p.relative_to(ROOT).as_posix()
         title = p.stem
         if p.suffix == ".md":
@@ -117,6 +120,22 @@ def list_outputs():
                     "modified": datetime.fromtimestamp(st.st_mtime).isoformat(timespec="minutes")})
     out.sort(key=lambda o: o["modified"], reverse=True)
     return out
+
+
+def list_sites():
+    """Local demo sites: outputs/sites/<slug>/index.html, with the Web builder's summary if one matches."""
+    base = ROOT / "outputs" / "sites"
+    sites = []
+    for idx in base.glob("*/index.html"):
+        slug = idx.parent.name
+        m = re.search(r"<title>(.*?)</title>", read(idx)[:4000], re.S | re.I)
+        summary = next(iter(sorted((ROOT / "outputs" / "web").glob(f"*{slug}*.md"), reverse=True)), None)
+        sites.append({"slug": slug, "title": html.unescape(" ".join((m.group(1) if m else slug).split())),
+                      "path": idx.relative_to(ROOT).as_posix(),
+                      "summary": summary.relative_to(ROOT).as_posix() if summary else "",
+                      "modified": datetime.fromtimestamp(max(f.stat().st_mtime for f in idx.parent.rglob("*") if f.is_file())).isoformat(timespec="minutes")})
+    sites.sort(key=lambda s: s["modified"], reverse=True)
+    return sites
 
 
 def list_logs():
@@ -144,6 +163,7 @@ def state():
         "schedules": SCHEDULES,
         "recurring": read(RECURRING),
         "goals": read(GOALS),
+        "sites": list_sites(),
         "approvals": read_approvals(),
         "progress": read_status(),
         "stats": {

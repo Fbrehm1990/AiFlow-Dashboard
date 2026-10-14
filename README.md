@@ -59,7 +59,7 @@ tool set**, work toward the owner's goals in `tasks/goals.md`:
 |---|---|---|---|
 | **Manager** | Operations lead. Each morning it reviews the team's output (marking each deliverable ✅ or ⚠), plans toward the goals, and **assigns tasks** (marked *from Manager*). Each evening it writes the owner's report. | `[plan]` | Files and shell only. **It has no web access**, so outside content can't steer the team's decisions. |
 | **Researcher** | Leads, markets, competitors, pricing; briefs and data work | `[research]` `[brief]` `[docs]` | Files, shell, web search and page fetching |
-| **Web builder** | Demo and client sites: static, mobile-first, accessible, local SEO, Netlify-ready, each in its own repo | `[web]` `[code]` | Files, shell, web (for documentation) |
+| **Web builder** | **Demo sites stay local.** Each demo is saved in `outputs/sites/` and opened with one click from the dashboard. A real client site, in its own repo and ready for Netlify, is built only after the business agrees. All sites are static, mobile-first, accessible and set up for local SEO. | `[web]` `[code]` | Files, shell, web (for documentation) |
 | **Marketer** | Facebook/Instagram, TikTok, Google Ads and email outreach. Every piece is ready to publish, with character-counted ad copy and CAN-SPAM-compliant email. | `[marketing]` | Files, shell, web |
 
 **Hand-offs.** Every deliverable ends with suggested next tasks for the other agents. The Manager turns them
@@ -71,7 +71,7 @@ showing the demo.
 spends. Setting `Manager autonomy: paused` in the goals file makes it plan only, without assigning anything.
 
 **Approvals.** Agents submit anything public or paid (posts, ad campaigns with proposed spend, email
-sequences, site deploys) through `dashboard/team.py approval-add`. The owner approves or rejects each item on
+sequences, and deploys of sites for businesses the owner lists as agreed) as request files submitted with `dashboard/team.py submit`. Demo sites are never deployed. The owner approves or rejects each item on
 the dashboard's **Approvals** page and can leave a note the team reads. Approved Netlify deploys are carried
 out by the *Approved deploys* schedule. Approved posts, ads and emails are published by the owner. Agents
 can't change a decision, and the helper refuses to mark an item done unless the owner approved it.

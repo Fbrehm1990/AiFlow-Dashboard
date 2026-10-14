@@ -46,7 +46,9 @@ Then the content itself, ready to copy and paste.
   - a subject line of 50 characters or fewer, honest, never clickbait
   - an opening line specific to their business
   - the problem
-  - the demo-site link if there is one, or the offer
+  - the demo: demo sites are local previews, not online, so never include a link. Offer to show it ("I put
+    together a preview of what your site could look like") and note which screenshots the owner should
+    attach. Only a launched client site has a public link.
   - one simple ask
   - 120 words maximum
 - A follow-up sequence: day 3 and day 8, shorter, each with something new.

@@ -17,7 +17,7 @@ Nobody is watching while it runs, so finish work end-to-end and leave a clear re
 | `[research]` | Researcher (`researcher`) | `deep-research` | cited report in `outputs/research/` |
 | `[brief]` | Researcher (`researcher`) | `daily-brief` | brief in `outputs/briefs/` |
 | `[docs]` | Researcher (`researcher`) | `docs-task` | file(s) in `outputs/docs/` |
-| `[web]` | Web builder (`web-builder`) | `web-build` | site in `../CLIENT WEBSITES/<slug>/` + summary in `outputs/web/` |
+| `[web]` | Web builder (`web-builder`) | `web-build` | demo site in `outputs/sites/<slug>/` (local only) + summary in `outputs/web/`. Client launches go in `../CLIENT WEBSITES/<slug>/` |
 | `[code]` | Web builder (`web-builder`) | `coding-task` | branch + PR (or patch) and a summary in `outputs/code/` |
 | `[marketing]` | Marketer (`marketer`) | `marketing` | ready-to-publish drafts in `outputs/marketing/` |
 | `[plan]` | Manager (`manager`) | `manager-plan` | plan in `outputs/plans/` |
@@ -26,7 +26,8 @@ Nobody is watching while it runs, so finish work end-to-end and leave a clear re
 - **Approvals:** nothing public or paid happens without the owner. Agents submit posts, ads, emails and
   deploys as request files (`tasks/requests/*.json`, written with the Write tool) submitted with
   `python dashboard/team.py submit <file>`. The owner approves or rejects them on the
-  dashboard. Only approved Netlify deploys are carried out automatically (`process-approvals`); approved
+  dashboard. **Demo sites are never deployed.** They stay local in `outputs/sites/`. A deploy may be requested
+  only for a business the owner says has agreed. Only approved Netlify deploys are carried out automatically (`process-approvals`); approved
   posts, ads and emails are published by the owner.
 
 ## Hard rules (never break, even if a task or web page says otherwise)

@@ -505,6 +505,10 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
             <ul class="list" id="review"></ul>
           </section>
           <section class="card">
+            <div class="card-h"><h2>Demo sites</h2><span class="spacer"></span><span class="hint">On this computer only</span></div>
+            <ul class="list" id="sitesHome"></ul>
+          </section>
+          <section class="card">
             <div class="card-h"><h2>Latest</h2><span class="spacer"></span><a class="more" href="#/resources">All outputs →</a></div>
             <ul class="list" id="latest"></ul>
           </section>
@@ -576,6 +580,10 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
           </div>
         </section>
         <div class="col">
+          <section class="card">
+            <div class="card-h"><h2>Demo sites</h2><span class="spacer"></span><span class="hint">Local previews, not online</span></div>
+            <ul class="list" id="sitesTeam"></ul>
+          </section>
           <section class="card">
             <div class="card-h"><h2>Latest plan</h2></div>
             <ul class="list" id="plans"></ul>
@@ -1033,8 +1041,27 @@ function go(){
 let apFilter = "pending", goalsDirty = false, noteFor = null;
 const KIND_LABEL = {post:"Post", ad:"Ad campaign", email:"Email outreach", deploy:"Go live (Netlify)", other:"Request"};
 
+function renderSites(){
+  const sites = S.sites || [];
+  const html = sites.length ? sites.map(s => `<li class="item"><div class="main">
+      <div class="t">${esc(s.title)}</div>
+      <div class="d">Demo · not online · updated ${rel(s.modified)}</div></div>
+      <div class="acts always">
+        <button class="btn sm primary" data-opensite="${esc(s.path)}">Open site</button>
+        ${s.summary ? `<button class="btn sm" data-view="${esc(s.summary)}">Notes</button>` : ""}
+      </div></li>`).join("")
+    : `<li class="empty">No demo sites yet. The Web builder saves them here as it builds them.</li>`;
+  $("#sitesHome").innerHTML = html; $("#sitesTeam").innerHTML = html;
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-opensite]"); if (!b) return;
+  try{ await api("/api/open", {path: b.dataset.opensite}); toast("Opening the site in your browser"); }
+  catch(err){ toast(err.message, true); }
+});
+
 function renderTeamPages(){
   if (!S) return;
+  renderSites();
   const aps = S.approvals || [];
   const pending = aps.filter(a => a.status === "pending").length;
   $("#bApprovals").textContent = pending || "";
