@@ -70,6 +70,21 @@ def now():
 
 
 def add_task(a):
+    # Steps the Manager creates to carry out a task the OWNER wrote ("Team decides") don't count against its own
+    # planning limits, but one owner task may become at most 5 steps.
+    if getattr(a, "for_owner_task", None):
+        today = datetime.now().strftime("%Y-%m-%d")
+        key = server.one_line(a.for_owner_task)[:80]
+        log = ROOT / "logs" / f"{today}.md"
+        if server.read(log).count(f"[owner-task-step] {key}") >= 5:
+            raise SystemExit("team: an owner task can be split into at most 5 steps")
+        server.add_task({"type": a.type, "priority": a.priority, "title": a.title,
+                         "summary": "step of your task", "details": f"Part of your request: {a.for_owner_task}\n{a.details or ''}"})
+        log.parent.mkdir(exist_ok=True)
+        with open(log, "a", encoding="utf-8") as f:
+            f.write(f"- {datetime.now():%H:%M} [owner-task-step] {key}: [{a.type}] {server.one_line(a.title)}\n")
+        print(json.dumps({"added": a.title, "type": a.type, "step_of": a.for_owner_task}))
+        return
     if a.by == "Manager":
         tasks = server.parse_inbox()
         mine = [t for t in tasks if "from Manager" in t["details"]]
@@ -144,8 +159,10 @@ def submit(a):
     action = req.pop("action", None)
     ns = argparse.Namespace(**{k.replace("-", "_"): v for k, v in req.items()})
     if action == "add-task":
-        for k, d in (("priority", "normal"), ("details", "")):
+        for k, d in (("priority", "normal"), ("details", ""), ("for_owner_task", None)):
             setattr(ns, k, getattr(ns, k, None) or d)
+        if ns.type == "auto":
+            raise SystemExit("team: route the task to a real type (research, web, marketing, code, brief, docs)")
         if ns.by not in AGENTS or ns.type not in server.TYPES or ns.priority not in server.PRIORITIES or not getattr(ns, "title", ""):
             raise SystemExit("team: add-task needs by, type, title (and a valid priority)")
         add_task(ns)

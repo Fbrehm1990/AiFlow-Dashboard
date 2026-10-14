@@ -122,7 +122,7 @@ def import_tasks(path):
         doc_id = str(d.get("id") or d.get("doc_id") or body.get("id") or "")
         if not doc_id or doc_id in imported or body.get("status") != "new":
             continue
-        typ = body.get("type") if body.get("type") in server.TYPES else "research"
+        typ = body.get("type") if body.get("type") in server.TYPES else "auto"
         prio = body.get("priority") if body.get("priority") in server.PRIORITIES else "normal"
         details = str(body.get("details") or "")
         server.add_task({"type": typ, "priority": prio, "title": body.get("title", ""),

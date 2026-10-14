@@ -12,7 +12,7 @@
   --fg:#e4ebff; --muted:#8792b0;
   --accent:#46e3ff; --accent-2:#8f7bff; --accent-ink:#04111c; --accent-soft:rgba(70,227,255,.10);
   --ok:#38f2a6; --ok-soft:rgba(56,242,166,.12); --warn:#ffc65c; --warn-soft:rgba(255,198,92,.12); --bad:#ff5d7a; --bad-soft:rgba(255,93,122,.12);
-  --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5;
+  --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5; --auto:#8792b0;
   --glow:0 0 0 1px rgba(70,227,255,.35), 0 0 18px rgba(70,227,255,.18);
   --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -208,7 +208,7 @@ a{color:var(--accent)}
 <div id="toastRoot"></div>
 
 <script>
-const TYPES = {research:"Research", web:"Website", marketing:"Marketing", code:"Code", brief:"Brief", docs:"Docs & data", plan:"Plan"};
+const TYPES = {auto:"Team decides", research:"Research", web:"Website", marketing:"Marketing", code:"Code", brief:"Brief", docs:"Docs & data", plan:"Plan"};
 const TYPE_NOTE = {
   research:"Researcher: a cited report with a recommendation.",
   web:"Web builder: builds a site. Going live needs your approval.",
@@ -350,25 +350,18 @@ function blockedView(){
 
 /* ---------- add task sheet ---------- */
 function openSheet(pre = {}){
-  let type = pre.type && TYPES[pre.type] ? pre.type : "research";
+  let type = pre.type && TYPES[pre.type] ? pre.type : "auto";   // the team routes new tasks itself
   $("#sheetRoot").innerHTML = `<div class="sheet-bg" data-close></div>
     <form class="sheet" id="addForm" role="dialog" aria-modal="true" aria-label="${pre.retry ? "Retry task" : "Add a task"}"><div class="in">
       <h2>${pre.retry ? "Retry task" : "New task"}</h2>
-      <div class="types" id="types">${Object.entries(TYPES).map(([k, l]) => `<button type="button" data-type="${k}" style="--c:var(--${k})" aria-pressed="${k === type}">${l}</button>`).join("")}</div>
-      <div class="note" id="typeNote" style="padding:0">${TYPE_NOTE[type]}</div>
-      <div><label class="f" for="fTitle">What should it do?</label><input type="text" id="fTitle" maxlength="300" required value="${esc(pre.title || "")}" placeholder="e.g. Compare website builders for a bakery"></div>
+      <div class="note" style="padding:0">${pre.retry ? "Goes back to the same team member, with your answer." : "Your team decides who handles it, or splits it into steps."}</div>
+      <div><label class="f" for="fTitle">What do you need?</label><input type="text" id="fTitle" maxlength="300" required value="${esc(pre.title || "")}" placeholder="e.g. Win Glazed Empire Bakery as a client"></div>
       ${pre.retry ? `<div class="reason"><b>Why it was blocked:</b> ${esc(pre.reason || "no reason given")}</div>` : ""}
       <div><label class="f" for="fDetails">${pre.retry ? "Your answer: what should the next attempt know?" : "Details (optional)"}</label><textarea id="fDetails" ${pre.retry ? "required" : ""} placeholder="${pre.retry ? "e.g. the location, repo or file it needs" : "Scope, format, sources, repo for code tasks…"}"></textarea></div>
       <div><label class="f" for="fPrio">Priority</label><select id="fPrio"><option value="high">High</option><option value="normal" selected>Normal</option><option value="low">Low</option></select></div>
       <div class="err" id="fErr" hidden></div>
       <div class="acts"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn primary" id="fSave">Add to queue</button></div>
     </div></form>`;
-  $("#types").addEventListener("click", e => {
-    const b = e.target.closest("[data-type]"); if (!b) return;
-    type = b.dataset.type;
-    document.querySelectorAll("#types button").forEach(x => x.setAttribute("aria-pressed", x === b));
-    $("#typeNote").textContent = TYPE_NOTE[type];
-  });
   $("#addForm").addEventListener("submit", async e => {
     e.preventDefault();
     const title = $("#fTitle").value.trim(); if (!title) return;

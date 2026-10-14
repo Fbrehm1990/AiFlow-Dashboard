@@ -1,6 +1,6 @@
 ---
 name: run-queue
-description: Process the task inbox unattended. Picks open tasks from tasks/inbox.md by priority and dispatches each to the matching skill (deep-research, coding-task, daily-brief, docs-task). Use when asked to "run the queue", "work the inbox", or by the scheduled worker.
+description: Process the task inbox unattended. Routes "Team decides" tasks through the Manager, then hands up to 3 tasks by priority to the right team agent (researcher, web-builder, marketer). Use when asked to "run the queue", "work the inbox", or by the scheduled worker.
 ---
 
 # Run the queue
@@ -12,7 +12,16 @@ description: Process the task inbox unattended. Picks open tasks from tasks/inbo
 2. Collect the open `- [ ]` tasks under `## Queue`. Skip `- [~]` (in progress elsewhere).
    If a `[~]` task's log entry is more than 3 hours old, treat it as stale and reset it to `[ ]`.
 3. Order them by priority: high, then normal, then low. Within a priority, take them top to bottom.
-4. Process up to **3 tasks** this run (raise the limit only if they are small). For each task:
+4. **Route "Team decides" tasks first** (`[auto]`, or no tag). For each one, mark it `[~]` and hand it to the
+   `manager` agent with the instruction "Triage this owner task", as described in `.claude/agents/manager.md`.
+   The Manager answers with one of two things:
+   - **One agent** (route `research`, `web`, `marketing`, `code`, `brief` or `docs`). Rewrite the inbox line's tag
+     from `[auto]` to that type, set it back to `[ ]`, and treat it as a normal task in this same run if you
+     have room.
+   - **Several steps.** The Manager has already submitted them as new tasks (marked "step of your task").
+     Move the original to `tasks/done.md` as `- [x] … [auto] <title> → routed into N steps: <step titles>`.
+   Triage counts toward this run's 3 tasks only when it turned into a single task that ran.
+5. Process up to **3 tasks** this run (raise the limit only if they are small). For each task:
    - Mark it `[~]` in the inbox and save the file.
    - Hand it to the right team member: Agent tool with `subagent_type` from the team table in `CLAUDE.md`
      (`researcher`, `web-builder`, `marketer`, `manager`), giving the full task text, the skill to follow,
@@ -21,5 +30,5 @@ description: Process the task inbox unattended. Picks open tasks from tasks/inbo
      `general-purpose` with the agent's file (`.claude/agents/<name>.md`) pasted in as its instructions.
    - When it returns, check the deliverable exists and is non-trivial. If it is weak, do one improvement pass.
    - Do the bookkeeping from `CLAUDE.md` (move the task to done.md and append to the log).
-5. If the inbox is empty, append "queue empty" to the log and stop. Don't invent work.
-6. Finish with a 3–5 line summary of what was done and where the outputs are.
+6. If the inbox is empty, append "queue empty" to the log and stop. Don't invent work.
+7. Finish with a 3–5 line summary of what was done, which agent did each task, and where the outputs are.

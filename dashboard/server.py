@@ -27,7 +27,7 @@ APPROVALS = ROOT / "tasks" / "approvals.json"
 STATUS = ROOT / "tasks" / "status.json"
 READABLE = [ROOT / "outputs", ROOT / "logs", ROOT / "tasks"]
 OPENABLE_EXT = {".md", ".txt", ".csv", ".docx", ".xlsx", ".pptx", ".pdf", ".html", ".png", ".jpg", ".jpeg", ".patch", ".json"}
-TYPES = ["research", "web", "marketing", "code", "brief", "docs", "plan"]
+TYPES = ["auto", "research", "web", "marketing", "code", "brief", "docs", "plan"]  # "auto": the team routes it
 PRIORITIES = ["high", "normal", "low"]
 
 # Mirrors the schedules in the Claude app (sidebar → Scheduled). Edit here if you change them there.

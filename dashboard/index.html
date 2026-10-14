@@ -19,7 +19,7 @@
   --accent:#46e3ff; --accent-2:#8f7bff; --accent-ink:#04111c; --accent-soft:rgba(70,227,255,.10);
   --danger:#ff5d7a; --danger-soft:rgba(255,93,122,.12); --ok:#38f2a6; --ok-soft:rgba(56,242,166,.12); --warn:#ffc65c; --warn-soft:rgba(255,198,92,.12);
   --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --other:#8792b0;
-  --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5;
+  --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5; --auto:#8792b0;
   --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
   --glow:0 0 0 1px rgba(70,227,255,.35), 0 0 18px rgba(70,227,255,.18);
@@ -527,28 +527,23 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
         <section class="card" id="newTaskCard" data-only="queued">
           <div class="card-h"><h2>New task</h2><span class="spacer"></span><span class="hint hide-sm">Picked up by the next queue run</span></div>
           <form class="card-b" id="taskForm" autocomplete="off">
-            <div class="seg" id="typeSeg" role="group" aria-label="Task type"></div>
-            <div class="row">
+            <div class="row" style="margin-top:0">
               <div>
-                <label class="f" for="title">What should it do?</label>
-                <input type="text" id="title" required maxlength="300" placeholder="e.g. Compare Stripe vs Square fees for a small design studio">
+                <label class="f" for="title" style="margin-top:0">What do you need?</label>
+                <input type="text" id="title" required maxlength="300" placeholder="e.g. Win Glazed Empire Bakery as a client · or · Compare website builders for restaurants">
               </div>
               <div>
                 <label class="f" for="priority">Priority</label>
                 <select id="priority"><option value="high">High</option><option value="normal" selected>Normal</option><option value="low">Low</option></select>
               </div>
             </div>
-            <div id="repoWrap" class="hidden">
-              <label class="f" for="repo">Repository: a local path or GitHub owner/repo</label>
-              <input type="text" id="repo" list="repoList" placeholder="C:\path\to\my-site  or  owner/repo">
-              <datalist id="repoList"></datalist>
-            </div>
-            <label class="f" for="details">Details, requirements and links (optional)</label>
-            <textarea id="details" rows="3" placeholder="Anything that helps: scope, format, sources to use or avoid, acceptance criteria…"></textarea>
+            <label class="f" for="details">Details (optional)</label>
+            <textarea id="details" rows="3" placeholder="Anything that helps: goal, deadline, links, files, repo or folder, what a good result looks like…"></textarea>
             <div class="form-foot">
               <button class="btn primary" type="submit" id="addBtn">Add to queue</button>
               <span class="hint" id="typeHint"></span>
             </div>
+            <datalist id="repoList"></datalist>
           </form>
         </section>
 
@@ -694,6 +689,7 @@ const TYPES = {
   brief:{label:"Brief", hint:"Researcher · short, cited news or status brief → outputs/briefs"},
   docs:{label:"Docs & data", hint:"Researcher · documents, spreadsheets and data cleanup; originals are never changed → outputs/docs"},
   plan:{label:"Plan", hint:"Manager · plans something and assigns the work to the team → outputs/plans"},
+  auto:{label:"Team decides", hint:"The Manager routes it to the right agent, or splits it across the team"},
 };
 const KIND_TYPE = {research:"research", web:"web", marketing:"marketing", plans:"plan", code:"code", briefs:"brief", docs:"docs", digests:"plan"};
 const AGENTS = [
@@ -707,7 +703,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cssType = t => `--c:var(--${TYPES[t] || t==="other" ? t : "other"})`;
 const typeTag = t => `<span class="tag" style="${cssType(t)}">${esc(TYPES[t]?.label || t)}</span>`;
-let S = null, currentType = "research", viewing = null, recurringDirty = false;
+let S = null, currentType = "auto", viewing = null, recurringDirty = false;
 
 async function api(path, body){
   const opt = body === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json","X-AIWF":"1"}, body:JSON.stringify(body)};
@@ -756,11 +752,14 @@ function daysLabel(days){
 function to12(t){ const [h,m] = t.split(":").map(Number); return new Date(2000,0,1,h,m).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}); }
 
 /* ---------- render ---------- */
+// The team routes new tasks itself. "Assign a task" on the Team page can still aim one at a specific agent.
 function renderTypeSeg(){
-  $("#typeSeg").innerHTML = Object.entries(TYPES).map(([k,v]) =>
-    `<button type="button" data-type="${k}" aria-pressed="${k===currentType}" style="${cssType(k)}"><span class="dot"></span>${v.label}</button>`).join("");
-  $("#typeHint").textContent = TYPES[currentType].hint;
-  $("#repoWrap").classList.toggle("hidden", currentType !== "code");
+  if (currentType === "auto"){
+    $("#typeHint").textContent = "The team decides who handles it. The Manager routes it, or splits it into steps across the team.";
+  } else {
+    const a = agentOf(currentType);
+    $("#typeHint").innerHTML = `For the ${esc(a.name)} · <button type="button" class="linky" id="clearAssign">let the team decide instead</button>`;
+  }
 }
 
 function render(){
@@ -1365,15 +1364,16 @@ async function load(){
 }
 
 /* ---------- events ---------- */
-$("#typeSeg").addEventListener("click", e => { const b = e.target.closest("[data-type]"); if (b){ currentType = b.dataset.type; renderTypeSeg(); } });
+$("#taskForm").addEventListener("click", e => { if (e.target.closest("#clearAssign")){ currentType = "auto"; renderTypeSeg(); } });
 
 $("#taskForm").addEventListener("submit", async e => {
   e.preventDefault();
   const title = $("#title").value.trim(); if (!title) return $("#title").focus();
   $("#addBtn").disabled = true;
   try{
-    await api("/api/tasks", {type:currentType, priority:$("#priority").value, title, details:$("#details").value, repo:$("#repo").value});
+    await api("/api/tasks", {type:currentType, priority:$("#priority").value, title, details:$("#details").value});
     $("#title").value = ""; $("#details").value = ""; $("#priority").value = "normal";
+    currentType = "auto"; renderTypeSeg();
     toast("Added to queue"); await load();
   }catch(err){ toast(err.message, true); }
   $("#addBtn").disabled = false;

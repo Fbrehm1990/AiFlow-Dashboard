@@ -21,6 +21,9 @@ Nobody is watching while it runs, so finish work end-to-end and leave a clear re
 | `[code]` | Web builder (`web-builder`) | `coding-task` | branch + PR (or patch) and a summary in `outputs/code/` |
 | `[marketing]` | Marketer (`marketer`) | `marketing` | ready-to-publish drafts in `outputs/marketing/` |
 | `[plan]` | Manager (`manager`) | `manager-plan` | plan in `outputs/plans/` |
+| `[auto]` (or no tag) | Manager triages | see `run-queue` | routed to one agent, or split into steps marked "step of your task" |
+
+The owner usually adds tasks without choosing an agent (`[auto]`, "Team decides"). The team routes them.
 
 - `tasks/goals.md` holds the owner's business goals. The Manager plans toward them.
 - **Approvals:** nothing public or paid happens without the owner. Agents submit posts, ads, emails and
