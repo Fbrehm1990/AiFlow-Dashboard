@@ -578,7 +578,7 @@ if __name__ == "__main__":
         print(f"Dashboard already running at {url}")
         webbrowser.open(url)
         sys.exit(0)
-    print(f"AI Workflow dashboard: {url}  (Ctrl+C to stop)")
+    print(f"AiFLOW dashboard: {url}  (Ctrl+C to stop)")
     if "--no-browser" not in sys.argv:
         webbrowser.open(url)
     try:

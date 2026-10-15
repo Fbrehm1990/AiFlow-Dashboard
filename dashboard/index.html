@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Workflow</title>
+<title>AiFLOW</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2307101f'/><rect x='1' y='1' width='30' height='30' rx='7' fill='none' stroke='%2346e3ff' stroke-width='2'/><path d='M9 17l4 4 10-10' stroke='%2346e3ff' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -300,7 +300,7 @@ h1,h2,h3,.brand,.act-title,.stat .n,.kpi .n,.count .v{font-family:var(--display)
 
 /* sidebar */
 .side{background:rgba(7,11,22,.82);border-right:1px solid var(--border);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.brand{font-size:16px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.brand{font-size:16px;font-weight:700;letter-spacing:.06em;text-transform:none}
 .logo{background:#07101f;color:var(--accent);border:1.5px solid var(--accent);box-shadow:var(--glow);border-radius:9px}
 .nav-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:#5f6a88}
 .nav a,.nav button{border:1px solid transparent}
@@ -618,7 +618,7 @@ body{zoom:1.14}
 
 <div class="app">
   <aside class="side" id="side" aria-label="Main navigation">
-    <a class="brand" href="#/"><span class="logo">✓</span>AI Workflow</a>
+    <a class="brand" href="#/"><span class="logo">✓</span>AiFLOW</a>
     <nav class="nav">
       <a href="#/" data-route=""><svg class="i"><use href="#i-home"/></svg>Overview</a>
       <div class="nav-label">Hub</div>
@@ -1257,7 +1257,7 @@ function go(){
   document.querySelectorAll(".nav a[data-route]").forEach(a => a.classList.toggle("active", a.dataset.route === route));
   $("#resBtn").classList.toggle("active", route === "resources");
   $("#pageTitle").textContent = PAGES[route].title; $("#pageDesc").textContent = PAGES[route].desc;
-  document.title = route ? `${PAGES[route].title} · AI Workflow` : "AI Workflow";
+  document.title = route ? `${PAGES[route].title} · AiFLOW` : "AiFLOW";
   if (S){ renderPage(); renderTeamPages(); if (route === "") renderOverview(); if (route === "aiflow") renderCrew(); if (route === "resources") renderAnalytics(); }
   if (changed) window.scrollTo({top:0});
 }
@@ -2009,7 +2009,7 @@ function haSetup(box, cams){
       <li><b>Run Home Assistant:</b> on a Home Assistant Green, or in VirtualBox on any computer at home (this PC or a laptop). Claude has the step-by-step.</li>
       <li>Open <b>http://homeassistant.local:8123</b> and create your Home Assistant account.</li>
       <li>In Home Assistant: <b>Settings → Devices &amp; services → Add integration</b>, then add <b>Ring</b>, <b>ecobee</b>, <b>Govee lights local</b> and <b>Alexa Devices</b>. You sign in to each one there.</li>
-      <li>Click your name (bottom left) → <b>Security</b> → <b>Long-lived access tokens</b> → <b>Create token</b>. Name it "AI Workflow" and copy it.</li>
+      <li>Click your name (bottom left) → <b>Security</b> → <b>Long-lived access tokens</b> → <b>Create token</b>. Name it "AiFLOW" and copy it.</li>
       <li>Paste it below. It's stored only on this PC and only ever sent to your own Home Assistant.</li>
     </ol>
     <form id="haForm" autocomplete="off" style="margin-top:12px">

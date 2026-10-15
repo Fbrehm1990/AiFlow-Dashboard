@@ -37,10 +37,39 @@ def check():
             return "IDLE", f"{len(waiting)} waiting, but a run is already working ({run.get('name')})"
     if not waiting:
         return "IDLE", "nothing waiting in the queue"
-    # A run that was just launched hasn't reported progress yet: don't launch a second one.
-    if LOCK.exists() and time.time() - LOCK.stat().st_mtime < 300:
+    # A run that was just launched hasn't reported progress yet: don't launch a second one,
+    # unless that launch has already died (for example on a sign-in hiccup).
+    if LOCK.exists() and time.time() - LOCK.stat().st_mtime < 300 and _alive(_lock_pid()):
         return "IDLE", f"{len(waiting)} waiting; a run was started in the last 5 minutes"
     return "START", f"{len(waiting)} task(s) waiting"
+
+
+def _lock_pid():
+    try:
+        return int(LOCK.read_text(encoding="utf-8").split()[1])
+    except (OSError, IndexError, ValueError):
+        return None
+
+
+def _alive(pid):
+    """Is the launched CLI process still running? (No pid recorded: assume it is.)"""
+    if not pid:
+        return True
+    if os.name != "nt":
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+    import ctypes  # os.kill(pid, 0) would terminate the process on Windows, so ask the OS instead
+    k = ctypes.windll.kernel32
+    h = k.OpenProcess(0x1000, False, pid)            # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return False
+    code = ctypes.c_ulong()
+    ok = k.GetExitCodeProcess(h, ctypes.byref(code))
+    k.CloseHandle(h)
+    return bool(ok) and code.value == 259           # STILL_ACTIVE
 
 
 def cli_path():
@@ -65,15 +94,27 @@ def start():
     exe = cli_path()
     if not exe or not cli_ready(exe):
         return "NO_CLI", "Claude Code CLI not installed or not signed in"
-    LOCK.write_text(datetime.now().isoformat(timespec="seconds"), encoding="utf-8")
     RUN_LOGS.mkdir(parents=True, exist_ok=True)
-    log = open(RUN_LOGS / f"{datetime.now():%Y-%m-%d_%H%M%S}.log", "w", encoding="utf-8")
     flags = 0
     if os.name == "nt":  # survive the dashboard closing; no console window
         flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
-    subprocess.Popen([exe, "-p", PROMPT.read_text(encoding="utf-8")], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
-                     stdin=subprocess.DEVNULL, creationflags=flags, close_fds=True)
-    return "STARTED", why
+    for attempt in range(3):
+        path = RUN_LOGS / f"{datetime.now():%Y-%m-%d_%H%M%S}.log"
+        with open(path, "w", encoding="utf-8") as log:
+            proc = subprocess.Popen([exe, "-p", PROMPT.read_text(encoding="utf-8")], cwd=ROOT, stdout=log,
+                                    stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, creationflags=flags, close_fds=True)
+        LOCK.write_text(f"{datetime.now().isoformat(timespec='seconds')} {proc.pid}", encoding="utf-8")
+        # A launch that dies within seconds hit a hiccup (e.g. two processes refreshing the sign-in at once):
+        # wait a moment and try again instead of leaving the queue stuck until the next check.
+        for _ in range(20):
+            time.sleep(2)
+            if proc.poll() is not None:
+                break
+        if proc.poll() is None or proc.returncode == 0:
+            return "STARTED", why
+        time.sleep(30)
+    LOCK.unlink(missing_ok=True)
+    return "FAILED", f"the run exited at once 3 times; see {path.relative_to(ROOT)}"
 
 
 if __name__ == "__main__":
