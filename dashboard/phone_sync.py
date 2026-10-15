@@ -99,12 +99,32 @@ def build():
                     for o in reports],
     }
     # Jarvis-as-hub on the phone: weather and the latest news brief travel with each sync
+    import hub
     try:
-        import hub
-        wx = hub.weather()
+        wx = hub.forecast()
         state["weather"] = {k: wx[k] for k in ("place", "now", "today", "tomorrow", "summary", "fetched")}
+        state["weather"]["hourly"] = wx["hourly"][:12]
+        state["weather"]["daily"] = wx["daily"]
     except Exception:
         state["weather"] = None
+    try:   # headlines for the phone's News block (titles and links only)
+        state["news"] = {"fetched": hub.news()["fetched"],
+                         "sections": [{"name": s["name"], "items": [{k: it[k] for k in ("title", "link", "source", "published")}
+                                                                    for it in s["items"][:5]]} for s in hub.news()["sections"]]}
+    except Exception:
+        state["news"] = None
+    # Cameras and smart devices: a read-only snapshot (the phone can't reach Home Assistant at home)
+    import homeassistant as ha
+    state["home"] = {"connected": False}
+    if ha.configured():
+        try:
+            devs = ha.states()
+            state["home"] = {"connected": True, "devices": [
+                {"name": d["name"], "domain": d["domain"], "state": d["state"],
+                 **{k: d["attrs"][k] for k in ("current_temperature", "temperature", "target_temp_low", "brightness") if k in d["attrs"]}}
+                for d in devs][:120]}
+        except ValueError as e:
+            state["home"] = {"connected": True, "error": str(e)}
     briefs = sorted((ROOT / "outputs" / "briefs").glob("*.md"), reverse=True)
     if briefs:
         text = re.sub(r"\[(\d+|[^\]]{0,80})\]\([^)]*\)", r"\1", server.read(briefs[0]))   # drop link targets
