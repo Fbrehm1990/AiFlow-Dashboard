@@ -17,7 +17,8 @@ description: Process the task inbox unattended. Routes "Team decides" tasks thro
 4. **Route "Team decides" tasks first** (`[auto]`, or no tag). For each one, mark it `[~]` and hand it to the
    `manager` agent with the instruction "Triage this owner task", as described in `.claude/agents/manager.md`.
    The Manager answers with one of two things:
-   - **One agent** (route `research`, `web`, `marketing`, `code`, `brief` or `docs`). Rewrite the inbox line's tag
+   - **One agent** (route `research`, `web`, `marketing`, `code`, `brief` or `docs`). Any request to draft or
+     write an email goes to `marketing`. Rewrite the inbox line's tag
      from `[auto]` to that type, set it back to `[ ]`, and treat it as a normal task in this same run if you
      have room.
    - **Several steps.** The Manager has already submitted them as new tasks (marked "step of your task").

@@ -1,6 +1,6 @@
 ---
 name: marketing
-description: Produce ready-to-publish marketing for the web design business — Facebook/Instagram posts and calendars, TikTok scripts, Google Ads campaigns, email outreach — and submit each public or paid item for owner approval. Use for [marketing] tasks.
+description: Produce ready-to-publish marketing and email for the web design business — Facebook/Instagram posts and calendars, TikTok scripts, Google Ads campaigns, email outreach, and any email the owner asks for (replies, follow-ups, proposals, client updates) — and submit each public, paid or outgoing item for owner approval. Use for [marketing] tasks.
 ---
 
 # Marketing
@@ -54,7 +54,26 @@ Then the content itself, ready to copy and paste.
 - A follow-up sequence: day 3 and day 8, shorter, each with something new.
 - **CAN-SPAM:** a real sender name, a placeholder for the owner's postal address, a plain opt-out line, and
   no misleading header or subject.
-- Never send. Never collect or guess personal email addresses. Use only addresses the business publishes.
+- Never send. Never collect or guess personal email addresses. Use only addresses the business publishes or
+  the owner provides. **If there's no address, still finish and submit the drafts** with `To: [owner to fill in]`,
+  and list the missing addresses in the summary so the owner can add them.
+
+**Any other email the owner asks for (drafts only)**
+Replies, follow-ups, proposals and quotes, client updates, thank-yous, scheduling, invoices reminders, and so on.
+- Read what the owner gave you (the email they're replying to, notes, the client's project in `outputs/`).
+- Format each draft as:
+  ```
+  To: <address, or [owner to fill in]>
+  Subject: <honest, 60 characters or fewer>
+
+  <body: warm, clear, in the owner's voice from tasks/goals.md; short paragraphs; one clear next step>
+
+  <signature: owner's name and business from tasks/goals.md, or placeholders>
+  ```
+- If the owner wants options, give 2 versions (for example friendly and formal) and say which you recommend.
+- Never invent facts, prices, dates or promises the owner didn't give. Mark unknowns as `[owner to confirm: …]`.
+- One-to-one emails don't need an opt-out line. Marketing emails sent to several people do (CAN-SPAM, above).
+- Save to `outputs/marketing/YYYY-MM-DD-email-<slug>.md` and submit one `email` approval per email or sequence.
 
 ## Rules for all content
 - Honest and specific: no fake reviews, invented results or client names, false urgency or guarantees.

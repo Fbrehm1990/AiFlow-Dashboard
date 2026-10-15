@@ -19,7 +19,7 @@ Nobody is watching while it runs, so finish work end-to-end and leave a clear re
 | `[docs]` | Researcher (`researcher`) | `docs-task` | file(s) in `outputs/docs/` |
 | `[web]` | Web builder (`web-builder`) | `web-build` | demo site in `outputs/sites/<slug>/` (local only) + summary in `outputs/web/`. Client launches go in `../CLIENT WEBSITES/<slug>/` |
 | `[code]` | Web builder (`web-builder`) | `coding-task` | branch + PR (or patch) and a summary in `outputs/code/` |
-| `[marketing]` | Marketer (`marketer`) | `marketing` | ready-to-publish drafts in `outputs/marketing/` |
+| `[marketing]` | Marketer (`marketer`) | `marketing` | ready-to-publish drafts in `outputs/marketing/`: social, ads, and **all email drafts** (outreach, replies, follow-ups, proposals) |
 | `[plan]` | Manager (`manager`) | `manager-plan` | plan in `outputs/plans/` |
 | `[auto]` (or no tag) | Manager triages | see `run-queue` | routed to one agent, or split into steps marked "step of your task" |
 

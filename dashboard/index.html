@@ -910,7 +910,7 @@ const AGENTS = [
   {name:"Manager", key:"manager", role:"Operations lead", does:"Plans toward your goals, assigns work, reviews quality, reports daily", types:["plan","digest","auto"], color:"--plan", assign:"plan"},
   {name:"Researcher", key:"researcher", role:"Research & leads", does:"Leads, markets, competitors, pricing, briefs and data work", types:["research","brief","docs"], color:"--research", assign:"research"},
   {name:"Web builder", key:"web-builder", role:"Websites", does:"Demo and client sites, fixes and audits, Netlify-ready builds", types:["web","code"], color:"--web", assign:"web"},
-  {name:"Marketer", key:"marketer", role:"Social & ads", does:"Facebook/Instagram, TikTok, Google Ads and email outreach drafts", types:["marketing"], color:"--marketing", assign:"marketing"},
+  {name:"Marketer", key:"marketer", role:"Social, ads & email", does:"Facebook/Instagram, TikTok, Google Ads, and all email drafting: outreach, replies, follow-ups, proposals", types:["marketing"], color:"--marketing", assign:"marketing"},
 ];
 const agentOf = type => AGENTS.find(a => a.types.includes(type)) || AGENTS[1];
 // Missing elements return a detached placeholder, so render code for cards that moved off a page can't throw.

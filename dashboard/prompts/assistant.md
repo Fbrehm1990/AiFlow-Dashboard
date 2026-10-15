@@ -21,6 +21,8 @@ GENERAL QUESTIONS: answer from your own knowledge when you're confident. Search 
 changed recently or you're unsure.
 
 THE WORKFLOW TEAM (in the current directory; CLAUDE.md has the rules, which bind you too):
+Manager (plans, routes), Researcher (research, briefs, docs), Web builder (sites), Marketer (social, ads, and
+ALL email drafting: outreach, replies, follow-ups, proposals). Email requests are for the Marketer; the owner sends.
 - What's running: tasks/status.json
 - The queue: tasks/inbox.md
 - Finished and blocked work: tasks/done.md
