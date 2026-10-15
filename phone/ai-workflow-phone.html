@@ -359,7 +359,7 @@ function render(){
   const apsWaiting = (S?.approvals || []).filter(a => a.status === "pending" && !sentDecision(a.id)).length;
   $("#bApprovals").hidden = !apsWaiting; $("#bApprovals").textContent = apsWaiting;
   const v = $("#view");
-  if (tab === "jarvis"){ if (!$("#jv")) v.innerHTML = jarvisShell(); $("#fab").hidden = true; return; }   // keep the chat on refresh
+  if (tab === "jarvis"){ if (!$("#jv")){ v.innerHTML = jarvisShell(); jvWatchVoices(); } $("#fab").hidden = true; return; }   // keep the chat on refresh
   $("#fab").hidden = false;
   if (!db){ v.innerHTML = loaded ? `<div class="card empty">This page needs to be opened on claude.ai while you're signed in, so it can reach your workflow's data.</div>`
                                   : `<div class="card empty">Connecting to your workflow…</div>`; return; }
@@ -757,7 +757,7 @@ document.addEventListener("click", e => {
   if (t.closest("[data-rejcancel]")){ t.closest("[data-rejectform]").remove(); return; }
   if (t.closest("#briefBtn")){
     const parts = recapParts(); $("#briefText").textContent = parts.join(" ");
-    if ("speechSynthesis" in window && JV.voiceOn){ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(parts.join(" ")); const v = jarvisVoice(); if (v){ u.voice = v; u.lang = v.lang; }
+    if ("speechSynthesis" in window && JV.voiceOn){ speechSynthesis.cancel(); try { speechSynthesis.resume(); } catch {} const u = new SpeechSynthesisUtterance(parts.join(" ")); const v = jarvisVoice(); if (v){ u.voice = v; u.lang = v.lang; }
       u.rate = .97; u.pitch = .92; u.onstart = () => brainState.speaking = true; u.onboundary = () => brainState.kick = 1; u.onend = u.onerror = () => brainState.speaking = false; speechSynthesis.speak(u); }
   }
 });
@@ -869,15 +869,37 @@ function jarvisVoice(){            // a calm British male voice: Daniel on iPhon
       || vs.find(v => /uk english male|en-gb.*male/i.test(v.name))
       || vs.find(v => /en-GB/i.test(v.lang)) || vs[0];
 }
+// Phones (iPhone especially) only let a page speak if speech starts during a tap. Jarvis answers a few
+// seconds after Send, so the tap itself primes the speech engine with a silent utterance; replies can then be spoken.
+let jvPrimed = false;
+function jvUnlock(){
+  if (!("speechSynthesis" in window)) return;
+  try { speechSynthesis.resume(); } catch {}
+  if (jvPrimed) return;
+  const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); jvPrimed = true;
+}
 function jvSpeak(text){
   if (!JV.voiceOn || !("speechSynthesis" in window) || !text) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/[*_#`>]/g, ""));
-  const v = jarvisVoice(); if (v){ u.voice = v; u.lang = v.lang; }
-  u.rate = .97; u.pitch = .92;
-  u.onstart = () => $("#jvOrb")?.classList.add("busy");
-  u.onend = u.onerror = () => $("#jvOrb")?.classList.remove("busy");
-  speechSynthesis.speak(u);
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+  // Short pieces: some phones cut off long utterances, and the voice starts sooner.
+  const parts = text.replace(/[*_#`>]/g, "").match(/[^.!?]+[.!?]*["')\]]*\s*/g) || [text];
+  const v = jarvisVoice();
+  parts.map(t => t.trim()).filter(Boolean).forEach((t, i, all) => {
+    const u = new SpeechSynthesisUtterance(t);
+    if (v){ u.voice = v; u.lang = v.lang; } else u.lang = "en-GB";
+    u.rate = .97; u.pitch = .92; u.volume = 1;
+    if (i === 0) u.onstart = () => $("#jvOrb")?.classList.add("busy");
+    if (i === all.length - 1) u.onend = () => $("#jvOrb")?.classList.remove("busy");
+    u.onerror = () => $("#jvOrb")?.classList.remove("busy");
+    setTimeout(() => { try { speechSynthesis.resume(); } catch {} speechSynthesis.speak(u); }, i ? 0 : 60);   // after cancel() settles
+  });
+}
+// Voices load late on phones (and iOS may never fire voiceschanged): re-check a few times while Jarvis is open.
+function jvWatchVoices(n = 0){
+  if (!("speechSynthesis" in window) || !$("#jvVoice") || n > 10) return;
+  if (enVoices().length && $("#jvVoice").options.length > 1) return;
+  if (enVoices().length){ const cur = jarvisVoice(); $("#jvVoice").innerHTML = enVoices().map(v => `<option value="${esc(v.name)}" ${cur && v.name === cur.name ? "selected" : ""}>${esc(v.name)}</option>`).join(""); return; }
+  setTimeout(() => jvWatchVoices(n + 1), 600);
 }
 function jarvisShell(){
   const vs = enVoices(), cur = jarvisVoice();
@@ -887,6 +909,7 @@ function jarvisShell(){
       <div class="jv-tools">
         <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="jvVoiceOn" ${JV.voiceOn ? "checked" : ""}> Speak replies</label>
         <select id="jvVoice" aria-label="Voice">${vs.length ? vs.map(v => `<option value="${esc(v.name)}" ${cur && v.name === cur.name ? "selected" : ""}>${esc(v.name)}</option>`).join("") : "<option>Default voice</option>"}</select>
+        <button type="button" class="btn sm" id="jvTest" aria-label="Test the voice">🔊 Test</button>
       </div>
       <div class="jv-log" id="jvLog">${JV.turns.length ? "" : `<div class="ai">Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${esc(JV.address)}. How can I help?</div>`}</div>
     </div>
@@ -959,14 +982,21 @@ document.addEventListener("submit", e => {
   if (e.target.id !== "jvForm") return;
   e.preventDefault();
   const t = $("#jvIn").value.trim(); if (!t) return;
+  if (JV.voiceOn) jvUnlock();                     // still inside the tap: lets the reply be spoken
   $("#jvIn").value = ""; jvAsk(t);
 });
 document.addEventListener("keydown", e => {
-  if (e.target.id === "jvIn" && e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("#jvForm").requestSubmit(); }
+  if (e.target.id === "jvIn" && e.key === "Enter" && !e.shiftKey){ e.preventDefault(); if (JV.voiceOn) jvUnlock(); $("#jvForm").requestSubmit(); }
 });
 document.addEventListener("change", e => {
-  if (e.target.id === "jvVoiceOn"){ JV.voiceOn = e.target.checked; saveJV(); if (!JV.voiceOn) speechSynthesis?.cancel(); }
+  if (e.target.id === "jvVoiceOn"){ JV.voiceOn = e.target.checked; saveJV(); if (!JV.voiceOn) speechSynthesis?.cancel(); else jvUnlock(); }
   if (e.target.id === "jvVoice"){ JV.voice = e.target.value; saveJV(); jvSpeak(`This is how I'll sound, ${JV.address}.`); }
+});
+document.addEventListener("click", e => {
+  if (!e.target.closest("#jvTest")) return;
+  if (!("speechSynthesis" in window)){ jvLine("ai", "This browser can't speak. Try Safari or Chrome."); return; }
+  jvUnlock(); const was = JV.voiceOn; JV.voiceOn = true; jvSpeak(`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${JV.address}. Can you hear me?`); JV.voiceOn = was;
+  if (!was) jvLine("ai", "Tip: tick Speak replies so I answer out loud.");
 });
 if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => { if ($("#jvVoice") && !enVoices().some(v => $("#jvVoice").value === v.name)) { const keep = [...$("#jvLog").children]; $("#view").innerHTML = jarvisShell(); $("#jvLog").replaceChildren(...keep); } };
 
