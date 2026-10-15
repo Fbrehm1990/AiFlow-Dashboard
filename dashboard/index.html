@@ -1648,29 +1648,47 @@ const brain = {activity: .2, speaking: false, kick: 0};
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // Coordinates: x = left/right, y = up, z = front(+)/back(-). Viewed from the side, front facing left.
   const P = []; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const fold = (x, y, z) => 1 + .05 * Math.sin(12*x + 5*y) * Math.sin(10*z + 3*y) + .03 * Math.sin(19*y + 7*z + 2*x) + .018 * Math.sin(27*z - 11*x);
+  const fold = (x, y, z) => 1 + .045 * Math.sin(12*x + 5*y) * Math.sin(10*z + 3*y) + .028 * Math.sin(19*y + 7*z + 2*x) + .016 * Math.sin(27*z - 11*x);
+  // The cerebrum is modelled from its side silhouette (front = +z, facing left on screen):
+  // a tall dome peaking toward the back, a big rounded frontal lobe, the temporal lobe bulging
+  // down below the middle, and a raised back underside that leaves room for the cerebellum.
+  const clamp01 = v => Math.max(0, v);
+  const se = (v, n) => clamp01(1 - Math.abs(v) ** n) ** (1 / n);              // superellipse: blunt, rounded ends
+  const top = z => .08 + .72 * se((z + .08) / 1.0, 2.6);                     // tall dome, peak slightly back
+  const bottom = z => {
+    const temporal = Math.exp(-((z / .44) ** 6));                              // broad temporal lobe bulge
+    const occipital = (1 - temporal) / (1 + Math.exp((z + .45) * 12));         // back underside, above the cerebellum
+    return -(.04 + .44 * temporal + .22 * occipital);
+  };
+  const halfWidth = z => .82 * se(z, 3) ** .6;                                 // left-right half-width
   function cerebrum(shellOnly){
-    const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, s = Math.sqrt(1 - u*u);
-    let x = s * Math.cos(th), y = u, z = s * Math.sin(th);
-    if (y < 0){                                   // underside: flat frontal, deep temporal lobe, raised occipital
-      if (z > .55) y *= .55; else if (z > -.3) y *= .98; else y *= .42;
+    let z, T, B, rx, ry;
+    for (;;){                                                                    // sample z in proportion to surface size
+      z = rnd() * 2 - 1;
+      T = top(z); B = bottom(z);
+      rx = halfWidth(z); ry = (T - B) / 2 * se(z, 3.5) ** .5;                    // close the ends roundly, not to a point
+      if (rnd() < (rx + ry) / 1.5) break;
     }
-    const k = fold(x, y, z) * (shellOnly ? 1 : .55 + rnd() * .4);
-    let X = x * .78 * k, Y = y * .64 * k + .12, Z = z * 1.02 * k;
-    if (Z > .4) Y += (Z - .4) * .08;              // frontal lobe sits a little higher
-    X += Math.sign(X || 1) * .045;                // gap between the hemispheres
-    return [X, Y, Z];
+    const yc = (T + B) / 2, phi = rnd() * Math.PI * 2;
+    let k = fold(Math.cos(phi), Math.sin(phi), z);
+    if (!shellOnly) k *= .45 + rnd() * .45;                                       // interior structure
+    let x = rx * Math.cos(phi) * k, y = yc + ry * Math.sin(phi) * k;
+    // Lateral (Sylvian) fissure: a groove above the temporal lobe running up toward the back.
+    const ys = -.12 + .24 * (.45 - z);
+    if (shellOnly && z > -.35 && z < .5 && Math.abs(Math.cos(phi)) > .45 && Math.abs(y - ys) < .045) x *= .9;
+    x += Math.sign(x || 1) * .04;                                                 // gap between the hemispheres
+    return [x, y, z * .92];
   }
-  for (let i = 0; i < 1250; i++) P.push(cerebrum(true));
-  for (let i = 0; i < 260; i++) P.push(cerebrum(false));               // interior structure
-  for (let i = 0; i < 230; i++){                                         // cerebellum, with folia stripes
+  for (let i = 0; i < 1300; i++) P.push(cerebrum(true));
+  for (let i = 0; i < 260; i++) P.push(cerebrum(false));
+  for (let i = 0; i < 240; i++){                                                // cerebellum under the back, with folia stripes
     const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, s = Math.sqrt(1 - u*u);
-    const r = 1 + .06 * Math.sin(38 * u);
-    P.push([s * Math.cos(th) * .52 * r, -.5 + u * .2 * r, -.62 + s * Math.sin(th) * .3 * r]);
+    const r = 1 + .06 * Math.sin(36 * u);
+    P.push([s * Math.cos(th) * .54 * r, -.47 + u * .24 * r, -.55 + s * Math.sin(th) * .36 * r]);
   }
-  for (let i = 0; i < 70; i++){                                          // brain stem
+  for (let i = 0; i < 80; i++){                                                 // brain stem, dropping down and slightly forward
     const t = rnd(), a = rnd() * 6.283;
-    P.push([Math.cos(a) * .085, -.36 - t * .66, -.2 - t * .1 + Math.sin(a) * .07]);
+    P.push([Math.cos(a) * .085, -.36 - t * .66, -.16 + t * .08 + Math.sin(a) * .075]);
   }
   // Wire mesh: link each point to its nearest neighbours (computed once).
   const E = [], adj = P.map(() => []);
@@ -1686,7 +1704,7 @@ const brain = {activity: .2, speaking: false, kick: 0};
   // Glowing hotspots on the upper surface, like the reference.
   const hot = [];
   for (let i = 0; hot.length < 9 && i < 4000; i++){
-    const k = (rnd() * 1250) | 0, p = P[k];
+    const k = (rnd() * 1300) | 0, p = P[k];
     if (p[1] > -.05 && !hot.some(h => { const q = P[h.i]; return (q[0]-p[0])**2 + (q[1]-p[1])**2 + (q[2]-p[2])**2 < .12; }))
       hot.push({i: k, ph: rnd() * 6.283, sp: .5 + rnd() * .8});
   }
@@ -1705,7 +1723,7 @@ const brain = {activity: .2, speaking: false, kick: 0};
     if (!document.hidden && W){
       const sec = (now - t0) / 1000;
       // Slow sway around the side view (front facing left) instead of a full spin.
-      const ang = -Math.PI/2 + (reduce ? 0 : .42 * Math.sin(sec * .09));
+      const ang = -Math.PI/2 + (reduce ? 0 : sec * .07);           // full turn about every 90 seconds, starting side-on
       brain.kick *= .9; glow += ((brain.speaking ? .9 : brain.activity * .55) + brain.kick * .6 - glow) * .05;
       const ca = Math.cos(ang), sa = Math.sin(ang), Q = P.map(p => proj(p, ca, sa));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
