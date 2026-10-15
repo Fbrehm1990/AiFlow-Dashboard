@@ -1,7 +1,17 @@
-# AiFlow Dashboard
+# AiFLOW Dashboard
 
 **A personal AI operations center: an autonomous four-agent team, a voice assistant, and a smart-home hub,
 run from one local dashboard and a phone app.**
+
+<p align="center">
+  <img src="docs/media/neural-core.gif" alt="The neural core: a rotating point-cloud brain with lightning pulses" width="460">
+</p>
+
+<p align="center">
+  <img src="docs/media/aiflow-tour.gif" alt="Tour of the dashboard while the AI team works" width="760"><br>
+  <sub>Recorded during a real unattended run. <a href="docs/media/aiflow-tour.mp4">Watch the full-quality video (MP4, 41 s)</a> ·
+  <a href="#screenshots">All screenshots</a></sub>
+</p>
 
 AiFlow runs a small business's busywork without supervision. You drop a task in plain English, a Manager agent
 decides who handles it, and Researcher, Web builder and Marketer agents do the work. They hand results to each
@@ -23,6 +33,7 @@ Python server and plain HTML and JavaScript. It has **no API keys, no build step
 ---
 
 ## Contents
+0. [Screenshots](#screenshots)
 1. [A day with AiFlow](#a-day-with-aiflow)
 2. [Features](#features)
 3. [Architecture](#architecture)
@@ -34,6 +45,31 @@ Python server and plain HTML and JavaScript. It has **no API keys, no build step
 9. [Repository layout](#repository-layout)
 10. [Extending it](#extending-it)
 11. [Limitations and roadmap](#limitations-and-roadmap)
+
+---
+
+## Screenshots
+
+Captured from the live system with a headless browser. Real business names, emails and paths are replaced
+(for example "Sample Bakery") because leads aren't named publicly before they agree.
+
+**Desktop dashboard**
+
+| | |
+|---|---|
+| ![Overview](docs/media/screens/01-overview.png) **Overview:** neural core, Jarvis, AiFlow and hub blocks | ![AiFlow](docs/media/screens/02-aiflow.png) **AiFlow:** one box per agent, hand-off trails, feedback |
+| ![Project view](docs/media/screens/03-project-view.png) **Project view:** every step of a project across agents | ![In progress](docs/media/screens/05-in-progress.png) **In progress:** step bars and the live "what Claude is doing" feed |
+| ![Approvals](docs/media/screens/07-approvals.png) **Approvals:** the owner decides on every email, post, ad and deploy | ![Done](docs/media/screens/06-done.png) **Done:** results with links to every deliverable |
+| ![Queued](docs/media/screens/04-queued.png) **Queued:** add tasks in plain English; the team decides who does them | ![Team & goals](docs/media/screens/08-team-goals.png) **Team & goals:** agents, goals, demo sites, schedules |
+| ![Weather](docs/media/screens/10-weather.png) **Weather:** now, next 24 hours, 7 days | ![News](docs/media/screens/11-news.png) **News:** six sections from NPR, BBC and Ars Technica |
+| ![Smart devices](docs/media/screens/12-smart-devices-setup.png) **Smart devices:** Home Assistant connection | ![Resources](docs/media/screens/09-resources-analytics.png) **Resources:** outputs, logs, analytics |
+
+**Phone app**
+
+| | | | |
+|---|---|---|---|
+| ![Core](docs/media/screens/20-phone-core.png) Core | ![Hub](docs/media/screens/20b-phone-hub.png) Hub blocks | ![AiFlow](docs/media/screens/21-phone-aiflow.png) AiFlow | ![Weather](docs/media/screens/22-phone-weather.png) Weather |
+| ![News](docs/media/screens/23-phone-news.png) News | ![Queue](docs/media/screens/24-phone-queue.png) Queue | ![Approve](docs/media/screens/25-phone-approvals.png) Approve | ![Jarvis](docs/media/screens/26-phone-jarvis.png) Jarvis |
 
 ---
 
