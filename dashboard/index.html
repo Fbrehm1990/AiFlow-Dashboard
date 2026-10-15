@@ -1752,14 +1752,22 @@ function recapText(){
 }
 /* ---------- voice: Jarvis-style speech, settings, and spoken conversation ---------- */
 const VKEY = "aiwf-voice";
-let VS = {voice: "", rate: .95, pitch: .9, address: "sir"};
-try { Object.assign(VS, JSON.parse(localStorage.getItem(VKEY) || "{}")); } catch {}
+// Natural pitch and speed: shifting the pitch of a voice is what makes it sound robotic.
+let VS = {voice: "", rate: 1, pitch: 1, address: "sir", v: 2};
+try {
+  const saved = JSON.parse(localStorage.getItem(VKEY) || "{}");
+  if (saved.v !== 2){ delete saved.pitch; delete saved.rate; delete saved.voice; }   // older settings lowered the pitch
+  Object.assign(VS, saved, {v: 2});
+} catch {}
 const saveVS = () => { try { localStorage.setItem(VKEY, JSON.stringify(VS)); } catch {} };
 const allVoices = () => ("speechSynthesis" in window ? speechSynthesis.getVoices() : []).filter(v => /^en/i.test(v.lang));
 // Closest built-in match to a calm British AI butler: a UK male voice, natural/neural where available.
 function jarvisVoice(){
   const vs = allVoices();
-  return vs.find(v => /en-GB/i.test(v.lang) && /(ryan|thomas|george|oliver|alfie|elliot|noah|ethan)/i.test(v.name) && /natural|online|neural/i.test(v.name))
+  const hq = v => /natural|online|neural|enhanced|premium/i.test(v.name);   // neural voices sound far less robotic
+  return vs.find(v => /en-GB/i.test(v.lang) && /(ryan|thomas|george|oliver|alfie|elliot|noah|ethan|arthur|daniel)/i.test(v.name) && hq(v))
+      || vs.find(v => /en-GB/i.test(v.lang) && hq(v) && !/(sonia|libby|maisie|hollie|abbi|bella|olivia|ada|serena|kate|female)/i.test(v.name))
+      || vs.find(v => /en-US/i.test(v.lang) && /(guy|davis|andrew|brian|christopher|eric|tony|steffan|roger)/i.test(v.name) && hq(v))
       || vs.find(v => /en-GB/i.test(v.lang) && /(ryan|thomas|george|oliver|alfie|elliot|noah|ethan)/i.test(v.name))
       || vs.find(v => /google uk english male/i.test(v.name))
       || vs.find(v => /en-GB/i.test(v.lang) && /male/i.test(v.name))
@@ -1789,7 +1797,7 @@ $("#vRate").addEventListener("input", e => { VS.rate = +e.target.value; saveVS()
 $("#vPitch").addEventListener("input", e => { VS.pitch = +e.target.value; saveVS(); });
 $("#vAddress").addEventListener("input", e => { VS.address = e.target.value.trim() || "sir"; saveVS(); });
 $("#vJarvis").addEventListener("click", () => {
-  const v = jarvisVoice(); VS.voice = v ? v.name : ""; VS.rate = .95; VS.pitch = .9; saveVS(); fillVoiceSettings();
+  const v = jarvisVoice(); VS.voice = v ? v.name : ""; VS.rate = 1; VS.pitch = 1; saveVS(); fillVoiceSettings();
   speak(`Jarvis preset loaded. At your service, ${VS.address}.`);
 });
 $("#vTest").addEventListener("click", () => speak(`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${VS.address}. All systems are online, and the team is standing by.`));

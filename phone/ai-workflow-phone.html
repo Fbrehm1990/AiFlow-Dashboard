@@ -758,7 +758,7 @@ document.addEventListener("click", e => {
   if (t.closest("#briefBtn")){
     const parts = recapParts(); $("#briefText").textContent = parts.join(" ");
     if ("speechSynthesis" in window && JV.voiceOn){ speechSynthesis.cancel(); try { speechSynthesis.resume(); } catch {} const u = new SpeechSynthesisUtterance(parts.join(" ")); const v = jarvisVoice(); if (v){ u.voice = v; u.lang = v.lang; }
-      u.rate = .97; u.pitch = .92; u.onstart = () => brainState.speaking = true; u.onboundary = () => brainState.kick = 1; u.onend = u.onerror = () => brainState.speaking = false; speechSynthesis.speak(u); }
+      u.rate = 1; u.pitch = 1; u.onstart = () => brainState.speaking = true; u.onboundary = () => brainState.kick = 1; u.onend = u.onerror = () => brainState.speaking = false; speechSynthesis.speak(u); }
   }
 });
 document.addEventListener("submit", e => {
@@ -864,7 +864,10 @@ const saveJV = () => { try { localStorage.setItem("aiwf-jarvis", JSON.stringify(
 const enVoices = () => ("speechSynthesis" in window ? speechSynthesis.getVoices() : []).filter(v => /^en/i.test(v.lang));
 function jarvisVoice(){            // a calm British male voice: Daniel on iPhone, UK male on Android/Edge
   const vs = enVoices();
+  const hq = v => /enhanced|premium|natural|neural|online/i.test(v.name);   // download these in iPhone Settings for a far less robotic voice
   return vs.find(v => v.name === JV.voice)
+      || vs.find(v => /en-GB/i.test(v.lang) && /(daniel|arthur|ryan|thomas|george|oliver)/i.test(v.name) && hq(v))
+      || vs.find(v => /en-GB/i.test(v.lang) && hq(v) && !/(kate|serena|stephanie|martha|sonia|libby|female)/i.test(v.name))
       || vs.find(v => /en-GB/i.test(v.lang) && /(daniel|arthur|ryan|thomas|george|oliver)/i.test(v.name))
       || vs.find(v => /uk english male|en-gb.*male/i.test(v.name))
       || vs.find(v => /en-GB/i.test(v.lang)) || vs[0];
@@ -887,7 +890,7 @@ function jvSpeak(text){
   parts.map(t => t.trim()).filter(Boolean).forEach((t, i, all) => {
     const u = new SpeechSynthesisUtterance(t);
     if (v){ u.voice = v; u.lang = v.lang; } else u.lang = "en-GB";
-    u.rate = .97; u.pitch = .92; u.volume = 1;
+    u.rate = 1; u.pitch = 1; u.volume = 1;
     if (i === 0) u.onstart = () => $("#jvOrb")?.classList.add("busy");
     if (i === all.length - 1) u.onend = () => $("#jvOrb")?.classList.remove("busy");
     u.onerror = () => $("#jvOrb")?.classList.remove("busy");
