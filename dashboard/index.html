@@ -2006,7 +2006,7 @@ function haSetup(box, cams){
     ${st.configured && !st.ok ? `<p style="color:var(--danger);margin:0 0 10px">${esc(st.error || "Can't reach Home Assistant.")}</p>` : ""}
     <p style="margin:0 0 10px">Home Assistant is a free app that links your Ring cameras, ecobee, Govee lights, Alexa and garage into one place. The dashboard and Jarvis then control them through it.</p>
     <ol class="ha-steps">
-      <li><b>Run Home Assistant:</b> either plug in a Home Assistant Green, or on this PC install VirtualBox and the Home Assistant virtual machine (Claude has the step-by-step).</li>
+      <li><b>Run Home Assistant:</b> on a Home Assistant Green, or in VirtualBox on any computer at home (this PC or a laptop). Claude has the step-by-step.</li>
       <li>Open <b>http://homeassistant.local:8123</b> and create your Home Assistant account.</li>
       <li>In Home Assistant: <b>Settings → Devices &amp; services → Add integration</b>, then add <b>Ring</b>, <b>ecobee</b>, <b>Govee lights local</b> and <b>Alexa Devices</b>. You sign in to each one there.</li>
       <li>Click your name (bottom left) → <b>Security</b> → <b>Long-lived access tokens</b> → <b>Create token</b>. Name it "AI Workflow" and copy it.</li>
