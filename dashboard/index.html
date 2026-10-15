@@ -548,6 +548,31 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .news-t{color:var(--text);text-decoration:none;display:block}
 .news-t:hover{color:var(--accent)}
 .hubpage{gap:14px}
+.cam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.cam{position:relative;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#000;cursor:pointer;aspect-ratio:16/9}
+.cam img{width:100%;height:100%;object-fit:cover;display:block}
+.cam .lbl{position:absolute;left:0;right:0;bottom:0;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:13.5px;display:flex;gap:8px;align-items:center}
+.cam .lbl .live{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#ff5d7a}
+.cam.big{position:fixed;inset:4vh 4vw;z-index:60;aspect-ratio:auto;box-shadow:0 0 0 100vmax rgba(0,0,0,.8)}
+.cam.big img{object-fit:contain}
+.hb-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:#000}
+.dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;padding:14px}
+.dev{border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px;min-width:0}
+.dev.on{border-color:var(--border-hi);box-shadow:0 0 16px var(--accent-soft)}
+.dev .top{display:flex;align-items:center;gap:10px}
+.dev .nm{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dev .st{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dev.on .st{color:var(--accent)}
+.dev input[type=range]{width:100%}
+.dev .acts{display:flex;gap:6px;flex-wrap:wrap}
+.sw{width:44px;height:24px;border-radius:12px;border:1px solid var(--border-hi);background:var(--surface);position:relative;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:left .15s,background .15s}
+.sw[aria-checked=true]{background:var(--accent-soft)}.sw[aria-checked=true]::after{left:22px;background:var(--accent)}
+.therm{display:flex;align-items:center;gap:10px}
+.therm .tgt{font-family:var(--display);font-size:30px;font-weight:600;min-width:64px;text-align:center}
+.swatch{width:22px;height:22px;border-radius:50%;border:1px solid var(--border-hi);cursor:pointer}
+.ha-steps{margin:0;padding-left:20px;line-height:1.65}
+.ha-steps li{margin-bottom:6px}
 
 /* feedback */
 .mate .tasks li{position:relative}
@@ -1857,7 +1882,25 @@ function listen(){
   try { rec.start(); } catch { setTimeout(listen, 300); }
 }
 async function reply(text){ bubble("ai", text); convoState("Speaking…"); await speak(text); }
+const DEVICE = /\b(turn|switch|lights?|lamp|thermostat|heat|heating|cool|ac|garage|door|lock|unlock|camera|cam|doorbell|dim|brighten|scene|inside|degrees|percent|plug|fan)\b/i;
 async function handle(text){
+  if (convo.pending){                                   // answering "Should I open the garage door?"
+    const act = convo.pending; convo.pending = null;
+    if (/^(yes|yeah|yep|yup|sure|do it|go ahead|confirm|please do|affirmative|correct)\b/i.test(text)){
+      try { const r = await api("/api/ha/call", {...act, confirm: true}); await reply(r.say); } catch (err){ await reply(`Apologies, ${VS.address}. ${err.message}`); }
+    } else await reply(`Very well, I'll leave it, ${VS.address}.`);
+    listen(); return;
+  }
+  if (DEVICE.test(text) && !ENDERS.test(text) && !(WEATHER.test(text) && !/\b(thermostat|inside|set|heat|ac)\b/i.test(text))){
+    try{
+      const r = await api("/api/ha/command", {text});
+      if (r.handled){
+        if (r.confirm) convo.pending = r.confirm;
+        if (r.camera){ location.hash = "#/cameras"; if (r.camera !== "all") setTimeout(() => document.querySelector(`[data-cam="${CSS.escape(r.camera)}"]`)?.classList.add("big"), 1500); }
+        await reply(r.say); listen(); return;
+      }
+    }catch{ /* not a device command after all: fall through */ }
+  }
   if (ENDERS.test(text)){ await reply(`Very good, ${VS.address}.`); stopTalk(true); return; }
   if (RECAP.test(text)){ await reply((await recapWithWeather()).join(" ")); listen(); return; }
   if (/\b(news|headlines|top stories)\b/i.test(text) && !/\babout\b/i.test(text)){
@@ -1935,9 +1978,149 @@ async function renderHub(){
     : `<div class="hb-sub">Weather unavailable right now</div>`;
   const n = await newsNow(), top = n ? n.sections.flatMap(s => s.items.slice(0, 1).map(it => ({...it, sec: s.name}))).slice(0, 3) : [];
   $("#hbNews .hb-b").innerHTML = top.length ? top.map(it => `<div class="hb-line"><span class="hb-tag">${esc(it.sec)}</span>${esc(it.title)}</div>`).join("") : `<div class="hb-sub">News unavailable right now</div>`;
-  $("#hbCams .hb-b").innerHTML = `<div class="hb-sub">No cameras connected yet</div><div class="hb-foot">Tap to set up</div>`;
-  $("#hbDevices .hb-b").innerHTML = `<div class="hb-sub">No devices connected yet</div><div class="hb-foot">Tap to set up</div>`;
+  const ha = await haNow();
+  const cams = ha ? ha.devices.filter(d => d.domain === "camera") : [], devs = ha ? ha.devices.filter(d => d.domain !== "camera") : [];
+  $("#hbCams .hb-b").innerHTML = !ha ? `<div class="hb-sub">No cameras connected yet</div><div class="hb-foot">Tap to set up</div>`
+    : cams.length ? `<img class="hb-thumb" alt="" src="/api/ha/camera?entity=${encodeURIComponent(cams[0].entity_id)}&t=${Date.now()}"><div class="hb-foot">${cams.length} camera${cams.length > 1 ? "s" : ""}</div>`
+    : `<div class="hb-sub">No cameras in Home Assistant yet</div>`;
+  const on = devs.filter(d => d.state === "on" && ["light", "switch", "fan"].includes(d.domain)).length;
+  const th = devs.find(d => d.domain === "climate"), open = devs.filter(d => d.domain === "cover" && d.state !== "closed").length;
+  $("#hbDevices .hb-b").innerHTML = !ha ? `<div class="hb-sub">No devices connected yet</div><div class="hb-foot">Tap to set up</div>`
+    : `${th ? `<div class="hb-big">${th.attrs.current_temperature ?? "–"}°</div><div class="hb-sub">Inside · set to ${th.attrs.temperature ?? th.attrs.target_temp_low ?? "–"}° · ${esc(th.state)}</div>` : ""}
+       <div class="hb-sub">${on} on${open ? ` · <b style="color:var(--warn)">garage ${open > 1 ? "doors" : "door"} open</b>` : ""}</div><div class="hb-foot">${devs.length} devices</div>`;
 }
+
+/* ---------- Home Assistant: cameras and smart devices ---------- */
+const HA = {data: null, at: 0, timer: null, big: null};
+async function haNow(force){
+  if (force || !HA.data || Date.now() - HA.at > 5000){
+    try { const st = await api("/api/ha/status"); HA.data = st.configured && st.ok ? await api("/api/ha/states") : null; HA.status = st; HA.at = Date.now(); }
+    catch { HA.data = null; }
+  }
+  return HA.data;
+}
+function haSetup(box, cams){
+  const st = HA.status || {};
+  box.innerHTML = `<section class="card"><div class="card-b">
+    <h2 style="font-size:19px;text-transform:none;letter-spacing:0;margin:0 0 8px">${cams ? "Connect your cameras" : "Connect your smart devices"} through Home Assistant</h2>
+    ${st.configured && !st.ok ? `<p style="color:var(--danger);margin:0 0 10px">${esc(st.error || "Can't reach Home Assistant.")}</p>` : ""}
+    <p style="margin:0 0 10px">Home Assistant is a free app that links your Ring cameras, ecobee, Govee lights, Alexa and garage into one place. The dashboard and Jarvis then control them through it.</p>
+    <ol class="ha-steps">
+      <li><b>Run Home Assistant:</b> either plug in a Home Assistant Green, or on this PC install VirtualBox and the Home Assistant virtual machine (Claude has the step-by-step).</li>
+      <li>Open <b>http://homeassistant.local:8123</b> and create your Home Assistant account.</li>
+      <li>In Home Assistant: <b>Settings → Devices &amp; services → Add integration</b>, then add <b>Ring</b>, <b>ecobee</b>, <b>Govee lights local</b> and <b>Alexa Devices</b>. You sign in to each one there.</li>
+      <li>Click your name (bottom left) → <b>Security</b> → <b>Long-lived access tokens</b> → <b>Create token</b>. Name it "AI Workflow" and copy it.</li>
+      <li>Paste it below. It's stored only on this PC and only ever sent to your own Home Assistant.</li>
+    </ol>
+    <form id="haForm" autocomplete="off" style="margin-top:12px">
+      <div class="row" style="margin-top:0">
+        <div><label class="f" for="haUrl" style="margin-top:0">Home Assistant address</label><input type="text" id="haUrl" value="${esc(st.url || "http://homeassistant.local:8123")}"></div>
+        <div><label class="f" for="haToken" style="margin-top:0">Access token</label><input type="password" id="haToken" placeholder="Paste the long-lived token"></div>
+      </div>
+      <div class="form-foot"><button class="btn primary">Connect</button>${st.configured ? `<button type="button" class="btn ghost" data-hadisconnect>Disconnect</button>` : ""}<span class="hint" id="haMsg"></span></div>
+    </form></div></section>`;
+}
+function devCard(d){
+  const a = d.attrs, on = ["on", "open", "opening", "unlocked", "playing", "heat", "cool", "heat_cool"].includes(d.state);
+  const id = esc(d.entity_id), bri = a.brightness != null ? Math.round(a.brightness / 2.55) : 100;
+  let body = "";
+  if (["light", "switch", "fan"].includes(d.domain)){
+    body = d.domain === "light" && d.state === "on" ? `<input type="range" min="1" max="100" value="${bri}" data-ha="${id}" data-svc="turn_on" data-key="brightness_pct" aria-label="Brightness">
+      ${(a.supported_color_modes || []).some(m => ["rgb", "hs", "xy", "rgbw", "rgbww"].includes(m)) ? `<div class="acts">${[["red","#ff3b3b"],["orange","#ff8a00"],["yellow","#ffd400"],["green","#2bd96b"],["blue","#2f7bff"],["purple","#9b3bff"],["pink","#ff5cb4"],["warm white","#ffd9a8"]]
+        .map(([n, c]) => `<span class="swatch" style="background:${c}" title="${n}" data-ha="${id}" data-svc="turn_on" data-color="${n}"></span>`).join("")}</div>` : ""}` : "";
+    return `<div class="dev ${d.state === "on" ? "on" : ""}"><div class="top"><span class="nm">${esc(d.name)}</span><span class="st">${esc(d.state)}</span>
+      <button class="sw" role="switch" aria-checked="${d.state === "on"}" aria-label="${esc(d.name)}" data-ha="${id}" data-svc="${d.state === "on" ? "turn_off" : "turn_on"}"></button></div>${body}</div>`;
+  }
+  if (d.domain === "climate"){
+    const t = a.temperature ?? a.target_temp_low;
+    return `<div class="dev ${on ? "on" : ""}"><div class="top"><span class="nm">${esc(d.name)}</span><span class="st">${esc(a.hvac_action || d.state)}</span></div>
+      <div class="hint">Inside ${a.current_temperature ?? "–"}°</div>
+      ${t != null ? `<div class="therm"><button class="btn sm" data-ha="${id}" data-svc="set_temperature" data-temp="${t - 1}">−</button><span class="tgt">${t}°</span><button class="btn sm" data-ha="${id}" data-svc="set_temperature" data-temp="${t + 1}">+</button></div>` : ""}
+      <div class="acts">${(a.hvac_modes || []).map(m => `<button class="btn sm ${m === d.state ? "primary" : ""}" data-ha="${id}" data-svc="set_hvac_mode" data-mode="${esc(m)}">${esc(m.replace("_", "/"))}</button>`).join("")}</div></div>`;
+  }
+  if (d.domain === "cover") return `<div class="dev ${on ? "on" : ""}"><div class="top"><span class="nm">${esc(d.name)}</span><span class="st">${esc(d.state)}</span></div>
+      <div class="acts"><button class="btn sm" data-ha="${id}" data-svc="open_cover">Open</button><button class="btn sm" data-ha="${id}" data-svc="close_cover">Close</button><button class="btn sm ghost" data-ha="${id}" data-svc="stop_cover">Stop</button></div></div>`;
+  if (d.domain === "lock") return `<div class="dev ${on ? "on" : ""}"><div class="top"><span class="nm">${esc(d.name)}</span><span class="st">${esc(d.state)}</span></div>
+      <div class="acts"><button class="btn sm" data-ha="${id}" data-svc="lock">Lock</button><button class="btn sm" data-ha="${id}" data-svc="unlock">Unlock</button></div></div>`;
+  if (d.domain === "media_player") return `<div class="dev ${on ? "on" : ""}"><div class="top"><span class="nm">${esc(d.name)}</span><span class="st">${esc(d.state)}</span></div>
+      ${a.media_title ? `<div class="hint">${esc(a.media_title)}${a.media_artist ? " · " + esc(a.media_artist) : ""}</div>` : ""}
+      <div class="acts"><button class="btn sm" data-ha="${id}" data-svc="media_play_pause">Play / pause</button></div>
+      ${a.volume_level != null ? `<input type="range" min="0" max="100" value="${Math.round(a.volume_level * 100)}" data-ha="${id}" data-svc="volume_set" data-key="volume_level" aria-label="Volume">` : ""}</div>`;
+  if (d.domain === "scene") return `<div class="dev"><div class="top"><span class="nm">${esc(d.name)}</span></div><div class="acts"><button class="btn sm primary" data-ha="${id}" data-svc="turn_on">Activate</button></div></div>`;
+  if (d.domain === "alarm_control_panel") return `<div class="dev ${d.state.startsWith("armed") ? "on" : ""}"><div class="top"><span class="nm">${esc(d.name)}</span><span class="st">${esc(d.state.replace("_", " "))}</span></div>
+      <div class="acts"><button class="btn sm" data-ha="${id}" data-svc="alarm_arm_home">Arm home</button><button class="btn sm" data-ha="${id}" data-svc="alarm_arm_away">Arm away</button></div><div class="hint">Disarm in the alarm's own app.</div></div>`;
+  return "";
+}
+const DOMAIN_LABEL = {climate:"Thermostat", cover:"Garage & doors", lock:"Locks", alarm_control_panel:"Alarm", light:"Lights", switch:"Plugs & switches", fan:"Fans", media_player:"Speakers & media", scene:"Scenes"};
+async function renderHA(p, force){
+  const box = $("#" + p + "Page"), cams = p === "cameras";
+  const ha = await haNow(force);
+  if (route !== p) return;
+  if (!ha){ if (!box.querySelector("#haForm")) haSetup(box, cams); return; }
+  if (cams){
+    const list = ha.devices.filter(d => d.domain === "camera"), t = Date.now();
+    if (box.dataset.sig !== list.map(c => c.entity_id).join()){
+      box.dataset.sig = list.map(c => c.entity_id).join();
+      box.innerHTML = list.length ? `<div class="cam-grid">${list.map(c => `<div class="cam" data-cam="${esc(c.entity_id)}" title="Click to enlarge">
+          <img alt="${esc(c.name)}" src="/api/ha/camera?entity=${encodeURIComponent(c.entity_id)}&t=${t}"><div class="lbl"><span class="live">● LIVE</span>${esc(c.name)}</div></div>`).join("")}</div>
+          <p class="hint">Pictures refresh every few seconds. For full live video with sound, open the camera in <a href="${esc(ha.url)}" target="_blank" rel="noopener">Home Assistant</a> or the Ring app.</p>`
+        : `<section class="card"><div class="card-b">Home Assistant is connected, but it has no cameras yet. Add the <b>Ring</b> integration in Home Assistant (Settings → Devices &amp; services).</div></section>`;
+    } else {
+      box.querySelectorAll(".cam img").forEach(img => { const n = new Image(); n.onload = () => img.src = n.src; n.src = `/api/ha/camera?entity=${encodeURIComponent(img.closest("[data-cam]").dataset.cam)}&t=${t}`; });
+    }
+    return;
+  }
+  if (box.contains(document.activeElement) && document.activeElement.type === "range") return;   // don't redraw under a slider being dragged
+  const groups = {};
+  ha.devices.filter(d => d.domain !== "camera").forEach(d => (groups[d.domain] = groups[d.domain] || []).push(d));
+  const order = ["climate", "cover", "lock", "alarm_control_panel", "light", "switch", "fan", "media_player", "scene"];
+  box.innerHTML = Object.keys(groups).length ? order.filter(k => groups[k]).map(k => `<section class="card"><div class="card-h"><h2>${DOMAIN_LABEL[k]}</h2>
+      ${["cover", "lock", "alarm_control_panel"].includes(k) ? `<span class="spacer"></span><span class="hint">Asks you to confirm</span>` : ""}</div>
+      <div class="dev-grid">${groups[k].map(devCard).join("")}</div></section>`).join("")
+      + `<div class="form-foot"><a class="btn sm ghost" href="${esc(ha.url)}" target="_blank" rel="noopener">Open Home Assistant</a><button class="btn sm ghost" data-hadisconnect>Disconnect</button></div>`
+    : `<section class="card"><div class="card-b">Home Assistant is connected, but it has no devices yet. Add integrations for ecobee, Govee and Alexa in Home Assistant (Settings → Devices &amp; services).</div></section>`;
+}
+async function haCall(entity_id, service, data, confirm){
+  try{
+    let r = await api("/api/ha/call", {entity_id, service, data, confirm: !!confirm});
+    if (r.needs_confirm){
+      if (!window.confirm(r.say)) return;
+      r = await api("/api/ha/call", {entity_id, service, data, confirm: true});
+    }
+    toast(r.say); setTimeout(() => (route === "cameras" || route === "devices") && renderHA(route, true), 900);
+  }catch(err){ toast(err.message, true); }
+}
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "haForm") return;
+  e.preventDefault();
+  const msg = $("#haMsg"); msg.textContent = "Connecting…";
+  try{
+    await api("/api/ha/setup", {url: $("#haUrl").value, token: $("#haToken").value});
+    $("#haToken").value = ""; toast("Connected to Home Assistant"); HA.at = 0; $("#camerasPage").dataset.sig = ""; renderHA(route, true);
+  }catch(err){ msg.textContent = err.message; }
+});
+const COLOR_RGB = {red:[255,0,0], orange:[255,120,0], yellow:[255,220,0], green:[0,255,0], blue:[0,0,255], purple:[150,0,255], pink:[255,80,180], "warm white":[255,190,120]};
+document.addEventListener("click", e => {
+  const cam = e.target.closest("[data-cam]");
+  if (cam){ cam.classList.toggle("big"); return; }
+  if (e.target.closest("[data-hadisconnect]")){
+    if (!confirm("Disconnect Home Assistant from the dashboard? Your devices and Home Assistant itself are not changed.")) return;
+    api("/api/ha/disconnect", {}).then(() => { HA.data = null; HA.status = {configured: false}; $("#camerasPage").dataset.sig = ""; renderHA(route, true); });
+    return;
+  }
+  const b = e.target.closest("[data-ha]"); if (!b || b.type === "range") return;
+  const data = {};
+  if (b.dataset.temp) data.temperature = +b.dataset.temp;
+  if (b.dataset.mode) data.hvac_mode = b.dataset.mode;
+  if (b.dataset.color) data.rgb_color = COLOR_RGB[b.dataset.color];
+  haCall(b.dataset.ha, b.dataset.svc, data);
+});
+document.addEventListener("change", e => {
+  const r = e.target.closest("input[type=range][data-ha]"); if (!r) return;
+  const v = +r.value; haCall(r.dataset.ha, r.dataset.svc, {[r.dataset.key]: r.dataset.key === "volume_level" ? v / 100 : v});
+});
+// Keep cameras and device states fresh while their page is open.
+setInterval(() => { if ((route === "cameras" || route === "devices") && !document.hidden) renderHA(route); }, 4000);
 
 async function renderHubPage(p){
   const box = $("#" + p + "Page");
@@ -1971,14 +2154,7 @@ async function renderHubPage(p){
           <div class="meta" style="margin-top:4px"><span class="hint">${it.published ? rel(it.published) : ""}</span><button class="btn sm ghost" data-askabout="${esc(it.title)}">Ask Jarvis</button></div></div></li>`).join("")
           : `<li class="empty">Couldn't load this section.</li>`}</ul></section>`).join("")}</div>`;
   }
-  else if (p === "cameras" || p === "devices"){
-    const cams = p === "cameras";
-    box.innerHTML = `<section class="card"><div class="card-b">
-      <h2 style="font-size:19px;text-transform:none;letter-spacing:0;margin:0 0 8px">${cams ? "Connect your security cameras" : "Connect your smart devices"}</h2>
-      <p style="margin:0 0 10px">${cams ? "Once connected, every camera appears here as a live tile, and Jarvis can show you any of them on request." : "Once connected, your lights, plugs, thermostat and more appear here with on/off and controls, and Jarvis can control them by voice."}</p>
-      <p class="hint" style="margin:0">This needs one more step from you: tell Claude which ${cams ? "camera brand(s)" : "device brands and apps"} you use${cams ? " (for example Ring, Wyze, Blink, Arlo, Nest, Eufy or Reolink)" : " (for example Alexa, Google Home, SmartThings, Kasa, Govee, Hue, or a smart lock or thermostat)"}. The setup is built around those.</p>
-    </div></section>`;
-  }
+  else if (p === "cameras" || p === "devices"){ box.dataset.sig = ""; return renderHA(p, true); }
 }
 document.addEventListener("click", async e => {
   const say = e.target.closest("[data-say]"); if (say){ speak(say.dataset.say); return; }
