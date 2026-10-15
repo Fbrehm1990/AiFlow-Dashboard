@@ -216,12 +216,14 @@ def add_task(body):
             end = i + 1
     lines[end:end] = [line, *extra]
     write(INBOX, "\n".join(lines) + "\n")
-    record_handoff(typ, title, summary, str(body.get("details") or ""))
+    record_handoff(typ, title, summary, str(body.get("details") or ""), body.get("project"))
 
 
-def record_handoff(typ, title, summary, details):
+def record_handoff(typ, title, summary, details, project_override=None):
     """Append who sent a task to whom to tasks/history.jsonl, for the crew hand-off trails and the timeline."""
-    if summary.startswith("step of your task"):
+    if summary.startswith("your feedback"):
+        origin, project = "You (feedback)", project_override or title
+    elif summary.startswith("step of your task"):
         origin = "Manager"
         first = details.splitlines()[0] if details else ""
         project = first.split("Part of your request:", 1)[1].strip() if "Part of your request:" in first else title
@@ -235,6 +237,38 @@ def record_handoff(typ, title, summary, details):
           "type": typ, "from": origin, "project": project}
     with open(HISTORY, "a", encoding="utf-8") as f:
         f.write(json.dumps(ev) + "\n")
+
+
+def give_feedback(body):
+    """Owner feedback on one task, sent from a team member's box. Not started yet: the feedback is added to the
+    task itself. Otherwise (running, done, blocked): a high-priority revision task goes to the same agent."""
+    title, text = one_line(body.get("title")), str(body.get("feedback") or "").strip()
+    if not title or not text:
+        raise ValueError("Write some feedback first")
+    lines = read(INBOX).splitlines()
+    task = next((t for t in parse_inbox() if t["title"] == title), None)
+    if task and task["state"] == "queued":
+        i = task["line"]
+        lines[block_end(lines, i):block_end(lines, i)] = [f"  Owner feedback: {one_line(text)}"]
+        write(INBOX, "\n".join(lines) + "\n")
+        return "added"
+    done = next((d for d in parse_done() if d["title"] == title), None)
+    typ = (task or done or {}).get("type") or body.get("type") or "auto"
+    if typ not in TYPES:
+        typ = "auto"
+    hist = {h["title"]: h for h in read_history()}
+    project = (hist.get(title) or {}).get("project") or title
+    details = [f"Original task: {title}"]
+    if done and done.get("output"):
+        details.append(f"Original result: {done['output']}")
+    if done and done.get("reason"):
+        details.append(f"It was blocked because: {done['reason']}")
+    if task:
+        details.append("The original was still in progress when this feedback arrived; build on its result.")
+    details += [f"Owner feedback: {line}" for line in text.splitlines() if line.strip()]
+    add_task({"type": typ, "priority": "high", "title": f"Revise: {title}"[:300], "summary": "your feedback",
+              "details": "\n".join(details), "project": project})
+    return "revision"
 
 
 def read_history(limit=400):
@@ -393,6 +427,10 @@ class Handler(BaseHTTPRequestHandler):
                 edit_task(body, route.rsplit("/", 1)[1])
             elif route == "/api/done/dismiss":
                 dismiss_done(body.get("raw", ""))
+            elif route == "/api/feedback":
+                result = give_feedback(body)
+                kick_dispatch()
+                return self._send(200, {"ok": True, "result": result})
             elif route == "/api/goals":
                 write(GOALS, str(body.get("text", "")).replace("\r\n", "\n"))
             elif route == "/api/approvals/decide":

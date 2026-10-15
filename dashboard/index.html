@@ -510,6 +510,16 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .proj .here{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.tl-ev .nd{box-shadow:none}}
 
+/* feedback */
+.mate .tasks li{position:relative}
+.fb-btn{position:absolute;top:7px;right:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:7px;font-size:11.5px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .15s}
+.mate .tasks li:hover .fb-btn,.fb-btn:focus-visible{opacity:1}
+.fb-btn:hover{color:var(--accent);border-color:var(--border-hi)}
+@media (hover:none){.fb-btn{opacity:1}}
+.fb{display:grid;gap:8px;margin-top:8px;padding:10px;border:1px solid var(--border-hi);border-radius:10px;background:var(--surface-2);cursor:default}
+.fb .row2{display:flex;gap:6px;justify-content:flex-end}
+.fb textarea{min-height:70px;font-size:13px}
+
 /* work starts immediately now, so no progress bars */
 .overall-wrap,.steps,.indet{display:none!important}
 
@@ -1463,6 +1473,7 @@ function liveTasks(){
 }
 
 function renderCrew(){
+  if (fbOpen) return;                                   // don't wipe a feedback note while it's being written
   const live = liveTasks();
   $("#crew").innerHTML = AGENTS.map((a, i) => {
     const mineLive = live.filter(t => a.types.includes(t.type));
@@ -1489,15 +1500,46 @@ function renderCrew(){
         <button role="tab" data-crewtab="active" aria-selected="${tab === "active"}">Active · ${active.length}</button>
         <button role="tab" data-crewtab="done" aria-selected="${tab === "done"}">Done · ${done.length}</button>
       </div>
-      <ul class="tasks">${list.length ? list.map(x => `<li data-proj="${esc(projectOf(x.title))}" data-title="${esc(x.title)}">
-          <div class="t">${esc(x.title)}</div><div class="sub" ${x.blocked ? 'style="color:var(--danger)"' : ""}>${esc(x.sub)}</div>${trail(x.title, x.type)}</li>`).join("")
+      <ul class="tasks">${list.length ? list.map(x => `<li data-proj="${esc(projectOf(x.title))}" data-title="${esc(x.title)}" data-type="${esc(x.type)}">
+          <div class="t">${esc(x.title)}</div><div class="sub" ${x.blocked ? 'style="color:var(--danger)"' : ""}>${esc(x.sub)}</div>${trail(x.title, x.type)}
+          <button type="button" class="fb-btn" data-fb title="Give ${esc(a.name)} feedback on this">✎ Feedback</button></li>`).join("")
         : `<li class="none">${tab === "active" ? "Nothing in progress" : "Nothing finished yet"}</li>`}</ul>
     </article>`;
   }).join("");
 }
+/* ---------- feedback: tell a team member what to change, right from their box ---------- */
+let fbOpen = false;
+function feedbackForm(title, type, who){
+  return `<form class="fb" data-fbform data-title="${esc(title)}" data-type="${esc(type)}">
+    <label class="f" style="margin:0">What should the ${esc(who)} change?</label>
+    <textarea name="text" rows="3" required placeholder="e.g. The colors are too dark. Make the hero brighter and put the phone number first."></textarea>
+    <div class="row2"><button type="button" class="btn sm ghost" data-fbcancel>Cancel</button><button class="btn sm primary">Send feedback</button></div>
+  </form>`;
+}
+async function sendFeedback(form){
+  const btn = form.querySelector(".primary"); btn.disabled = true;
+  try{
+    const r = await api("/api/feedback", {title: form.dataset.title, type: form.dataset.type, feedback: form.text.value});
+    toast(r.result === "added" ? "Feedback added. It hasn't started yet, so it'll be built in from the start." : "Sent. They'll assess it and fix it now.");
+    fbOpen = false; form.remove(); load();
+  }catch(err){ toast(err.message, true); btn.disabled = false; }
+}
+document.addEventListener("submit", e => { const f = e.target.closest("[data-fbform]"); if (f){ e.preventDefault(); sendFeedback(f); } });
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-fbcancel]")){ e.target.closest("[data-fbform]").remove(); fbOpen = false; if (S) renderCrew(); }
+});
+
 $("#crew").addEventListener("click", e => {
+  if (e.target.closest("[data-fbform]")) return;                       // typing in a feedback box
   const t = e.target.closest("[data-crewtab]");
   if (t){ crewTab[t.closest("[data-agent]").dataset.agent] = t.dataset.crewtab; renderCrew(); return; }
+  const fb = e.target.closest("[data-fb]");
+  if (fb){
+    const li = fb.closest("li"), who = fb.closest("[data-agent]").dataset.agent;
+    document.querySelectorAll("#crew [data-fbform]").forEach(f => f.remove());
+    li.insertAdjacentHTML("beforeend", feedbackForm(li.dataset.title, li.dataset.type, who));
+    li.querySelector("textarea").focus(); fbOpen = true; return;
+  }
   const li = e.target.closest("li[data-proj]"); if (li) openProject(li.dataset.proj, li.dataset.title);
 });
 
@@ -1578,6 +1620,7 @@ function openProject(key, title){
           <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
             ${out ? `<button class="btn sm" data-view="${esc(out)}">Open result</button>` : ""}
             ${site ? `<button class="btn sm primary" data-opensite="${esc(site.path)}">Open site</button>` : ""}
+            <button class="btn sm" data-stepfb="${esc(s.t)}" data-type="${esc(s.type)}" data-who="${esc(s.agent.name)}">✎ Feedback</button>
           </div></div></div>`;
     }).join("")}</div></div>`;
   viewing = null;
@@ -1586,6 +1629,12 @@ function openProject(key, title){
   $("#vBody").innerHTML = html;
   document.body.classList.add("open");
 }
+$("#vBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-stepfb]"); if (!b) return;
+  $("#vBody").querySelectorAll("[data-fbform]").forEach(f => f.remove());
+  b.parentElement.insertAdjacentHTML("afterend", feedbackForm(b.dataset.stepfb, b.dataset.type, b.dataset.who));
+  b.parentElement.nextElementSibling.querySelector("textarea").focus();
+});
 const _view = view;
 view = async function(path){ $("#vOpen").classList.remove("hidden"); return _view(path); };
 

@@ -11,7 +11,9 @@ description: Process the task inbox unattended. Routes "Team decides" tasks thro
    CLAUDE.md, with the exact task title filled in, so the dashboard shows each task's step and reasoning live.
 2. Collect the open `- [ ]` tasks under `## Queue`. Skip `- [~]` (in progress elsewhere).
    If a `[~]` task's log entry is more than 3 hours old, treat it as stale and reset it to `[ ]`.
-3. Order them by priority: high, then normal, then low. Within a priority, take them top to bottom.
+3. Order them: owner feedback first (`Revise: …` tasks marked "your feedback"), then by priority (high,
+   normal, low), then top to bottom. Hand each revision to the agent who did the original (by its type),
+   with the "Owner feedback" section of CLAUDE.md.
 4. **Route "Team decides" tasks first** (`[auto]`, or no tag). For each one, mark it `[~]` and hand it to the
    `manager` agent with the instruction "Triage this owner task", as described in `.claude/agents/manager.md`.
    The Manager answers with one of two things:
