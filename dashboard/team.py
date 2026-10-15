@@ -30,6 +30,7 @@ ROOT = server.ROOT
 APPROVALS = ROOT / "tasks" / "approvals.json"
 LOCK = APPROVALS.with_suffix(".lock")
 AGENTS = ["Manager", "Researcher", "Web builder", "Marketer"]
+OWNER = "You"   # tasks the owner asks for by voice (the voice assistant files them on the owner's behalf)
 KINDS = ["post", "ad", "email", "deploy", "other"]
 # Limits on the Manager's autonomy: enough to keep the team busy, not enough to run up usage.
 MANAGER_MAX_OPEN = 8
@@ -161,8 +162,18 @@ def submit(a):
     if action == "add-task":
         for k, d in (("priority", "normal"), ("details", ""), ("for_owner_task", None)):
             setattr(ns, k, getattr(ns, k, None) or d)
-        if ns.type == "auto":
+        if ns.type == "auto" and ns.by != OWNER:
             raise SystemExit("team: route the task to a real type (research, web, marketing, code, brief, docs)")
+        if ns.by == OWNER:   # owner's own request: same as adding it on the dashboard; the team routes it
+            server.add_task({"type": ns.type, "priority": ns.priority, "title": ns.title, "details": ns.details})
+            print(json.dumps({"added": ns.title, "type": ns.type, "by": OWNER}))
+            path.unlink()
+            try:
+                import dispatch
+                print(json.dumps({"dispatch": " ".join(dispatch.start())}))
+            except Exception as e:
+                print(json.dumps({"dispatch": f"skipped: {e}"}))
+            return
         if ns.by not in AGENTS or ns.type not in server.TYPES or ns.priority not in server.PRIORITIES or not getattr(ns, "title", ""):
             raise SystemExit("team: add-task needs by, type, title (and a valid priority)")
         add_task(ns)
@@ -177,8 +188,16 @@ def submit(a):
         if getattr(ns, "agent", None) not in AGENTS or getattr(ns, "kind", None) not in KINDS or not getattr(ns, "title", ""):
             raise SystemExit("team: approval-add needs agent, kind and title")
         approval_add(ns)
+    elif action == "feedback":   # owner feedback by voice, same as the dashboard's Feedback button
+        result = server.give_feedback({"title": getattr(ns, "title", ""), "feedback": getattr(ns, "feedback", "")})
+        print(json.dumps({"feedback": result}))
+        try:
+            import dispatch
+            print(json.dumps({"dispatch": " ".join(dispatch.start())}))
+        except Exception as e:
+            print(json.dumps({"dispatch": f"skipped: {e}"}))
     else:
-        raise SystemExit("team: action must be add-task or approval-add")
+        raise SystemExit("team: action must be add-task, approval-add or feedback")
     path.unlink()  # processed
 
 

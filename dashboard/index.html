@@ -510,6 +510,21 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .proj .here{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.tl-ev .nd{box-shadow:none}}
 
+/* voice: settings + conversation */
+.voice-set{width:100%;max-width:520px;display:grid;gap:8px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
+.voice-set .vrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.voice-set .vrow label{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--muted)}
+.voice-set input[type=range]{width:120px;accent-color:var(--accent)}
+.voice-set input[type=text]{width:auto;flex:1;min-width:90px;padding:5px 8px}
+.convo{width:100%;max-width:560px;text-align:left;border:1px solid var(--border-hi);border-radius:12px;background:var(--surface-2);padding:10px 12px;box-shadow:var(--glow)}
+.convo-state{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+.convo-state::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);animation:blink 1.1s ease-in-out infinite}
+.convo-log{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:200px;overflow-y:auto}
+.convo-log .me{align-self:flex-end;background:var(--accent-soft);border:1px solid var(--border-hi);padding:6px 10px;border-radius:12px 12px 4px 12px;font-size:13.5px;max-width:85%}
+.convo-log .ai{align-self:flex-start;background:var(--surface);border:1px solid var(--border);padding:6px 10px;border-radius:12px 12px 12px 4px;font-size:13.5px;max-width:90%}
+.convo-log .interim{opacity:.6;font-style:italic}
+#talkBtn.on{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 0 18px rgba(255,93,122,.4)}
+
 /* feedback */
 .mate .tasks li{position:relative}
 .fb-btn{position:absolute;top:7px;right:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:7px;font-size:11.5px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .15s}
@@ -541,6 +556,8 @@ body{zoom:1.14}
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
   <symbol id="i-voice" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></symbol>
   <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16.5 14.6c2.3.2 4 1.7 4.5 4.4"/></symbol>
   <symbol id="i-approve" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></symbol>
@@ -600,8 +617,27 @@ body{zoom:1.14}
           <h2 id="coreHeadline">Linking to your team…</h2>
           <p id="coreSub" class="core-sub"></p>
           <div class="core-actions">
-            <button class="btn primary" id="briefBtn"><svg class="i"><use href="#i-voice"/></svg>Brief me</button>
+            <button class="btn primary" id="talkBtn"><svg class="i"><use href="#i-mic"/></svg>Talk</button>
+            <button class="btn" id="briefBtn"><svg class="i"><use href="#i-voice"/></svg>Brief me</button>
             <button class="btn ghost hidden" id="stopBrief">Stop</button>
+            <button class="btn ghost" id="voiceBtn" title="Voice settings" aria-label="Voice settings"><svg class="i"><use href="#i-gear"/></svg></button>
+          </div>
+          <div class="voice-set hidden" id="voiceSet">
+            <label class="f" for="vVoice">Voice</label>
+            <select id="vVoice"></select>
+            <div class="vrow">
+              <label>Speed <input type="range" id="vRate" min=".7" max="1.3" step=".05"></label>
+              <label>Pitch <input type="range" id="vPitch" min=".6" max="1.4" step=".05"></label>
+            </div>
+            <div class="vrow">
+              <label style="flex:1">Call me <input type="text" id="vAddress" maxlength="30" placeholder="sir"></label>
+              <button class="btn sm" id="vJarvis" type="button">Jarvis preset</button>
+              <button class="btn sm primary" id="vTest" type="button">Test</button>
+            </div>
+          </div>
+          <div class="convo hidden" id="convo">
+            <div class="convo-state" id="convoState">Listening…</div>
+            <div class="convo-log" id="convoLog"></div>
           </div>
           <div class="brief-text" id="briefText" aria-live="polite"></div>
         </div>
@@ -1655,7 +1691,7 @@ function renderCore(){
 function recapText(){
   const h = new Date().getHours(), greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
   const today = new Date().toLocaleDateString("en-CA");
-  const parts = [`${greet}. Here's your recap.`];
+  const parts = [`${greet}, ${VS.address}. Here's your recap.`];
   const live = liveTasks();
   if (live.length) parts.push(live.map(t => `The ${agentOf(t.type).name} is working on ${t.title}, currently ${t.label || "in progress"}.`).join(" "));
   else parts.push(S.tasks.length ? `${S.tasks.length} task${S.tasks.length > 1 ? "s are" : " is"} waiting to start.` : "The team is standing by, and the queue is empty.");
@@ -1672,26 +1708,69 @@ function recapText(){
   parts.push("That's everything for now.");
   return parts;
 }
-function pickVoice(){
-  const vs = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
-  return vs.find(v => /natural|aria|jenny|guy|neural/i.test(v.name)) || vs.find(v => /google us english/i.test(v.name)) || vs.find(v => /en-us/i.test(v.lang)) || vs[0];
+/* ---------- voice: Jarvis-style speech, settings, and spoken conversation ---------- */
+const VKEY = "aiwf-voice";
+let VS = {voice: "", rate: .95, pitch: .9, address: "sir"};
+try { Object.assign(VS, JSON.parse(localStorage.getItem(VKEY) || "{}")); } catch {}
+const saveVS = () => { try { localStorage.setItem(VKEY, JSON.stringify(VS)); } catch {} };
+const allVoices = () => ("speechSynthesis" in window ? speechSynthesis.getVoices() : []).filter(v => /^en/i.test(v.lang));
+// Closest built-in match to a calm British AI butler: a UK male voice, natural/neural where available.
+function jarvisVoice(){
+  const vs = allVoices();
+  return vs.find(v => /en-GB/i.test(v.lang) && /(ryan|thomas|george|oliver|alfie|elliot|noah|ethan)/i.test(v.name) && /natural|online|neural/i.test(v.name))
+      || vs.find(v => /en-GB/i.test(v.lang) && /(ryan|thomas|george|oliver|alfie|elliot|noah|ethan)/i.test(v.name))
+      || vs.find(v => /google uk english male/i.test(v.name))
+      || vs.find(v => /en-GB/i.test(v.lang) && /male/i.test(v.name))
+      || vs.find(v => /en-GB/i.test(v.lang))
+      || vs.find(v => /(guy|davis|andrew|brian|christopher|eric|tony)/i.test(v.name))
+      || vs[0];
 }
-function speakRecap(){
-  if (!("speechSynthesis" in window)){ toast("This browser can't speak. The recap is shown as text.", true); }
-  const parts = recapText();
-  $("#briefText").innerHTML = parts.map((p, i) => `<span data-s="${i}">${esc(p)}</span>`).join(" ");
-  if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  $("#briefBtn").classList.add("hidden"); $("#stopBrief").classList.remove("hidden");
-  parts.forEach((p, i) => {
-    const u = new SpeechSynthesisUtterance(p);
-    const v = pickVoice(); if (v) u.voice = v;
-    u.rate = 1.02; u.pitch = 1;
-    u.onstart = () => { brain.speaking = true; document.querySelectorAll("#briefText span").forEach(s => s.classList.toggle("now", s.dataset.s == i)); };
+function pickVoice(){ return allVoices().find(v => v.name === VS.voice) || jarvisVoice(); }
+function fillVoiceSettings(){
+  const vs = allVoices(), cur = pickVoice();
+  $("#vVoice").innerHTML = vs.map(v => `<option value="${esc(v.name)}" ${cur && v.name === cur.name ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")
+    || `<option>No voices available in this browser</option>`;
+  $("#vRate").value = VS.rate; $("#vPitch").value = VS.pitch; $("#vAddress").value = VS.address;
+}
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = fillVoiceSettings;
+$("#voiceBtn").addEventListener("click", () => { fillVoiceSettings(); $("#voiceSet").classList.toggle("hidden"); });
+$("#vVoice").addEventListener("change", e => { VS.voice = e.target.value; saveVS(); });
+$("#vRate").addEventListener("input", e => { VS.rate = +e.target.value; saveVS(); });
+$("#vPitch").addEventListener("input", e => { VS.pitch = +e.target.value; saveVS(); });
+$("#vAddress").addEventListener("input", e => { VS.address = e.target.value.trim() || "sir"; saveVS(); });
+$("#vJarvis").addEventListener("click", () => {
+  const v = jarvisVoice(); VS.voice = v ? v.name : ""; VS.rate = .95; VS.pitch = .9; saveVS(); fillVoiceSettings();
+  speak(`Jarvis preset loaded. At your service, ${VS.address}.`);
+});
+$("#vTest").addEventListener("click", () => speak(`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${VS.address}. All systems are online, and the team is standing by.`));
+
+// Speak one passage; resolves when finished (or cancelled).
+function speak(text){
+  return new Promise(res => {
+    if (!("speechSynthesis" in window) || !text){ res(); return; }
+    const u = new SpeechSynthesisUtterance(text.replace(/[*_#`>]/g, ""));
+    const v = pickVoice(); if (v){ u.voice = v; u.lang = v.lang; }
+    u.rate = VS.rate; u.pitch = VS.pitch;
+    u.onstart = () => { brain.speaking = true; };
     u.onboundary = () => { brain.kick = 1; };
-    if (i === parts.length - 1) u.onend = endSpeech;
+    u.onend = u.onerror = () => { brain.speaking = false; res(); };
     speechSynthesis.speak(u);
   });
+}
+
+// Brief me: the local recap, spoken sentence by sentence with highlighting
+async function speakRecap(){
+  const parts = recapText();
+  $("#briefText").innerHTML = parts.map((p, i) => `<span data-s="${i}">${esc(p)}</span>`).join(" ");
+  if (!("speechSynthesis" in window)){ toast("This browser can't speak. The recap is shown as text.", true); return; }
+  speechSynthesis.cancel();
+  $("#briefBtn").classList.add("hidden"); $("#stopBrief").classList.remove("hidden");
+  for (let i = 0; i < parts.length; i++){
+    if ($("#stopBrief").classList.contains("hidden")) break;
+    document.querySelectorAll("#briefText span").forEach(s => s.classList.toggle("now", s.dataset.s == i));
+    await speak(parts[i]);
+  }
+  endSpeech();
 }
 function endSpeech(){
   brain.speaking = false;
@@ -1699,13 +1778,84 @@ function endSpeech(){
   $("#briefBtn").classList.remove("hidden"); $("#stopBrief").classList.add("hidden");
 }
 $("#briefBtn").addEventListener("click", speakRecap);
-$("#stopBrief").addEventListener("click", () => { speechSynthesis.cancel(); endSpeech(); });
-if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+$("#stopBrief").addEventListener("click", () => { $("#stopBrief").classList.add("hidden"); speechSynthesis.cancel(); endSpeech(); });
+
+/* ---- conversation: listen → think (Claude) → speak → listen again, until "that's all" ---- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const convo = {on: false, session: "", rec: null, quiet: 0};
+const ENDERS = /^(that'?s all|that is all|goodbye|good bye|bye|stop|nothing|no thanks|no thank you|never ?mind|that will be all|thanks,? that'?s all|thank you,? that'?s all)\b/i;
+const RECAP = /\b(brief me|recap|status report|what'?s the status|give me (a|the) (rundown|update))\b/i;
+function convoState(s){ $("#convoState").textContent = s; }
+function bubble(cls, text){
+  const d = document.createElement("div"); d.className = cls; d.textContent = text;
+  $("#convoLog").append(d); $("#convoLog").scrollTop = 1e9; return d;
+}
+function listen(){
+  if (!convo.on) return;
+  brain.listening = true; convoState("Listening…");
+  const rec = new SR(); convo.rec = rec;
+  rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  let interim = null, final = "";
+  rec.onresult = e => {
+    let t = "";
+    for (const r of e.results){ if (r.isFinal) final = r[0].transcript; else t += r[0].transcript; }
+    if (!interim) interim = bubble("me interim", "");
+    interim.textContent = final || t;
+  };
+  rec.onerror = e => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed"){ toast("Microphone access was blocked. Allow it in the address bar to talk.", true); stopTalk(true); }
+  };
+  rec.onend = () => {
+    brain.listening = false;
+    if (!convo.on) return;
+    if (final.trim()){ interim.classList.remove("interim"); convo.quiet = 0; handle(final.trim()); }
+    else {
+      interim?.remove();
+      if (++convo.quiet >= 2){ stopTalk(false, `I'll be here if you need me, ${VS.address}.`); }
+      else listen();
+    }
+  };
+  try { rec.start(); } catch { setTimeout(listen, 300); }
+}
+async function reply(text){ bubble("ai", text); convoState("Speaking…"); await speak(text); }
+async function handle(text){
+  if (ENDERS.test(text)){ await reply(`Very good, ${VS.address}.`); stopTalk(true); return; }
+  if (RECAP.test(text)){ await reply(recapText().join(" ")); listen(); return; }
+  convoState("Thinking…"); brain.thinking = true;
+  try{
+    const r = await api("/api/ask", {text, session: convo.session, address: VS.address});
+    convo.session = r.session || convo.session;
+    brain.thinking = false;
+    await reply(r.reply || `I'm afraid I have nothing on that, ${VS.address}.`);
+    load();                                   // it may have added a task or sent feedback
+  }catch(err){
+    brain.thinking = false;
+    await reply(`Apologies, ${VS.address}. ${err.message}`);
+  }
+  listen();
+}
+async function startTalk(){
+  if (!SR){ toast("Talking needs Chrome or Edge. Voice input isn't supported in this browser.", true); return; }
+  convo.on = true; convo.quiet = 0; convo.session = "";
+  $("#convoLog").innerHTML = ""; $("#convo").classList.remove("hidden");
+  $("#talkBtn").classList.add("on"); $("#talkBtn").lastChild.textContent = "End";
+  await reply(`Yes, ${VS.address}?`);
+  listen();
+}
+async function stopTalk(silent, words){
+  convo.on = false; brain.listening = brain.thinking = false;
+  try { convo.rec && convo.rec.abort(); } catch {}
+  $("#talkBtn").classList.remove("on"); $("#talkBtn").lastChild.textContent = "Talk";
+  if (words){ bubble("ai", words); await speak(words); }
+  if (!silent && !words) speechSynthesis.cancel();
+  convoState("Conversation ended");
+}
+$("#talkBtn").addEventListener("click", () => convo.on ? (speechSynthesis.cancel(), stopTalk(true)) : startTalk());
 
 function renderOverview(){ if (!S) return; renderCore(); renderCrew(); renderTimeline(); }
 
 /* ================= neural core: animated point-cloud brain ================= */
-const brain = {activity: .2, speaking: false, kick: 0};
+const brain = {activity: .2, speaking: false, listening: false, thinking: false, kick: 0};
 (function initBrain(){
   const cv = document.getElementById("brain"); if (!cv) return;
   const ctx = cv.getContext("2d");
@@ -1788,7 +1938,7 @@ const brain = {activity: .2, speaking: false, kick: 0};
       const sec = (now - t0) / 1000;
       // Slow sway around the side view (front facing left) instead of a full spin.
       const ang = -Math.PI/2 + (reduce ? 0 : sec * .07);           // full turn about every 90 seconds, starting side-on
-      brain.kick *= .9; glow += ((brain.speaking ? .9 : brain.activity * .55) + brain.kick * .6 - glow) * .05;
+      brain.kick *= .9; glow += ((brain.speaking ? .9 : brain.thinking ? 1 : brain.listening ? .6 : brain.activity * .55) + brain.kick * .6 - glow) * .05;
       const ca = Math.cos(ang), sa = Math.sin(ang), Q = P.map(p => proj(p, ca, sa));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
       const g = ctx.createRadialGradient(W/2, H/2, 10, W/2, H/2, Math.min(W, H) * .6);
@@ -1807,7 +1957,7 @@ const brain = {activity: .2, speaking: false, kick: 0};
       }
       // shocks: pulses that chain along the mesh like lightning
       if (!reduce){
-        const rate = .25 + brain.activity * 1.2 + (brain.speaking ? 2 : 0) + brain.kick * 3;
+        const rate = .25 + brain.activity * 1.2 + (brain.speaking ? 2 : 0) + (brain.thinking ? 3 : 0) + (brain.listening ? .8 : 0) + brain.kick * 3;
         if (Math.random() < rate * .35) spawn((Math.random() * E.length) | 0);
       }
       ctx.lineCap = "round";

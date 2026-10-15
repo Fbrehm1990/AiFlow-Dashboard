@@ -271,6 +271,42 @@ def give_feedback(body):
     return "revision"
 
 
+VOICE_MODEL = os.environ.get("AIWF_VOICE_MODEL", "haiku")   # fast model for snappy spoken replies
+
+
+def ask_assistant(body):
+    """One turn of a spoken conversation, answered by Claude Code (headless) in the workflow folder.
+    Returns the reply text and the session id to continue the same conversation."""
+    import subprocess
+    import dispatch
+    text = str(body.get("text") or "").strip()[:2000]
+    if not text:
+        raise ValueError("I didn't catch that")
+    exe = dispatch.cli_path()
+    if not exe:
+        raise ValueError("The Claude Code CLI isn't installed")
+    address = one_line(body.get("address") or "sir")[:30]
+    persona = (HERE / "prompts" / "assistant.md").read_text(encoding="utf-8").replace("{address}", address)
+    cmd = [exe, "-p", text, "--output-format", "json", "--model", VOICE_MODEL,
+           "--append-system-prompt", persona, "--disallowedTools", "Agent"]
+    session = str(body.get("session") or "")
+    if re.fullmatch(r"[0-9a-f-]{36}", session):
+        cmd += ["--resume", session]
+    flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+    try:
+        out = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+                             timeout=150, stdin=subprocess.DEVNULL, creationflags=flags)
+    except subprocess.TimeoutExpired:
+        raise ValueError("That took too long. Try asking again more simply.")
+    try:
+        data = json.loads(out.stdout.strip().splitlines()[-1])
+    except (json.JSONDecodeError, IndexError):
+        raise ValueError("Claude didn't answer. Check that the CLI is signed in (claude auth login).")
+    if data.get("is_error"):
+        raise ValueError(str(data.get("result") or "Claude couldn't answer that.")[:300])
+    return {"reply": str(data.get("result") or "").strip(), "session": data.get("session_id", "")}
+
+
 def read_history(limit=400):
     out = []
     for ln in read(HISTORY).splitlines()[-limit:]:
@@ -427,6 +463,8 @@ class Handler(BaseHTTPRequestHandler):
                 edit_task(body, route.rsplit("/", 1)[1])
             elif route == "/api/done/dismiss":
                 dismiss_done(body.get("raw", ""))
+            elif route == "/api/ask":
+                return self._send(200, ask_assistant(body))
             elif route == "/api/feedback":
                 result = give_feedback(body)
                 kick_dispatch()
