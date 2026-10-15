@@ -123,6 +123,14 @@ def import_tasks(path):
         doc_id = str(d.get("id") or d.get("doc_id") or body.get("id") or "")
         if not doc_id or doc_id in imported or body.get("status") != "new":
             continue
+        if body.get("kind") == "feedback":   # feedback sent from the phone (Jarvis), same as the dashboard's button
+            try:
+                server.give_feedback({"title": body.get("title", ""), "feedback": body.get("feedback") or body.get("details", "")})
+            except ValueError as e:
+                print(json.dumps({"skipped_feedback": doc_id, "why": str(e)}))
+            imported.add(doc_id)
+            added.append(doc_id)
+            continue
         typ = body.get("type") if body.get("type") in server.TYPES else "auto"
         prio = body.get("priority") if body.get("priority") in server.PRIORITIES else "normal"
         details = str(body.get("details") or "")
