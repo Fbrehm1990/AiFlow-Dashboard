@@ -202,6 +202,62 @@ header.top h1{background:var(--grad);-webkit-background-clip:text;background-cli
 a{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.dot.working::after{animation:none}}
 
+[hidden]{display:none!important}
+/* ===== Core tab (mirrors the PC overview) ===== */
+.core{display:flex;flex-direction:column;align-items:center;text-align:center;padding:4px 16px 18px;gap:8px}
+.core canvas{width:100%;height:240px;display:block}
+.core-label{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.core-label .dot{margin-top:0;width:9px;height:9px}
+.core h2{font-size:21px;letter-spacing:.02em}
+.core-sub{margin:0;color:var(--muted);font-size:13.5px}
+.core-acts{display:flex;gap:8px;margin-top:4px}
+.brief{font-size:14px;line-height:1.55;text-align:left;border-left:2px solid var(--accent);padding-left:10px}
+.brief:empty{display:none}
+.crew{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:520px){.crew{grid-template-columns:1fr 1fr}}
+.mate{background:var(--card);border:1px solid var(--line);border-radius:16px;min-width:0;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.mate.busy{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 22px color-mix(in srgb,var(--c) 25%,transparent)}
+.mate .hd{display:flex;gap:10px;align-items:center;padding:12px 14px 8px}
+.emblem{width:38px;height:38px;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--c);clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.mate h3{font-size:16px}
+.mate .role{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+.mate .state{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.mate .state .dot{margin-top:0;width:8px;height:8px}
+.tabs2{display:flex;gap:4px;padding:0 14px;border-bottom:1px solid var(--line)}
+.tabs2 button{background:none;border:0;padding:7px 6px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tabs2 button[aria-selected=true]{color:var(--fg);border-bottom-color:var(--c)}
+.mate .tasks{list-style:none;margin:0;padding:4px 0}
+.mate .tasks li{padding:9px 14px;position:relative;cursor:pointer}
+.mate .tasks li:active{background:var(--sunk)}
+.mate .tasks .t{font-size:14px;font-weight:560;overflow-wrap:anywhere;padding-right:78px}
+.mate .tasks .sub{font-size:12.5px;color:var(--muted)}
+.mate .tasks .none{color:var(--muted);font-size:13.5px;cursor:default}
+.trail{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:5px;font-family:var(--mono);font-size:10.5px}
+.trail span{padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.trail span.me{color:var(--c,var(--accent));border-color:color-mix(in srgb,var(--c,var(--accent)) 50%,transparent)}
+.trail i{font-style:normal;color:var(--muted)}
+.fb-btn{position:absolute;top:8px;right:12px;border:1px solid var(--line);background:var(--card);color:var(--accent);border-radius:8px;font-size:11.5px;padding:3px 8px;cursor:pointer}
+.fb{display:grid;gap:8px;margin-top:8px;padding:10px;border:1px solid var(--line-hi);border-radius:12px;background:var(--sunk);cursor:default}
+.fb .row2{display:flex;gap:6px;justify-content:flex-end}
+.fb textarea{min-height:64px}
+.tl{padding:4px 0 10px}
+.tl-day{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:10px 16px 2px}
+.tl-ev{display:grid;grid-template-columns:58px 12px minmax(0,1fr);gap:8px;align-items:start;padding:8px 16px;cursor:pointer}
+.tl-ev:active{background:var(--sunk)}
+.tl-ev .tm{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right;padding-top:2px}
+.tl-ev .nd{width:9px;height:9px;border-radius:50%;background:var(--c);margin-top:6px;box-shadow:0 0 8px color-mix(in srgb,var(--c) 70%,transparent)}
+.tl-ev .tx{font-size:14px;overflow-wrap:anywhere}
+.proj h3{font-size:20px;margin:14px 0 2px}
+.proj .chain{display:flex;flex-direction:column;margin:16px 0}
+.proj .step{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;position:relative;padding-bottom:18px}
+.proj .step::before{content:"";position:absolute;left:10px;top:22px;bottom:0;width:2px;background:var(--line)}
+.proj .step:last-child::before{display:none}
+.proj .sdot{width:22px;height:22px;border-radius:50%;border:2px solid var(--c);display:grid;place-items:center;font-size:11px;color:var(--c);background:var(--bg)}
+.proj .step.done .sdot{background:var(--c);color:#04111c}
+.proj .who{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--c)}
+.proj .what{font-weight:600;margin:2px 0}
+.proj .here{font-size:10px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
 /* ===== readability: white lettering, larger type (matches the desktop dashboard) ===== */
 :root{--fg:#ffffff;--muted:#b3bdd9}
 body{font-size:16.5px}
@@ -225,11 +281,11 @@ header.top h1{font-size:20px}
 
 <button class="fab" id="fab" aria-label="Add a task">+</button>
 <nav class="tabs" aria-label="Sections"><div class="in">
-  <button class="tab" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button class="tab" data-tab="home"><svg viewBox="0 0 24 24"><path d="M12 4.5c-3.6 0-6.5 2.4-6.5 5.6 0 1.6.8 3 2 4v3.4h3v-2h3v2h3v-3.4c1.2-1 2-2.4 2-4 0-3.2-2.9-5.6-6.5-5.6z"/><path d="M9.5 9.5h1.5M13 9.5h1.5M12 7v6"/></svg>Core</button>
   <button class="tab" data-tab="jarvis"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12h1.5l1.2-3 1.6 6 1.2-3h1.5"/></svg>Jarvis</button>
   <button class="tab" data-tab="queue"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Queue</button>
-  <button class="tab" data-tab="results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 10"/></svg>Results</button>
-  <button class="tab" data-tab="blocked"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>Blocked<span class="b" id="bBlocked" hidden></span></button>
+  <button class="tab" data-tab="approvals"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></svg>Approve<span class="b" id="bApprovals" hidden></span></button>
+  <button class="tab" data-tab="results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 10"/></svg>Results<span class="b" id="bBlocked" hidden></span></button>
 </div></nav>
 
 <div id="sheetRoot"></div>
@@ -279,6 +335,8 @@ function render(){
   const blocked = S?.blocked?.length || 0;
   $("#bBlocked").hidden = !blocked; $("#bBlocked").textContent = blocked;
   renderSync();
+  const apsWaiting = (S?.approvals || []).filter(a => a.status === "pending" && !sentDecision(a.id)).length;
+  $("#bApprovals").hidden = !apsWaiting; $("#bApprovals").textContent = apsWaiting;
   const v = $("#view");
   if (tab === "jarvis"){ if (!$("#jv")) v.innerHTML = jarvisShell(); $("#fab").hidden = true; return; }   // keep the chat on refresh
   $("#fab").hidden = false;
@@ -286,7 +344,12 @@ function render(){
                                   : `<div class="card empty">Connecting to your workflow…</div>`; return; }
   if (!S){ v.innerHTML = `<div class="card"><div class="status"><span class="dot"></span><div><h2>Waiting for your PC</h2>
       <p>Your PC sends its status here every 30 minutes while the Claude app is open. You can already add tasks with the + button; they'll be picked up on the next sync.</p></div></div></div>${pendingCard()}`; return; }
-  v.innerHTML = {home: homeView, queue: queueView, results: resultsView, blocked: blockedView}[tab]();
+  if (tab === "home" || !["queue", "approvals", "results"].includes(tab)){
+    tab = "home";
+    if (!$("#core")){ v.innerHTML = coreShell(); initBrain(); }      // the brain keeps running across refreshes
+    updateCore(); return;
+  }
+  v.innerHTML = {queue: queueView, approvals: approvalsView, results: resultsView}[tab]();
 }
 
 function renderSync(){
@@ -362,8 +425,14 @@ function doneRow(d){
 }
 function resultsView(){
   const done = S.done || [], linked = new Set(done.map(d => d.report));
-  const other = (S.reports || []).filter(r => !linked.has(r.id));
-  return `<div class="card"><div class="card-h"><h2>Finished tasks</h2><span class="n">${done.length || ""}</span></div>
+  const other = (S.reports || []).filter(r => !linked.has(r.id) && !(S.sites || []).some(s => s.report === r.id));
+  const sites = S.sites || [];
+  return `${(S.blocked || []).length ? blockedView() : ""}
+    ${sites.length ? `<div class="card"><div class="card-h"><h2>Demo sites</h2><span class="n">on your PC only</span></div><ul class="list">
+      ${sites.map(s => `<li class="row ${s.report ? "tap" : ""}" ${s.report ? `data-report="${esc(s.report)}" role="button" tabindex="0"` : ""}><div class="main">
+        <div class="meta">${tag("web")}<span>${esc(ago(s.modified))}</span></div><div class="t">${esc(s.title)}</div>
+        <div class="d">Open it from the PC dashboard. Tap for the notes.</div></div>${s.report ? `<span class="chev">›</span>` : ""}</li>`).join("")}</ul></div>` : ""}
+    <div class="card"><div class="card-h"><h2>Finished tasks</h2><span class="n">${done.length || ""}</span></div>
       ${done.length ? `<ul class="list">${done.map(doneRow).join("")}</ul>` : `<div class="empty">Nothing finished yet.</div>`}</div>
     ${other.length ? `<div class="card"><div class="card-h"><h2>Briefs & digests</h2></div><ul class="list">
       ${other.map(r => `<li class="row tap" data-report="${esc(r.id)}" role="button" tabindex="0"><div class="main"><div class="meta"><span class="pill">${esc(r.kind)}</span><span>${esc(ago(r.modified))}</span></div><div class="t">${esc(r.title)}</div></div><span class="chev">›</span></li>`).join("")}</ul></div>` : ""}`;
@@ -378,6 +447,267 @@ function blockedView(){
     : `<div class="empty">Nothing blocked.</div>`}</div>
     <p class="note">A retry adds a new task with your answer attached. Dismiss old blocked items from the dashboard on your PC.</p>`;
 }
+
+/* ================= Core tab: mirrors the PC overview ================= */
+const AGENTS = [
+  {name: "Manager", role: "Operations lead", types: ["plan", "digest", "auto"], color: "--plan"},
+  {name: "Researcher", role: "Research & leads", types: ["research", "brief", "docs"], color: "--research"},
+  {name: "Web builder", role: "Websites", types: ["web", "code"], color: "--web"},
+  {name: "Marketer", role: "Social & ads", types: ["marketing"], color: "--marketing"},
+];
+const agentOf = t => AGENTS.find(a => a.types.includes(t)) || AGENTS[1];
+const crewTab = {}; let fbOpen = false;
+const originOf = title => (S.history || []).slice().reverse().find(h => h.title === title);
+const projectOf = title => originOf(title)?.project || title;
+function trail(title, type){
+  const h = originOf(title), a = agentOf(type);
+  let chain;
+  if (type === "auto") chain = ["You", "Manager"];
+  else if (!h) chain = [a.name];
+  else if (h.from === "Manager" && h.project && h.project !== title) chain = ["You", "Manager", a.name];
+  else if (h.from === "Manager") chain = ["Manager", a.name];
+  else chain = [String(h.from || "You").startsWith("You") ? "You" : h.from, a.name];
+  return `<div class="trail">${chain.map((n, i) => `${i ? "<i>→</i>" : ""}<span class="${i === chain.length - 1 ? "me" : ""}">${esc(n)}</span>`).join("")}</div>`;
+}
+function coreShell(){
+  return `<div id="core">
+    <div class="card core"><canvas id="brain" aria-hidden="true"></canvas>
+      <div class="core-label"><span class="dot" id="coreDot"></span><span id="coreState">Neural core</span></div>
+      <h2 id="coreHead">…</h2><p id="coreSub" class="core-sub"></p>
+      <div class="core-acts"><button class="btn primary" data-go="jarvis">Talk to Jarvis</button><button class="btn" id="briefBtn">Brief me</button></div>
+      <div class="brief" id="briefText"></div>
+    </div>
+    <div class="crew" id="crew"></div>
+    <div id="phonePending"></div>
+    <div class="card"><div class="card-h"><h2>Timeline</h2><span class="n">tap to open</span></div><div class="tl" id="timeline"></div></div>
+  </div>`;
+}
+function updateCore(){
+  const r = S.run || {}, st = r.state || "idle", live = S.running || [];
+  const working = [...new Set(live.map(t => agentOf(t.type).name))];
+  const waiting = (S.queue || []).filter(t => t.state !== "running").length;
+  $("#coreDot").className = "dot " + st;
+  $("#coreState").textContent = st === "working" ? "Neural core · active" : st === "stale" ? "Neural core · check needed" : "Neural core · standing by";
+  $("#coreHead").textContent = working.length ? `${working.join(" + ")} ${working.length > 1 ? "are" : "is"} working` : waiting ? `${waiting} task${waiting > 1 ? "s" : ""} about to start` : "All quiet. The team is ready.";
+  const mins = (Date.now() - new Date(S.updated)) / 60000;
+  $("#coreSub").textContent = `${S.stats?.doneToday || 0} finished today · synced ${ago(S.updated)}${mins > 75 ? " (PC may be off)" : ""}`;
+  brainState.activity = st === "working" ? 1 : waiting ? .5 : .15;
+  if (!fbOpen) renderCrew();
+  $("#phonePending").innerHTML = pendingCard();
+  renderTimeline();
+}
+function renderCrew(){
+  const live = S.running || [];
+  $("#crew").innerHTML = AGENTS.map((a, i) => {
+    const mine = live.filter(t => a.types.includes(t.type));
+    const queued = (S.queue || []).filter(t => a.types.includes(t.type) && !mine.some(m => m.title === t.title));
+    const active = [...mine.map(t => ({title: t.title, type: t.type, sub: `Working · ${t.label || "in progress"}`, on: true})),
+                    ...queued.map(t => ({title: t.title, type: t.type, sub: t.state === "running" ? "In progress" : "Starting shortly"}))];
+    let done = [...(S.done || []).filter(d => a.types.includes(d.type)).map(d => ({title: d.title, type: d.type, sub: `Done · ${d.date.slice(5)} ${d.time}`, report: d.report})),
+                ...(S.blocked_all || []).filter(d => a.types.includes(d.type)).map(d => ({title: d.title, type: d.type, sub: `Blocked · ${d.reason || ""}`, bad: true}))].slice(0, 12);
+    if (a.name === "Manager") done = [...done, ...(S.history || []).filter(h => h.from === "Manager").slice(-10).reverse()
+      .map(h => ({title: h.title, type: h.type, sub: `Assigned to ${agentOf(h.type).name}`}))].slice(0, 15);
+    const tb = crewTab[a.name] || "active", list = tb === "active" ? active : done, busy = active.some(x => x.on);
+    return `<article class="mate ${busy ? "busy" : ""}" style="--c:var(${a.color})" data-agent="${esc(a.name)}">
+      <div class="hd"><span class="emblem">${a.name.split(" ").map(w => w[0]).join("")}</span><div style="min-width:0"><h3>${esc(a.name)}</h3><div class="role">0${i + 1} · ${esc(a.role)}</div></div>
+        <span class="state"><span class="dot ${busy ? "working" : ""}"></span>${busy ? "Working" : active.length ? "Up next" : "Standing by"}</span></div>
+      <div class="tabs2"><button data-crewtab="active" aria-selected="${tb === "active"}">Active · ${active.length}</button><button data-crewtab="done" aria-selected="${tb === "done"}">Done · ${done.length}</button></div>
+      <ul class="tasks">${list.length ? list.slice(0, 6).map(x => `<li data-proj="${esc(projectOf(x.title))}" data-title="${esc(x.title)}" data-type="${esc(x.type)}">
+          <div class="t">${esc(x.title)}</div><div class="sub" ${x.bad ? 'style="color:var(--bad)"' : ""}>${esc(x.sub)}</div>${trail(x.title, x.type)}
+          <button class="fb-btn" data-fb>✎ Feedback</button></li>`).join("") : `<li class="none">${tb === "active" ? "Nothing in progress" : "Nothing finished yet"}</li>`}</ul>
+    </article>`;
+  }).join("");
+}
+function timelineEvents(){
+  const ev = [], push = (ts, agent, html, proj, rep, goTab) => ts && ev.push({ts, agent, html, proj, rep, goTab});
+  for (const h of S.history || []){
+    const to = agentOf(h.type).name;
+    if (h.from === "Manager" && h.project && h.project !== h.title) push(h.ts, "Manager", `<b>Manager</b> split “${esc(h.project)}”: ${esc(h.title)} → ${esc(to)}`, h.project);
+    else if (h.from === "Manager") push(h.ts, "Manager", `<b>Manager</b> assigned ${esc(h.title)} → ${esc(to)}`, h.project);
+    else push(h.ts, "You", `<b>You</b> asked: ${esc(h.title)}`, h.project);
+  }
+  for (const d of S.done || []) push(`${d.date}T${d.time || "12:00"}:00`, agentOf(d.type).name, `<b>${esc(agentOf(d.type).name)}</b> finished ${esc(d.title)}`, projectOf(d.title), d.report);
+  for (const d of S.blocked_all || []) push(`${d.date}T${d.time || "12:00"}:00`, agentOf(d.type).name, `<b>${esc(agentOf(d.type).name)}</b> got blocked on ${esc(d.title)}`, projectOf(d.title));
+  for (const a of S.approvals || []){
+    push(a.created, a.agent, `<b>${esc(a.agent)}</b> asked for approval: ${esc(a.title)}`, null, null, "approvals");
+    if (a.decided) push(a.decided, "You", `<b>You</b> ${esc(a.status)} “${esc(a.title)}”`, null, null, "approvals");
+  }
+  for (const s of S.sites || []) push(s.modified, "Web builder", `<b>Web builder</b> built a demo site: ${esc(s.title)}`, null, s.report);
+  return ev.sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
+}
+function renderTimeline(){
+  const ev = timelineEvents(); let html = "", day = "";
+  ev.forEach((e, i) => {
+    const d = new Date(e.ts), dl = d.toDateString() === new Date().toDateString() ? "Today" : d.toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
+    if (dl !== day){ html += `<div class="tl-day">${dl}</div>`; day = dl; }
+    const a = AGENTS.find(x => x.name === e.agent);
+    html += `<div class="tl-ev" style="--c:var(${a ? a.color : "--accent"})" data-ev="${i}" role="button" tabindex="0"><span class="tm">${d.toLocaleTimeString([], {hour: "numeric", minute: "2-digit"})}</span><span class="nd"></span><span class="tx">${e.html}</span></div>`;
+  });
+  $("#timeline").innerHTML = html || `<div class="empty">Nothing yet.</div>`;
+  $("#timeline")._ev = ev;
+}
+function openProject(key, title){
+  const hist = (S.history || []).filter(h => h.project === key || h.title === key);
+  const titles = [...new Set([...hist.map(h => h.title), title || key])];
+  const steps = titles.map(t => {
+    const q = (S.queue || []).find(x => x.title === t), d = (S.done || []).find(x => x.title === t), b = (S.blocked_all || []).find(x => x.title === t), h = originOf(t);
+    const type = q?.type || d?.type || b?.type || h?.type || "auto";
+    return {t, type, h, d, b, agent: agentOf(type), status: q ? (q.state === "running" ? "active" : "queued") : d ? "done" : b ? "blocked" : "recorded"};
+  }).sort((x, y) => String(x.h?.ts || "z").localeCompare(String(y.h?.ts || "z")));
+  const cur = steps.find(s => s.status !== "done");
+  const label = {active: "In progress", queued: "Starting shortly", done: "Done", blocked: "Blocked", recorded: "Recorded"};
+  $("#readerRoot").innerHTML = `<div class="reader" role="dialog" aria-modal="true" aria-label="Project"><div class="bar"><button class="btn sm" data-closereader>‹ Back</button><span>Project</span></div>
+    <div class="body"><div class="proj"><h3>${esc(key)}</h3><div class="note">${steps.filter(s => s.status === "done").length} of ${steps.length} done${cur ? ` · now with the ${esc(cur.agent.name)}` : " · complete"}</div>
+    <div class="chain">${steps.map(s => `<div class="step ${s.status}" style="--c:var(${s.agent.color})"><span class="sdot">${s.status === "done" ? "✓" : s.status === "blocked" ? "!" : ""}</span>
+      <div style="min-width:0"><div class="who">${esc(s.agent.name)}${s === cur ? ` <span class="here">Current point</span>` : ""}</div><div class="what">${esc(s.t)}</div>
+      <div class="note" style="padding:0">${label[s.status]}${s.b?.reason ? " · " + esc(s.b.reason) : ""}${s.h ? " · sent by " + esc(s.h.from) : ""}</div>${trail(s.t, s.type)}
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${s.d?.report ? `<button class="btn sm" data-report="${esc(s.d.report)}">Open result</button>` : ""}
+        <button class="btn sm" data-stepfb="${esc(s.t)}" data-who="${esc(s.agent.name)}">✎ Feedback</button></div></div></div>`).join("")}</div></div></div></div>`;
+}
+function feedbackForm(title, who){
+  return `<form class="fb" data-fbform data-title="${esc(title)}"><label class="f">What should the ${esc(who)} change?</label>
+    <textarea name="text" rows="3" required placeholder="e.g. Make the colors warmer and put the phone number first"></textarea>
+    <div class="row2"><button type="button" class="btn sm ghost" data-fbcancel>Cancel</button><button class="btn sm primary">Send</button></div></form>`;
+}
+async function sendFeedback(f){
+  const title = f.dataset.title, text = f.text.value.trim(); if (!text) return;
+  f.querySelector(".primary").disabled = true;
+  try { await db.collection("inbox").add({kind: "feedback", type: "auto", title, details: text, feedback: text, status: "new", createdAt: new Date().toISOString()});
+        toast("Feedback sent. The team revises it after your PC's next sync."); fbOpen = false; f.remove(); render(); }
+  catch { toast("Couldn't send. Check your connection."); f.querySelector(".primary").disabled = false; }
+}
+
+/* ---- Approvals tab: decide from the phone; the PC applies it at the next sync ---- */
+const sentDecision = id => INBOX.find(d => d.kind === "decision" && d.approval_id === id && d.status === "new");
+function approvalsView(){
+  const aps = S.approvals || [], pending = aps.filter(a => a.status === "pending"), past = aps.filter(a => a.status !== "pending").slice(0, 10);
+  const KIND = {post: "Post", ad: "Ad campaign", email: "Email outreach", deploy: "Go live (Netlify)", other: "Request"};
+  const card = a => { const sent = sentDecision(a.id); return `<li class="row"><div class="main">
+    <div class="meta"><span class="pill ${sent ? "wait" : ""}">${sent ? "Sent: " + esc(sent.decision) : esc(a.agent)}</span><span>${esc(KIND[a.kind] || a.kind)}${a.platform ? " · " + esc(a.platform) : ""}</span></div>
+    <div class="t">${esc(a.title)}</div>${a.summary ? `<div class="d">${esc(a.summary)}</div>` : ""}${a.spend ? `<div class="d" style="color:var(--warn)">Proposed spend: ${esc(a.spend)}</div>` : ""}
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${a.report ? `<button class="btn sm" data-report="${esc(a.report)}">Open draft</button>` : ""}
+      ${sent ? `<span class="note" style="padding:0">Applies at your PC's next sync</span>` : `<button class="btn sm primary" data-decide="approved" data-ap="${esc(a.id)}">Approve</button><button class="btn sm" data-decide="rejected" data-ap="${esc(a.id)}">Reject…</button>`}</div></div></li>`; };
+  return `<div class="card"><div class="card-h"><h2>Waiting for you</h2><span class="n">${pending.length || ""}</span></div>
+      ${pending.length ? `<ul class="list">${pending.map(card).join("")}</ul>` : `<div class="empty">Nothing is waiting for your approval.</div>`}</div>
+    ${past.length ? `<div class="card"><div class="card-h"><h2>Decided</h2></div><ul class="list">${past.map(a => `<li class="row"><div class="main"><div class="meta"><span class="pill">${esc(a.status)}</span><span>${esc(a.agent)}</span></div>
+      <div class="t">${esc(a.title)}</div>${a.result ? `<div class="d">${esc(a.result)}</div>` : a.note ? `<div class="d">Your note: ${esc(a.note)}</div>` : ""}</div></li>`).join("")}</ul></div>` : ""}
+    <p class="note">Approved sites go live at the next deploy run. Approved posts, ads and emails are yours to publish. Demo sites never go live until a business agrees.</p>`;
+}
+async function decideOnPhone(id, decision, note = ""){
+  const a = (S.approvals || []).find(x => x.id === id);
+  try { await db.collection("inbox").add({kind: "decision", approval_id: id, decision, note, title: `${decision === "approved" ? "Approve" : "Reject"}: ${a?.title || id}`, status: "new", createdAt: new Date().toISOString()});
+        toast(decision === "approved" ? "Approved. Your PC applies it at the next sync." : "Rejected. Your note goes to the team."); render(); }
+  catch { toast("Couldn't send. Check your connection."); }
+}
+
+/* ---- Brief me: spoken recap from the synced status ---- */
+function recapParts(){
+  const h = new Date().getHours(), parts = [`Good ${h < 12 ? "morning" : h < 18 ? "afternoon" : "evening"}, ${JV.address}. Here's your recap.`];
+  const live = S.running || [];
+  parts.push(live.length ? live.map(t => `The ${agentOf(t.type).name} is working on ${t.title}.`).join(" ") : (S.queue || []).length ? `${S.queue.length} task${S.queue.length > 1 ? "s are" : " is"} waiting.` : "The team is standing by.");
+  const today = new Date().toLocaleDateString("en-CA"), done = (S.done || []).filter(d => d.date === today);
+  parts.push(done.length ? `Today they finished ${done.length}: ${done.slice(0, 3).map(d => d.title).join("; ")}.` : "Nothing finished yet today.");
+  if ((S.blocked_all || []).length) parts.push(`${S.blocked_all.length} blocked.`);
+  const ap = (S.approvals || []).filter(a => a.status === "pending");
+  if (ap.length) parts.push(`${ap.length} approval${ap.length > 1 ? "s are" : " is"} waiting for you.`);
+  parts.push(`This was synced ${ago(S.updated)}.`);
+  return parts;
+}
+
+/* ---- the neural brain (lighter build of the PC's) ---- */
+const brainState = {activity: .2, speaking: false, kick: 0};
+function initBrain(){
+  const cv = document.getElementById("brain"); if (!cv) return;
+  const ctx = cv.getContext("2d"), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const P = []; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const c0 = v => Math.max(0, v), se = (v, n) => c0(1 - Math.abs(v) ** n) ** (1 / n);
+  const top = z => .08 + .72 * se((z + .08) / 1.0, 2.6);
+  const bottom = z => { const t = Math.exp(-((z / .44) ** 6)), o = (1 - t) / (1 + Math.exp((z + .45) * 12)); return -(.04 + .44 * t + .22 * o); };
+  const fold = (x, y, z) => 1 + .045 * Math.sin(12*x + 5*y) * Math.sin(10*z + 3*y) + .028 * Math.sin(19*y + 7*z + 2*x);
+  function cer(shell){
+    let z, T, B, rx, ry;
+    for (;;){ z = rnd() * 2 - 1; T = top(z); B = bottom(z); rx = .82 * se(z, 3) ** .6; ry = (T - B) / 2 * se(z, 3.5) ** .5; if (rnd() < (rx + ry) / 1.5) break; }
+    const ph = rnd() * 6.283; let k = fold(Math.cos(ph), Math.sin(ph), z); if (!shell) k *= .45 + rnd() * .45;
+    let x = rx * Math.cos(ph) * k; const y = (T + B) / 2 + ry * Math.sin(ph) * k; x += Math.sign(x || 1) * .04;
+    return [x, y, z * .92];
+  }
+  for (let i = 0; i < 820; i++) P.push(cer(true));
+  for (let i = 0; i < 130; i++) P.push(cer(false));
+  for (let i = 0; i < 150; i++){ const u = rnd() * 2 - 1, th = rnd() * 6.283, s = Math.sqrt(1 - u*u), r = 1 + .06 * Math.sin(36 * u); P.push([s * Math.cos(th) * .54 * r, -.47 + u * .24 * r, -.55 + s * Math.sin(th) * .36 * r]); }
+  for (let i = 0; i < 50; i++){ const t = rnd(), a = rnd() * 6.283; P.push([Math.cos(a) * .085, -.36 - t * .66, -.16 + t * .08 + Math.sin(a) * .075]); }
+  const E = [], adj = P.map(() => []);
+  for (let i = 0; i < P.length; i++){
+    const d = []; for (let j = 0; j < P.length; j++) if (j !== i){ const a = P[i][0]-P[j][0], b = P[i][1]-P[j][1], c = P[i][2]-P[j][2]; d.push([a*a + b*b + c*c, j]); }
+    d.sort((a, b) => a[0] - b[0]); for (const [dd, j] of d.slice(0, 3)) if (j > i && dd < .045){ adj[i].push(E.length); adj[j].push(E.length); E.push([i, j]); }
+  }
+  const hot = []; for (let i = 0; hot.length < 7 && i < 3000; i++){ const k = (rnd() * 820) | 0; if (P[k][1] > -.05 && !hot.some(h => (P[h.i][0]-P[k][0])**2 + (P[h.i][1]-P[k][1])**2 + (P[h.i][2]-P[k][2])**2 < .12)) hot.push({i: k, ph: rnd() * 6.283, sp: .5 + rnd() * .8}); }
+  const pulses = []; let W = 0, H = 0, dpr = 1, glow = 0; const t0 = performance.now();
+  const size = () => { const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; };
+  new ResizeObserver(size).observe(cv); size();
+  const proj = (p, ca, sa) => { const x = p[0]*ca + p[2]*sa, z = -p[0]*sa + p[2]*ca, y = p[1]*Math.cos(.1) - z*Math.sin(.1), z2 = p[1]*Math.sin(.1) + z*Math.cos(.1), f = 3.4 / (3.4 + z2), sc = Math.min(W * .4, H * .46); return [W/2 + x*sc*f, H/2 - (y + .1)*sc*f, z2, f]; };
+  function frame(now){
+    if (!cv.isConnected) return;                                       // tab changed: stop
+    if (!document.hidden && W){
+      const sec = (now - t0) / 1000, ang = -Math.PI/2 + (reduce ? 0 : sec * .07);
+      brainState.kick *= .9; glow += ((brainState.speaking ? .9 : brainState.activity * .55) + brainState.kick * .6 - glow) * .05;
+      const ca = Math.cos(ang), sa = Math.sin(ang), Q = P.map(p => proj(p, ca, sa));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      const g = ctx.createRadialGradient(W/2, H/2, 8, W/2, H/2, Math.min(W, H) * .6); g.addColorStop(0, `rgba(90,170,255,${.14 + glow * .12})`); g.addColorStop(1, "rgba(40,90,200,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.lineWidth = .55;
+      for (const [i, j] of E){ const a = Q[i], b = Q[j]; ctx.strokeStyle = `rgba(200,232,255,${.10 + (1 - (a[2] + b[2]) / 2) * .16 + glow * .06})`; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+      if (!reduce && Math.random() < (.25 + brainState.activity * 1.2 + (brainState.speaking ? 2 : 0) + brainState.kick * 3) * .35){ const e = (Math.random() * E.length) | 0; pulses.push({a: E[e][0], b: E[e][1], e, t: 0, v: .035 + Math.random() * .045, hops: 0}); }
+      ctx.lineCap = "round";
+      for (let k = pulses.length - 1; k >= 0; k--){
+        const p = pulses[k]; p.t += p.v; const a = Q[p.a], b = Q[p.b], t1 = Math.min(1, p.t), t2 = Math.max(0, p.t - .45);
+        ctx.strokeStyle = "rgba(255,190,250,.95)"; ctx.shadowColor = "#e9a6ff"; ctx.shadowBlur = 10; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(a[0] + (b[0]-a[0])*t2, a[1] + (b[1]-a[1])*t2); ctx.lineTo(a[0] + (b[0]-a[0])*t1, a[1] + (b[1]-a[1])*t1); ctx.stroke();
+        if (p.t >= 1){ pulses.splice(k, 1); const nx = adj[p.b].filter(e => e !== p.e); if (p.hops < 6 && nx.length && Math.random() < .7){ const e = nx[(Math.random() * nx.length) | 0]; pulses.push({a: p.b, b: E[e][0] === p.b ? E[e][1] : E[e][0], e, t: 0, v: p.v, hops: p.hops + 1}); } }
+      }
+      ctx.shadowBlur = 0; ctx.lineWidth = .55; if (pulses.length > 200) pulses.splice(0, pulses.length - 200);
+      for (const h of hot){ const q = Q[h.i], pu = .55 + .45 * Math.sin(sec * h.sp * 1.6 + h.ph), r = (8 + 8 * pu + glow * 5) * q[3], al = (.35 + .5 * pu) * (1.15 - q[2] * .4);
+        const hg = ctx.createRadialGradient(q[0], q[1], 0, q[0], q[1], r); hg.addColorStop(0, `rgba(255,240,255,${al})`); hg.addColorStop(.35, `rgba(225,150,255,${al * .65})`); hg.addColorStop(1, "rgba(160,90,255,0)");
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.283); ctx.fill(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---- Core tab interactions ---- */
+document.addEventListener("click", e => {
+  const t = e.target;
+  if (t.closest("[data-fbform]") && !t.closest("[data-fbcancel]")) return;            // typing feedback
+  if (t.closest("[data-fbcancel]")){ t.closest("[data-fbform]").remove(); fbOpen = false; return; }
+  const ct = t.closest("[data-crewtab]");
+  if (ct){ crewTab[ct.closest("[data-agent]").dataset.agent] = ct.dataset.crewtab; renderCrew(); return; }
+  const fb = t.closest("[data-fb]");
+  if (fb){ const li = fb.closest("li"); document.querySelectorAll("[data-fbform]").forEach(f => f.remove());
+    li.insertAdjacentHTML("beforeend", feedbackForm(li.dataset.title, fb.closest("[data-agent]").dataset.agent)); fbOpen = true; li.querySelector("textarea").focus(); return; }
+  const sfb = t.closest("[data-stepfb]");
+  if (sfb){ document.querySelectorAll("[data-fbform]").forEach(f => f.remove()); sfb.parentElement.insertAdjacentHTML("afterend", feedbackForm(sfb.dataset.stepfb, sfb.dataset.who)); sfb.parentElement.nextElementSibling.querySelector("textarea").focus(); return; }
+  const li = t.closest("#crew li[data-proj]"); if (li){ openProject(li.dataset.proj, li.dataset.title); return; }
+  const ev = t.closest("#timeline [data-ev]");
+  if (ev){ const x = $("#timeline")._ev[+ev.dataset.ev];
+    if (x.proj) openProject(x.proj); else if (x.rep) openReport(x.rep); else if (x.goTab){ tab = x.goTab; render(); window.scrollTo({top: 0}); } return; }
+  const dc = t.closest("[data-decide]");
+  if (dc){
+    if (dc.dataset.decide === "approved") return decideOnPhone(dc.dataset.ap, "approved");
+    const row = dc.closest(".row"); row.querySelector("[data-fbform]")?.remove();
+    row.querySelector(".main").insertAdjacentHTML("beforeend", `<form class="fb" data-rejectform data-ap="${esc(dc.dataset.ap)}"><label class="f">Optional: what should change? The team reads this.</label>
+      <textarea name="text" rows="2"></textarea><div class="row2"><button type="button" class="btn sm ghost" data-rejcancel>Cancel</button><button class="btn sm primary">Reject</button></div></form>`);
+    return;
+  }
+  if (t.closest("[data-rejcancel]")){ t.closest("[data-rejectform]").remove(); return; }
+  if (t.closest("#briefBtn")){
+    const parts = recapParts(); $("#briefText").textContent = parts.join(" ");
+    if ("speechSynthesis" in window && JV.voiceOn){ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(parts.join(" ")); const v = jarvisVoice(); if (v){ u.voice = v; u.lang = v.lang; }
+      u.rate = .97; u.pitch = .92; u.onstart = () => brainState.speaking = true; u.onboundary = () => brainState.kick = 1; u.onend = u.onerror = () => brainState.speaking = false; speechSynthesis.speak(u); }
+  }
+});
+document.addEventListener("submit", e => {
+  const f = e.target.closest("[data-fbform]"); if (f){ e.preventDefault(); sendFeedback(f); return; }
+  const r = e.target.closest("[data-rejectform]"); if (r){ e.preventDefault(); decideOnPhone(r.dataset.ap, "rejected", r.text.value.trim()); }
+});
 
 /* ---------- add task sheet ---------- */
 function openSheet(pre = {}){

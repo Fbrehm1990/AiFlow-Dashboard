@@ -84,9 +84,17 @@ def build():
                     for d in st["done"] if d["status"] == "blocked"][:25],
         "schedules": [{"name": s["name"], "next": next_run(s, now), "event": bool(s.get("event"))}
                       for s in server.SCHEDULES],
-        "approvals": [{"title": a["title"], "agent": a["agent"], "kind": a["kind"], "platform": a.get("platform", ""),
-                       "spend": a.get("spend", ""), "created": a["created"]}
-                      for a in st.get("approvals", []) if a["status"] == "pending"][:20],
+        "approvals": [{"id": a["id"], "title": a["title"], "agent": a["agent"], "kind": a["kind"], "platform": a.get("platform", ""),
+                       "spend": a.get("spend", ""), "summary": a.get("summary", "")[:400], "created": a["created"],
+                       "status": a["status"], "decided": a.get("decided"), "note": a.get("note", ""), "result": a.get("result", ""),
+                       "report": report_ids.get((a.get("file") or "").strip())}
+                      for a in st.get("approvals", [])][:25],
+        # what the phone needs to mirror the PC overview: hand-off trails, timeline, demo sites
+        "history": [{k: h.get(k) for k in ("ts", "title", "type", "from", "project")} for h in st.get("history", [])][-150:],
+        "sites": [{"title": s["title"].split("|")[0].strip(), "slug": s["slug"], "modified": s["modified"],
+                   "report": report_ids.get(s.get("summary") or "")} for s in st.get("sites", [])],
+        "blocked_all": [{"title": d["title"], "type": d["type"], "date": d["date"], "time": d["time"], "reason": d["reason"]}
+                        for d in st["done"] if d["status"] == "blocked"][:25],
         "reports": [{"id": report_ids[o["path"]], "title": o["title"], "kind": o["kind"], "modified": o["modified"]}
                     for o in reports],
     }
@@ -122,6 +130,15 @@ def import_tasks(path):
         body = d.get("data", d)
         doc_id = str(d.get("id") or d.get("doc_id") or body.get("id") or "")
         if not doc_id or doc_id in imported or body.get("status") != "new":
+            continue
+        if body.get("kind") == "decision":   # approve / reject made on the phone's Approvals tab
+            try:
+                server.decide_approval({"id": body.get("approval_id", ""), "decision": body.get("decision", ""),
+                                        "note": body.get("note", "")})
+            except ValueError as e:
+                print(json.dumps({"skipped_decision": doc_id, "why": str(e)}))
+            imported.add(doc_id)
+            added.append(doc_id)
             continue
         if body.get("kind") == "feedback":   # feedback sent from the phone (Jarvis), same as the dashboard's button
             try:
