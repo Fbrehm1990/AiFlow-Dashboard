@@ -23,3 +23,4 @@ tasks/approvals.tmp
 tasks/requests/
 tasks/dispatch.lock
 tasks/history.jsonl
+tasks/hub.json

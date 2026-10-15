@@ -98,6 +98,17 @@ def build():
         "reports": [{"id": report_ids[o["path"]], "title": o["title"], "kind": o["kind"], "modified": o["modified"]}
                     for o in reports],
     }
+    # Jarvis-as-hub on the phone: weather and the latest news brief travel with each sync
+    try:
+        import hub
+        wx = hub.weather()
+        state["weather"] = {k: wx[k] for k in ("place", "now", "today", "tomorrow", "summary", "fetched")}
+    except Exception:
+        state["weather"] = None
+    briefs = sorted((ROOT / "outputs" / "briefs").glob("*.md"), reverse=True)
+    if briefs:
+        text = re.sub(r"\[(\d+|[^\]]{0,80})\]\([^)]*\)", r"\1", server.read(briefs[0]))   # drop link targets
+        state["news_brief"] = {"date": briefs[0].stem[:10], "text": text[:3500]}
     PHONE.mkdir(parents=True, exist_ok=True)
     STATE.write_text(json.dumps(state, indent=1), encoding="utf-8")
 

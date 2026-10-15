@@ -525,6 +525,31 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .convo-log .interim{opacity:.6;font-style:italic}
 #talkBtn.on{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 0 18px rgba(255,93,122,.4)}
 
+/* hub */
+.hubrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+@media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.hubrow{grid-template-columns:1fr}}
+.hb{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:inherit;text-decoration:none;min-height:132px;transition:border-color .15s,box-shadow .15s;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.hb:hover{border-color:var(--border-hi);box-shadow:var(--glow)}
+.hb-h{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.hb-big{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.1}
+.hb-sub{color:var(--muted);font-size:13px}
+.hb-foot{margin-top:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+.hb-line{font-size:13px;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hb-tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-right:6px}
+.wx-now{display:flex;gap:22px;align-items:center;padding:18px 20px;flex-wrap:wrap}
+.wx-big{font-family:var(--display);font-size:56px;font-weight:600;line-height:1}
+.wx-hours{display:flex;gap:6px;overflow-x:auto;padding:12px 14px}
+.wx-h{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;min-width:64px;font-size:12px;color:var(--muted)}
+.wx-h b{font-size:18px}.wx-h .t{color:var(--text);font-size:14px;font-family:var(--display)}.wx-h .r{color:var(--accent);min-height:14px}
+.wx-d{align-items:center;gap:12px}
+.wx-day{width:96px;font-weight:600}.wx-ic{font-size:20px}.wx-desc{flex:1;min-width:0;color:var(--muted)}.wx-hl{font-family:var(--display);white-space:nowrap}
+.news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:980px){.news-grid{grid-template-columns:1fr}}
+.news-t{color:var(--text);text-decoration:none;display:block}
+.news-t:hover{color:var(--accent)}
+.hubpage{gap:14px}
+
 /* feedback */
 .mate .tasks li{position:relative}
 .fb-btn{position:absolute;top:7px;right:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:7px;font-size:11.5px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .15s}
@@ -558,6 +583,10 @@ body{zoom:1.14}
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2"/><path d="M7.5 8.5h6M7.5 12h6M7.5 15.5h4"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M3 7.5h12.5v9H3z"/><path d="M15.5 10.5l5-3v9l-5-3"/><circle cx="7" cy="12" r="1.6"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v4M15 3v4M7 7h10v4a5 5 0 0 1-10 0zM12 16v5"/></symbol>
   <symbol id="i-voice" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></symbol>
   <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16.5 14.6c2.3.2 4 1.7 4.5 4.4"/></symbol>
   <symbol id="i-approve" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></symbol>
@@ -568,6 +597,11 @@ body{zoom:1.14}
     <a class="brand" href="#/"><span class="logo">✓</span>AI Workflow</a>
     <nav class="nav">
       <a href="#/" data-route=""><svg class="i"><use href="#i-home"/></svg>Overview</a>
+      <div class="nav-label">Hub</div>
+      <a href="#/weather" data-route="weather"><svg class="i"><use href="#i-sun"/></svg>Weather</a>
+      <a href="#/news" data-route="news"><svg class="i"><use href="#i-news"/></svg>News</a>
+      <a href="#/cameras" data-route="cameras"><svg class="i"><use href="#i-cam"/></svg>Cameras</a>
+      <a href="#/devices" data-route="devices"><svg class="i"><use href="#i-plug"/></svg>Smart devices</a>
       <div class="nav-label">Team</div>
       <a href="#/team" data-route="team"><svg class="i"><use href="#i-team"/></svg>Team &amp; goals</a>
       <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
@@ -631,6 +665,12 @@ body{zoom:1.14}
             </div>
             <div class="vrow">
               <label style="flex:1">Call me <input type="text" id="vAddress" maxlength="30" placeholder="sir"></label>
+            </div>
+            <div class="vrow">
+              <label style="flex:1">Home location <input type="text" id="vHome" maxlength="80" placeholder="Martinsburg, WV"></label>
+              <button class="btn sm" id="vHomeSave" type="button">Set</button>
+            </div>
+            <div class="vrow">
               <button class="btn sm" id="vJarvis" type="button">Jarvis preset</button>
               <button class="btn sm primary" id="vTest" type="button">Test</button>
             </div>
@@ -643,6 +683,14 @@ body{zoom:1.14}
         </div>
       </section>
       </div>
+
+      <!-- Hub: everyday blocks; each opens its own page -->
+      <section class="hubrow" aria-label="Hub">
+        <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
+        <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
+        <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
+        <a class="hb" href="#/devices" id="hbDevices"><div class="hb-h"><svg class="i"><use href="#i-plug"/></svg>Smart devices</div><div class="hb-b"></div></a>
+      </section>
 
       <!-- What happened -->
       <section class="card">
@@ -693,6 +741,12 @@ body{zoom:1.14}
         </section>
       </div>
     </div>
+
+    <!-- Hub pages -->
+    <div id="weatherPage" class="hidden col hubpage"></div>
+    <div id="newsPage" class="hidden col hubpage"></div>
+    <div id="camerasPage" class="hidden col hubpage"></div>
+    <div id="devicesPage" class="hidden col hubpage"></div>
 
     <!-- Team -->
     <div id="teamPage" class="hidden col">
@@ -1146,7 +1200,12 @@ const PAGES = {
   resources: {title:"Resources", desc:"Outputs, history, run logs, recurring jobs and analytics."},
   team:      {title:"Team & goals", desc:"Your AI team: who's doing what, and the goals they work toward."},
   approvals: {title:"Approvals", desc:"Anything public or paid waits here for your decision."},
+  weather:   {title:"Weather", desc:"Now, the next 24 hours, and the week ahead."},
+  news:      {title:"News", desc:"Headlines from NPR, BBC and Ars Technica, refreshed every 15 minutes."},
+  cameras:   {title:"Cameras", desc:"Your security cameras, live."},
+  devices:   {title:"Smart devices", desc:"Lights, plugs, locks and more, controlled by you or by Jarvis."},
 };
+const HUB_PAGES = ["weather", "news", "cameras", "devices"];
 const TASK_PAGES = ["queued", "running", "done", "blocked"];
 const ORDER = {high:0, normal:1, low:2};
 let route = null, editing = null, retrying = null, doneRange = "today", showDismissed = false;
@@ -1162,6 +1221,8 @@ function go(){
   $("#resources").classList.toggle("hidden", route !== "resources");
   $("#teamPage").classList.toggle("hidden", route !== "team");
   $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
+  HUB_PAGES.forEach(p => $("#" + p + "Page").classList.toggle("hidden", route !== p));
+  if (HUB_PAGES.includes(route)) renderHubPage(route);
   document.querySelectorAll("#pageBody [data-only]").forEach(el => el.classList.toggle("hidden", el.dataset.only !== route));
   // The activity card lives on the Overview and on In progress.
   (route === "running" ? $("#actPage") : $("#actHome")).append($("#actCard"));
@@ -1733,7 +1794,15 @@ function fillVoiceSettings(){
   $("#vRate").value = VS.rate; $("#vPitch").value = VS.pitch; $("#vAddress").value = VS.address;
 }
 if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = fillVoiceSettings;
-$("#voiceBtn").addEventListener("click", () => { fillVoiceSettings(); $("#voiceSet").classList.toggle("hidden"); });
+$("#voiceBtn").addEventListener("click", async () => {
+  fillVoiceSettings(); $("#voiceSet").classList.toggle("hidden");
+  try { $("#vHome").value = (await api("/api/hub")).location; } catch {}
+});
+$("#vHomeSave").addEventListener("click", async () => {
+  try { const c = await api("/api/hub", {location: $("#vHome").value}); WX = {at: 0, data: null};
+        toast(`Home set to ${c.place}`); const wx = await weatherNow(); if (wx) speak(wx.summary); }
+  catch (err){ toast(err.message, true); }
+});
 $("#vVoice").addEventListener("change", e => { VS.voice = e.target.value; saveVS(); });
 $("#vRate").addEventListener("input", e => { VS.rate = +e.target.value; saveVS(); });
 $("#vPitch").addEventListener("input", e => { VS.pitch = +e.target.value; saveVS(); });
@@ -1759,8 +1828,20 @@ function speak(text){
 }
 
 // Brief me: the local recap, spoken sentence by sentence with highlighting
+// Home weather from /api/weather (Open-Meteo via the dashboard server), cached briefly.
+let WX = {at: 0, data: null};
+async function weatherNow(){
+  if (WX.data && Date.now() - WX.at < 5 * 60e3) return WX.data;
+  try { WX = {at: Date.now(), data: await api("/api/weather")}; } catch { /* offline: skip weather */ }
+  return WX.data;
+}
+async function recapWithWeather(){
+  const parts = recapText(), wx = await weatherNow();
+  if (wx) parts.splice(1, 0, wx.summary);
+  return parts;
+}
 async function speakRecap(){
-  const parts = recapText();
+  const parts = await recapWithWeather();
   $("#briefText").innerHTML = parts.map((p, i) => `<span data-s="${i}">${esc(p)}</span>`).join(" ");
   if (!("speechSynthesis" in window)){ toast("This browser can't speak. The recap is shown as text.", true); return; }
   speechSynthesis.cancel();
@@ -1785,6 +1866,8 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const convo = {on: false, session: "", rec: null, quiet: 0};
 const ENDERS = /^(that'?s all|that is all|goodbye|good bye|bye|stop|nothing|no thanks|no thank you|never ?mind|that will be all|thanks,? that'?s all|thank you,? that'?s all)\b/i;
 const RECAP = /\b(brief me|recap|status report|what'?s the status|give me (a|the) (rundown|update))\b/i;
+const WEATHER = /\b(weather|forecast|temperature|how (hot|cold|warm) is it|is it (going to )?(rain|snow)|umbrella)\b/i;
+const LOOKUP = /\b(news|headlines|latest|update|happening|score|won|price|stock|today'?s)\b/i;
 function convoState(s){ $("#convoState").textContent = s; }
 function bubble(cls, text){
   const d = document.createElement("div"); d.className = cls; d.textContent = text;
@@ -1820,15 +1903,27 @@ function listen(){
 async function reply(text){ bubble("ai", text); convoState("Speaking…"); await speak(text); }
 async function handle(text){
   if (ENDERS.test(text)){ await reply(`Very good, ${VS.address}.`); stopTalk(true); return; }
-  if (RECAP.test(text)){ await reply(recapText().join(" ")); listen(); return; }
+  if (RECAP.test(text)){ await reply((await recapWithWeather()).join(" ")); listen(); return; }
+  if (/\b(news|headlines|top stories)\b/i.test(text) && !/\babout\b/i.test(text)){
+    try { await reply((await api("/api/headlines")).spoken); listen(); return; } catch { /* fall through to Claude */ }
+  }
+  // Plain "what's the weather" for home is answered instantly; anything more specific goes to Claude.
+  if (WEATHER.test(text) && !/\b(in|at|for)\s+(?!the\b|today\b|tomorrow\b|tonight\b|here\b|home\b)[A-Z]/i.test(text.replace(/^.*?\b(weather|forecast)\b/i, ""))){
+    const wx = await weatherNow();
+    if (wx){ await reply(`${wx.summary}`); listen(); return; }
+  }
   convoState("Thinking…"); brain.thinking = true;
+  // Searches take a little longer: say so, like a person would.
+  const filler = setTimeout(() => { if (brain.thinking && convo.on) speak(LOOKUP.test(text) ? `Checking now, ${VS.address}.` : `One moment, ${VS.address}.`); }, 3500);
   try{
     const r = await api("/api/ask", {text, session: convo.session, address: VS.address});
+    clearTimeout(filler);
     convo.session = r.session || convo.session;
     brain.thinking = false;
     await reply(r.reply || `I'm afraid I have nothing on that, ${VS.address}.`);
     load();                                   // it may have added a task or sent feedback
   }catch(err){
+    clearTimeout(filler);
     brain.thinking = false;
     await reply(`Apologies, ${VS.address}. ${err.message}`);
   }
@@ -1852,7 +1947,77 @@ async function stopTalk(silent, words){
 }
 $("#talkBtn").addEventListener("click", () => convo.on ? (speechSynthesis.cancel(), stopTalk(true)) : startTalk());
 
-function renderOverview(){ if (!S) return; renderCore(); renderCrew(); renderTimeline(); }
+function renderOverview(){ if (!S) return; renderCore(); renderCrew(); renderTimeline(); renderHub(); }
+
+/* ================= hub: weather, news, cameras, smart devices ================= */
+const HUB = {news: null, newsAt: 0, fc: null, fcAt: 0};
+const WX_ICON = c => c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" : c <= 67 ? "🌧️" : c <= 77 ? "🌨️" : c <= 82 ? "🌦️" : c <= 86 ? "🌨️" : "⛈️";
+async function newsNow(){ if (!HUB.news || Date.now() - HUB.newsAt > 10 * 60e3){ try { HUB.news = await api("/api/news"); HUB.newsAt = Date.now(); } catch {} } return HUB.news; }
+async function forecastNow(){ if (!HUB.fc || Date.now() - HUB.fcAt > 10 * 60e3){ try { HUB.fc = await api("/api/forecast"); HUB.fcAt = Date.now(); } catch {} } return HUB.fc; }
+
+async function renderHub(){
+  const wx = await weatherNow();
+  $("#hbWeather .hb-b").innerHTML = wx ? `<div class="hb-big">${WX_ICON(wx.now.code ?? 0)} ${wx.now.temp}°</div>
+      <div class="hb-sub">${esc(wx.now.desc)} · H ${wx.today.hi}° L ${wx.today.lo}°${wx.today.rain >= 30 ? ` · ${wx.today.rain}% rain` : ""}</div><div class="hb-foot">${esc(wx.place)}</div>`
+    : `<div class="hb-sub">Weather unavailable right now</div>`;
+  const n = await newsNow(), top = n ? n.sections.flatMap(s => s.items.slice(0, 1).map(it => ({...it, sec: s.name}))).slice(0, 3) : [];
+  $("#hbNews .hb-b").innerHTML = top.length ? top.map(it => `<div class="hb-line"><span class="hb-tag">${esc(it.sec)}</span>${esc(it.title)}</div>`).join("") : `<div class="hb-sub">News unavailable right now</div>`;
+  $("#hbCams .hb-b").innerHTML = `<div class="hb-sub">No cameras connected yet</div><div class="hb-foot">Tap to set up</div>`;
+  $("#hbDevices .hb-b").innerHTML = `<div class="hb-sub">No devices connected yet</div><div class="hb-foot">Tap to set up</div>`;
+}
+
+async function renderHubPage(p){
+  const box = $("#" + p + "Page");
+  if (p === "weather"){
+    box.innerHTML = `<section class="card"><div class="card-b hint">Loading the forecast…</div></section>`;
+    const f = await forecastNow();
+    if (!f){ box.innerHTML = `<section class="card"><div class="card-b">The forecast is unavailable right now. Check the internet connection.</div></section>`; return; }
+    const day = s => new Date(s + "T12:00").toLocaleDateString([], {weekday: "long"});
+    box.innerHTML = `
+      <section class="card wx-now"><div class="wx-big">${WX_ICON(f.daily[0].code)} ${f.now.temp}°</div>
+        <div><h2 style="font-size:20px;text-transform:none;letter-spacing:0">${esc(f.place)}</h2>
+          <div class="hint">${esc(f.now.desc)} · feels like ${f.now.feels}° · wind ${f.now.wind} mph${f.now.humidity != null ? ` · humidity ${f.now.humidity}%` : ""}</div>
+          <p style="margin:8px 0 0">${esc(f.summary)}</p>
+          <div class="form-foot"><button class="btn sm" data-say="${esc(f.summary)}">🔊 Read it to me</button><a class="btn sm ghost" href="#/" onclick="document.querySelector('#voiceBtn').click()">Change home location</a></div></div></section>
+      <section class="card"><div class="card-h"><h2>Next 24 hours</h2></div>
+        <div class="wx-hours">${f.hourly.map(h => `<div class="wx-h"><span>${new Date(h.time).toLocaleTimeString([], {hour: "numeric"})}</span><b>${WX_ICON(h.code)}</b><span class="t">${h.temp}°</span><span class="r">${h.rain >= 20 ? h.rain + "%" : ""}</span></div>`).join("")}</div></section>
+      <section class="card"><div class="card-h"><h2>7-day forecast</h2></div><ul class="list">
+        ${f.daily.map((d, i) => `<li class="item wx-d"><span class="wx-day">${i === 0 ? "Today" : i === 1 ? "Tomorrow" : day(d.date)}</span><span class="wx-ic">${WX_ICON(d.code)}</span>
+          <span class="wx-desc">${esc(d.desc)}${d.rain >= 30 ? ` · ${d.rain}% rain` : ""}</span><span class="wx-hl"><b>${d.hi}°</b> ${d.lo}°</span>
+          <span class="hint hide-sm">☀ ${d.sunrise}–${d.sunset} · UV ${Math.round(d.uv)} · wind ${d.wind} mph</span></li>`).join("")}</ul></section>`;
+  }
+  else if (p === "news"){
+    box.innerHTML = `<section class="card"><div class="card-b hint">Loading headlines…</div></section>`;
+    const n = await newsNow();
+    if (!n){ box.innerHTML = `<section class="card"><div class="card-b">News is unavailable right now. Check the internet connection.</div></section>`; return; }
+    box.innerHTML = `<div class="form-foot" style="margin:0"><button class="btn primary" data-headlines>🔊 Read me the headlines</button><span class="hint">Updated ${rel(n.fetched)}</span></div>
+      <div class="news-grid">${n.sections.map(s => `<section class="card"><div class="card-h"><h2>${esc(s.name)}</h2><span class="spacer"></span><span class="hint">${esc(s.items[0]?.source || "")}</span></div>
+        <ul class="list">${s.items.length ? s.items.slice(0, 6).map(it => `<li class="item"><div class="main">
+          <a class="t news-t" href="${esc(it.link)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a>
+          ${it.summary ? `<div class="d">${esc(it.summary.slice(0, 180))}${it.summary.length > 180 ? "…" : ""}</div>` : ""}
+          <div class="meta" style="margin-top:4px"><span class="hint">${it.published ? rel(it.published) : ""}</span><button class="btn sm ghost" data-askabout="${esc(it.title)}">Ask Jarvis</button></div></div></li>`).join("")
+          : `<li class="empty">Couldn't load this section.</li>`}</ul></section>`).join("")}</div>`;
+  }
+  else if (p === "cameras" || p === "devices"){
+    const cams = p === "cameras";
+    box.innerHTML = `<section class="card"><div class="card-b">
+      <h2 style="font-size:19px;text-transform:none;letter-spacing:0;margin:0 0 8px">${cams ? "Connect your security cameras" : "Connect your smart devices"}</h2>
+      <p style="margin:0 0 10px">${cams ? "Once connected, every camera appears here as a live tile, and Jarvis can show you any of them on request." : "Once connected, your lights, plugs, thermostat and more appear here with on/off and controls, and Jarvis can control them by voice."}</p>
+      <p class="hint" style="margin:0">This needs one more step from you: tell Claude which ${cams ? "camera brand(s)" : "device brands and apps"} you use${cams ? " (for example Ring, Wyze, Blink, Arlo, Nest, Eufy or Reolink)" : " (for example Alexa, Google Home, SmartThings, Kasa, Govee, Hue, or a smart lock or thermostat)"}. The setup is built around those.</p>
+    </div></section>`;
+  }
+}
+document.addEventListener("click", async e => {
+  const say = e.target.closest("[data-say]"); if (say){ speak(say.dataset.say); return; }
+  if (e.target.closest("[data-headlines]")){ try { speak((await api("/api/headlines")).spoken); } catch (err){ toast(err.message, true); } return; }
+  const ask = e.target.closest("[data-askabout]");
+  if (ask){
+    const q = `Tell me more about this story: ${ask.dataset.askabout}`;
+    location.hash = "#/";
+    if (!convo.on){ convo.on = true; convo.session = ""; $("#convoLog").innerHTML = ""; $("#convo").classList.remove("hidden"); $("#talkBtn").classList.add("on"); $("#talkBtn").lastChild.textContent = "End"; }
+    bubble("me", q); handle(q);
+  }
+});
 
 /* ================= neural core: animated point-cloud brain ================= */
 const brain = {activity: .2, speaking: false, listening: false, thinking: false, kick: 0};
