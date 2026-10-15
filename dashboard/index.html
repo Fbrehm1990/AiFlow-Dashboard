@@ -446,20 +446,19 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .brief-text .now{background:var(--accent-soft);border-radius:4px}
 @media (max-width:860px){.core{padding:6px 10px 16px}.core-viz{height:240px}}
 
-/* stage: Manager + Researcher | neural core | Web builder + Marketer */
-.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);
-  grid-template-areas:"m1 core m3" "m2 core m4";gap:14px;margin-bottom:16px;align-items:stretch}
-.stage .crew{display:contents}
-.stage .core{grid-area:core;margin-bottom:0;justify-content:center}
-.stage .mate:nth-child(1){grid-area:m1}.stage .mate:nth-child(2){grid-area:m2}
-.stage .mate:nth-child(3){grid-area:m3}.stage .mate:nth-child(4){grid-area:m4}
-.stage .mate .tasks{max-height:190px}
-@media (max-width:1180px){
-  .stage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"core core" "m1 m3" "m2 m4"}
-}
-@media (max-width:620px){
-  .stage{grid-template-columns:1fr;grid-template-areas:"core" "m1" "m2" "m3" "m4"}
-}
+/* AiFlow page: the four team members side by side */
+.crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.crew .mate .tasks{max-height:420px}
+@media (max-width:1280px){.crew{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.crew{grid-template-columns:1fr}}
+/* AiFlow block on the Overview */
+.hb-flow{grid-column:span 2}
+.flow-mates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin-top:2px}
+.flow-mate{display:flex;align-items:center;gap:7px;font-size:13px;min-width:0}
+.flow-mate .dot{flex:none;width:8px;height:8px;border-radius:50%;background:color-mix(in srgb,var(--c) 45%,transparent)}
+.flow-mate.on .dot{background:var(--c);box-shadow:0 0 8px var(--c);animation:blink 1.1s ease-in-out infinite}
+.flow-mate .nm{font-weight:600;white-space:nowrap}
+.flow-mate .st{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mate{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;min-width:0;position:relative;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .mate.busy{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 24px color-mix(in srgb,var(--c) 25%,transparent)}
 .mate .hd{display:flex;gap:11px;align-items:center;padding:14px 14px 10px}
@@ -526,9 +525,9 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 #talkBtn.on{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 0 18px rgba(255,93,122,.4)}
 
 /* hub */
-.hubrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.hubrow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-bottom:16px}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:620px){.hubrow{grid-template-columns:1fr}}
+@media (max-width:620px){.hubrow{grid-template-columns:1fr}.hb-flow{grid-column:auto}.flow-mates{grid-template-columns:1fr}}
 .hb{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:inherit;text-decoration:none;min-height:132px;transition:border-color .15s,box-shadow .15s;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .hb:hover{border-color:var(--border-hi);box-shadow:var(--glow)}
 .hb-h{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
@@ -603,7 +602,8 @@ body{zoom:1.14}
       <a href="#/cameras" data-route="cameras"><svg class="i"><use href="#i-cam"/></svg>Cameras</a>
       <a href="#/devices" data-route="devices"><svg class="i"><use href="#i-plug"/></svg>Smart devices</a>
       <div class="nav-label">Team</div>
-      <a href="#/team" data-route="team"><svg class="i"><use href="#i-team"/></svg>Team &amp; goals</a>
+      <a href="#/aiflow" data-route="aiflow"><svg class="i"><use href="#i-team"/></svg>AiFlow<span class="badge" id="bFlow"></span></a>
+      <a href="#/team" data-route="team"><svg class="i"><use href="#i-approve"/></svg>Team &amp; goals</a>
       <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
       <div class="nav-label">Tasks</div>
       <a href="#/queued" data-route="queued"><svg class="i"><use href="#i-queue"/></svg>Queued<span class="badge" id="bQueued"></span></a>
@@ -639,9 +639,8 @@ body{zoom:1.14}
 
     <!-- Overview -->
     <div id="home">
-      <!-- Stage: two team members on each side of the centred neural core -->
+      <!-- Stage: the centred neural core -->
       <div class="stage">
-      <section class="crew" id="crew" aria-label="Team"></section>
 
       <!-- Neural core: animated brain + spoken recap, centred -->
       <section class="card core">
@@ -686,17 +685,13 @@ body{zoom:1.14}
 
       <!-- Hub: everyday blocks; each opens its own page -->
       <section class="hubrow" aria-label="Hub">
+        <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>AiFlow</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
         <a class="hb" href="#/devices" id="hbDevices"><div class="hb-h"><svg class="i"><use href="#i-plug"/></svg>Smart devices</div><div class="hb-b"></div></a>
       </section>
 
-      <!-- What happened -->
-      <section class="card">
-        <div class="card-h"><h2>Timeline</h2><span class="spacer"></span><span class="hint">Click any entry to open that project where it stands now</span></div>
-        <div class="tl" id="timeline"></div>
-      </section>
       <div id="actHome" class="hidden"></div>
     </div>
 
@@ -747,6 +742,11 @@ body{zoom:1.14}
     <div id="newsPage" class="hidden col hubpage"></div>
     <div id="camerasPage" class="hidden col hubpage"></div>
     <div id="devicesPage" class="hidden col hubpage"></div>
+
+    <!-- AiFlow: the team, one box per member -->
+    <div id="aiflowPage" class="hidden col">
+      <section class="crew" id="crew" aria-label="Team"></section>
+    </div>
 
     <!-- Team -->
     <div id="teamPage" class="hidden col">
@@ -1008,6 +1008,7 @@ function render(){
   renderPage();
   renderTeamPages();
   if (route === "") renderOverview();
+  if (route === "aiflow") renderCrew();
   if (route === "resources") renderAnalytics();
 }
 
@@ -1198,6 +1199,7 @@ const PAGES = {
   done:      {title:"Done", desc:"Finished tasks and their results."},
   blocked:   {title:"Blocked", desc:"Tasks a run couldn't finish, and why. Retry with more information, or dismiss."},
   resources: {title:"Resources", desc:"Outputs, history, run logs, recurring jobs and analytics."},
+  aiflow:    {title:"AiFlow", desc:"Your AI team. Open a task to see where its project stands, or give a member feedback."},
   team:      {title:"Team & goals", desc:"Your AI team: who's doing what, and the goals they work toward."},
   approvals: {title:"Approvals", desc:"Anything public or paid waits here for your decision."},
   weather:   {title:"Weather", desc:"Now, the next 24 hours, and the week ahead."},
@@ -1220,6 +1222,7 @@ function go(){
   $("#page").classList.toggle("hidden", !TASK_PAGES.includes(route));
   $("#resources").classList.toggle("hidden", route !== "resources");
   $("#teamPage").classList.toggle("hidden", route !== "team");
+  $("#aiflowPage").classList.toggle("hidden", route !== "aiflow");
   $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
   HUB_PAGES.forEach(p => $("#" + p + "Page").classList.toggle("hidden", route !== p));
   if (HUB_PAGES.includes(route)) renderHubPage(route);
@@ -1230,7 +1233,7 @@ function go(){
   $("#resBtn").classList.toggle("active", route === "resources");
   $("#pageTitle").textContent = PAGES[route].title; $("#pageDesc").textContent = PAGES[route].desc;
   document.title = route ? `${PAGES[route].title} · AI Workflow` : "AI Workflow";
-  if (S){ renderPage(); renderTeamPages(); if (route === "") renderOverview(); if (route === "resources") renderAnalytics(); }
+  if (S){ renderPage(); renderTeamPages(); if (route === "") renderOverview(); if (route === "aiflow") renderCrew(); if (route === "resources") renderAnalytics(); }
   if (changed) window.scrollTo({top:0});
 }
 
@@ -1640,53 +1643,6 @@ $("#crew").addEventListener("click", e => {
   const li = e.target.closest("li[data-proj]"); if (li) openProject(li.dataset.proj, li.dataset.title);
 });
 
-function timelineEvents(){
-  const ev = [];
-  const push = (ts, agent, html, proj, view) => ts && ev.push({ts, agent, html, proj, view});
-  for (const h of S.history || []){
-    const to = agentOf(h.type).name;
-    if (h.from === "Manager" && h.project && h.project !== h.title)
-      push(h.ts, "Manager", `<b>Manager</b> split “${esc(h.project)}”: <b>${esc(h.title)}</b> → ${esc(to)}`, h.project);
-    else if (h.from === "Manager") push(h.ts, "Manager", `<b>Manager</b> assigned <b>${esc(h.title)}</b> → ${esc(to)}`, h.project);
-    else push(h.ts, "You", `<b>You</b> asked: <b>${esc(h.title)}</b>${h.type === "auto" ? "" : " → " + esc(to)}`, h.project);
-  }
-  for (const d of S.done){
-    if (!d.date) continue;
-    const who = agentOf(d.type).name, ts = `${d.date}T${d.time || "12:00"}:00`;
-    if (d.status === "blocked") push(ts, who, `<b>${esc(who)}</b> got blocked on <b>${esc(d.title)}</b>${d.reason ? ": " + esc(d.reason) : ""}`, projectOf(d.title));
-    else if (d.status === "done") push(ts, who, `<b>${esc(who)}</b> finished <b>${esc(d.title)}</b>`, projectOf(d.title));
-  }
-  for (const a of S.approvals || []){
-    push(a.created, a.agent, `<b>${esc(a.agent)}</b> asked for your approval: ${esc(a.title)}`, null, "#/approvals");
-    if (a.decided) push(a.decided, "You", `<b>You</b> ${esc(a.status)} “${esc(a.title)}”`, null, "#/approvals");
-  }
-  for (const o of S.outputs.filter(o => o.kind === "plans")) push(o.modified, "Manager", `<b>Manager</b> wrote the plan: ${esc(o.title)}`, null, o.path);
-  for (const s of S.sites || []) push(s.modified, "Web builder", `<b>Web builder</b> built a demo site: ${esc(s.title.split("|")[0])}`, null, s.summary || s.path);
-  return ev.sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 60);
-}
-function renderTimeline(){
-  const ev = timelineEvents();
-  if (!ev.length){ $("#timeline").innerHTML = `<div class="tl-empty">Nothing yet. Add a task and the team's work will appear here.</div>`; return; }
-  let html = "", day = "";
-  ev.forEach((e, i) => {
-    const d = new Date(e.ts);
-    const dl = d.toDateString() === new Date().toDateString() ? "Today" : d.toLocaleDateString([], {weekday:"long", month:"short", day:"numeric"});
-    if (dl !== day){ html += `<div class="tl-day">${dl}</div>`; day = dl; }
-    const a = agentByName(e.agent), color = a ? a.color : "--accent";
-    html += `<div class="tl-ev" style="--c:var(${color})" data-ev="${i}" role="button" tabindex="0">
-      <span class="tm">${d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"})}</span><span class="nd"></span>
-      <span class="tx">${e.html}</span><span class="go">Open →</span></div>`;
-  });
-  $("#timeline").innerHTML = html;
-  $("#timeline")._events = ev;
-}
-$("#timeline").addEventListener("click", e => {
-  const row = e.target.closest("[data-ev]"); if (!row) return;
-  const ev = $("#timeline")._events[+row.dataset.ev];
-  if (ev.proj) openProject(ev.proj);
-  else if (ev.view && ev.view.startsWith("#")) location.hash = ev.view;
-  else if (ev.view) view(ev.view);
-});
 
 function siteFor(title){
   const words = title.replace(/^demo site for /i, "").toLowerCase().replace(/[^a-z0-9 ]/g, "").split(/\s+/).slice(0, 2);
@@ -1947,7 +1903,24 @@ async function stopTalk(silent, words){
 }
 $("#talkBtn").addEventListener("click", () => convo.on ? (speechSynthesis.cancel(), stopTalk(true)) : startTalk());
 
-function renderOverview(){ if (!S) return; renderCore(); renderCrew(); renderTimeline(); renderHub(); }
+function renderOverview(){ if (!S) return; renderCore(); renderFlow(); renderHub(); }
+
+/* AiFlow block: one line per team member; the full boxes live on the AiFlow page */
+function renderFlow(){
+  const live = liveTasks();
+  const rows = AGENTS.map(a => {
+    const now = live.find(t => a.types.includes(t.type));
+    const waiting = S.tasks.filter(t => a.types.includes(t.type)).length;
+    return {a, on: !!now, st: now ? now.title : waiting ? `${waiting} waiting` : "Standing by"};
+  });
+  const busy = rows.filter(r => r.on).length, queued = S.tasks.length;
+  const today = new Date().toISOString().slice(0, 10), doneToday = S.done.filter(d => d.status === "done" && d.date === today).length;
+  const pending = (S.approvals || []).filter(a => a.status === "pending").length;
+  $("#hbFlow .hb-b").innerHTML = `<div class="hb-sub">${busy ? `${busy} working now` : "Team standing by"} · ${queued} queued · ${doneToday} done today${pending ? ` · <b style="color:var(--warn,var(--accent))">${pending} awaiting your approval</b>` : ""}</div>
+    <div class="flow-mates">${rows.map(r => `<div class="flow-mate ${r.on ? "on" : ""}" style="--c:var(${r.a.color})"><span class="dot"></span><span class="nm">${esc(r.a.name)}</span><span class="st">${esc(r.st)}</span></div>`).join("")}</div>
+    <div class="hb-foot">Open the team →</div>`;
+  $("#bFlow").textContent = busy || "";
+}
 
 /* ================= hub: weather, news, cameras, smart devices ================= */
 const HUB = {news: null, newsAt: 0, fc: null, fcAt: 0};
