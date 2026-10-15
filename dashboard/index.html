@@ -446,9 +446,20 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .brief-text .now{background:var(--accent-soft);border-radius:4px}
 @media (max-width:860px){.core{padding:6px 10px 16px}.core-viz{height:240px}}
 
-.crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
-@media (max-width:1180px){.crew{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:620px){.crew{grid-template-columns:1fr}}
+/* stage: Manager + Researcher | neural core | Web builder + Marketer */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);
+  grid-template-areas:"m1 core m3" "m2 core m4";gap:14px;margin-bottom:16px;align-items:stretch}
+.stage .crew{display:contents}
+.stage .core{grid-area:core;margin-bottom:0;justify-content:center}
+.stage .mate:nth-child(1){grid-area:m1}.stage .mate:nth-child(2){grid-area:m2}
+.stage .mate:nth-child(3){grid-area:m3}.stage .mate:nth-child(4){grid-area:m4}
+.stage .mate .tasks{max-height:190px}
+@media (max-width:1180px){
+  .stage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"core core" "m1 m3" "m2 m4"}
+}
+@media (max-width:620px){
+  .stage{grid-template-columns:1fr;grid-template-areas:"core" "m1" "m2" "m3" "m4"}
+}
 .mate{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;min-width:0;position:relative;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .mate.busy{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 24px color-mix(in srgb,var(--c) 25%,transparent)}
 .mate .hd{display:flex;gap:11px;align-items:center;padding:14px 14px 10px}
@@ -567,7 +578,8 @@ body{zoom:1.14}
 
     <!-- Overview -->
     <div id="home">
-      <!-- The crew, in pipeline order -->
+      <!-- Stage: two team members on each side of the centred neural core -->
+      <div class="stage">
       <section class="crew" id="crew" aria-label="Team"></section>
 
       <!-- Neural core: animated brain + spoken recap, centred -->
@@ -584,6 +596,7 @@ body{zoom:1.14}
           <div class="brief-text" id="briefText" aria-live="polite"></div>
         </div>
       </section>
+      </div>
 
       <!-- What happened -->
       <section class="card">
