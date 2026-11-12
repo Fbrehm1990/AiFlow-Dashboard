@@ -25,3 +25,4 @@ tasks/dispatch.lock
 tasks/history.jsonl
 tasks/hub.json
 tasks/homeassistant.json
+tasks/ai.json

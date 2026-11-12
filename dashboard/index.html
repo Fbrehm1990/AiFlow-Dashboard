@@ -524,6 +524,28 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .convo-log .interim{opacity:.6;font-style:italic}
 #talkBtn.on{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 0 18px rgba(255,93,122,.4)}
 
+/* AI toggles in the top bar */
+.ai-pills{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ai-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;transition:border-color .15s,color .15s,box-shadow .15s}
+.ai-pill .sw2{width:26px;height:15px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-hi);position:relative;flex:none}
+.ai-pill .sw2::after{content:"";position:absolute;top:2px;left:2px;width:9px;height:9px;border-radius:50%;background:var(--muted);transition:left .15s,background .15s}
+.ai-pill[aria-pressed=true]{color:var(--text);border-color:var(--border-hi)}
+.ai-pill[aria-pressed=true] .sw2{background:var(--accent-soft)}
+.ai-pill[aria-pressed=true] .sw2::after{left:13px;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.ai-pill.primary{box-shadow:0 0 0 1px var(--accent),0 0 14px var(--accent-soft)}
+.ai-pill .star{color:var(--accent);font-size:11px}
+.ai-pill.warn .sw2::after{background:var(--warn)}
+.ai-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(460px,92vw);background:var(--bg-2,#0b1222);border:1px solid var(--border-hi);border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.5);padding:16px;display:grid;gap:14px}
+.ai-panel h3{margin:0;font-size:15px}
+.ai-row{border:1px solid var(--border);border-radius:12px;padding:12px;display:grid;gap:8px;background:var(--surface)}
+.ai-row .top{display:flex;align-items:center;gap:8px}
+.ai-row .top b{flex:1}
+.ai-row .hint{font-size:12.5px}
+.ai-row .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ai-wrap{position:relative;display:flex;align-items:center;gap:8px}
+.convo-log .by{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+@media (max-width:860px){.ai-pill .lbl{display:none}}
+
 /* hub */
 .hubrow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-bottom:16px}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -655,6 +677,11 @@ body{zoom:1.14}
         <div class="desc" id="pageDesc"></div>
       </div>
       <span class="spacer"></span>
+      <div class="ai-wrap">
+        <div class="ai-pills" id="aiPills" role="group" aria-label="AI services"></div>
+        <button class="iconbtn" id="aiBtn" title="AI settings: keys, models, who answers as Jarvis" aria-label="AI settings" aria-expanded="false"><svg class="i"><use href="#i-gear"/></svg></button>
+        <div class="ai-panel hidden" id="aiPanel" role="dialog" aria-label="AI settings"></div>
+      </div>
       <a class="btn primary newbtn" href="#/queued" id="newTaskBtn"><svg class="i"><use href="#i-plus"/></svg><span>New task</span></a>
       <a class="iconbtn" href="#/resources" id="resBtn" title="Resources: outputs, history, logs, analytics" aria-label="Resources"><svg class="i"><use href="#i-res"/></svg></a>
       <button class="iconbtn" id="refresh" title="Refresh (R)" aria-label="Refresh"><svg class="i"><use href="#i-refresh"/></svg></button>
@@ -1850,6 +1877,58 @@ function endSpeech(){
 $("#briefBtn").addEventListener("click", speakRecap);
 $("#stopBrief").addEventListener("click", () => { $("#stopBrief").classList.add("hidden"); speechSynthesis.cancel(); endSpeech(); });
 
+/* ---- AI services: Claude, Gemini (free tier), Local AI (Ollama). Toggles in the top bar ---- */
+let AI = null;
+async function loadAI(){ try { AI = await api("/api/ai"); } catch {} renderAI(); }
+function renderAI(){
+  if (!AI) return;
+  $("#aiPills").innerHTML = Object.entries(AI.providers).map(([k, p]) => `<button class="ai-pill ${AI.primary === k ? "primary" : ""} ${p.on && !p.ready ? "warn" : ""}"
+      data-aitoggle="${k}" aria-pressed="${p.on}" title="${esc(p.name)}: ${p.on ? "on" : "off"}${AI.primary === k ? " · answers as Jarvis" : ""} · ${esc(p.note || "")}">
+      <span class="sw2"></span><span class="lbl">${esc(p.name)}</span>${AI.primary === k ? `<span class="star" aria-hidden="true">★</span>` : ""}</button>`).join("");
+  if (!$("#aiPanel").classList.contains("hidden")) renderAIPanel();
+}
+function renderAIPanel(){
+  const P = AI.providers, row = (k, body) => `<div class="ai-row"><div class="top"><b>${esc(P[k].name)}</b>
+      <label class="hint" style="display:flex;gap:6px;align-items:center"><input type="radio" name="aiPrimary" value="${k}" ${AI.primary === k ? "checked" : ""}> Answers as Jarvis</label>
+      <button class="ai-pill" data-aitoggle="${k}" aria-pressed="${P[k].on}"><span class="sw2"></span>${P[k].on ? "On" : "Off"}</button></div>
+      <div class="hint">${esc(P[k].note || "")}</div>${body}
+      <div class="acts"><button class="btn sm" data-aitest="${k}" ${P[k].ready ? "" : "disabled"}>Test</button><span class="hint" id="aiTest-${k}"></span></div></div>`;
+  $("#aiPanel").innerHTML = `<h3>AI services</h3>
+    <div class="hint" style="margin-top:-8px">Switch each AI on or off. ★ answers as Jarvis; if it can't, the next one that's on answers.</div>
+    ${row("claude", `<div class="hint">Best for the team: it can read your workflow, add tasks and give feedback.</div>`)}
+    ${row("gemini", `<form class="acts" id="geminiForm" autocomplete="off"><input type="password" id="geminiKey" placeholder="${P.gemini.key ? esc(P.gemini.key) + " saved · paste a new key to replace" : "Paste your free Gemini API key"}" style="flex:1;min-width:180px">
+        <button class="btn sm primary">Save key</button></form>
+      <div class="hint">Free key: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (sign in with Google → Create API key). Free-tier chats may be used by Google to improve its products.</div>`)}
+    ${row("local", P.local.models?.length ? `<label class="hint">Model <select id="localModel">${P.local.models.map(m => `<option ${m === P.local.model ? "selected" : ""}>${esc(m)}</option>`).join("")}</select></label>`
+      : `<div class="hint">Free and private; nothing leaves this PC. 1) Install Ollama from <a href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com/download</a>. 2) In a terminal run <code>ollama pull llama3.1:8b</code>. 3) Click Test.</div>`)}`;
+}
+$("#aiBtn").addEventListener("click", e => {
+  e.stopPropagation(); const open = $("#aiPanel").classList.toggle("hidden") === false;
+  $("#aiBtn").setAttribute("aria-expanded", open); if (open){ renderAIPanel(); loadAI(); }
+});
+document.addEventListener("click", async e => {
+  if ($("#aiPanel").classList.contains("hidden") === false && !e.target.closest(".ai-wrap")){ $("#aiPanel").classList.add("hidden"); $("#aiBtn").setAttribute("aria-expanded", "false"); }
+  const t = e.target.closest("[data-aitoggle]");
+  if (t){ const k = t.dataset.aitoggle;
+    try { AI = await api("/api/ai", {provider: k, on: !AI.providers[k].on}); renderAI(); toast(`${AI.providers[k].name} ${AI.providers[k].on ? "on" : "off"}`); }
+    catch (err){ toast(err.message, true); } return; }
+  const ts = e.target.closest("[data-aitest]");
+  if (ts){ const k = ts.dataset.aitest, out = $("#aiTest-" + k); out.textContent = "Testing…";
+    try { const r = await api("/api/ai/test", {provider: k}); out.textContent = "✓ " + r.reply; }
+    catch (err){ out.textContent = "✗ " + err.message; } }
+});
+document.addEventListener("change", async e => {
+  if (e.target.name === "aiPrimary"){ try { AI = await api("/api/ai", {primary: e.target.value}); renderAI(); toast(`${AI.providers[AI.primary].name} now answers as Jarvis`); } catch (err){ toast(err.message, true); } }
+  if (e.target.id === "localModel"){ try { AI = await api("/api/ai", {provider: "local", model: e.target.value}); renderAI(); } catch (err){ toast(err.message, true); } }
+});
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "geminiForm") return; e.preventDefault();
+  const key = $("#geminiKey").value.trim(); if (!key) return;
+  try { AI = await api("/api/ai", {provider: "gemini", key}); $("#geminiKey").value = ""; renderAI(); toast("Gemini key saved and switched on"); }
+  catch (err){ toast(err.message, true); }
+});
+loadAI();
+
 /* ---- conversation: listen → think (Claude) → speak → listen again, until "that's all" ---- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const convo = {on: false, session: "", rec: null, quiet: 0};
@@ -1889,7 +1968,11 @@ function listen(){
   };
   try { rec.start(); } catch { setTimeout(listen, 300); }
 }
-async function reply(text){ bubble("ai", text); convoState("Speaking…"); await speak(text); }
+async function reply(text, by){
+  const b = bubble("ai", text);
+  if (by && AI && Object.values(AI.providers).filter(p => p.on).length > 1) b.insertAdjacentHTML("afterbegin", `<span class="by">${esc(by)}</span>`);
+  convoState("Speaking…"); await speak(text);
+}
 const DEVICE = /\b(turn|switch|lights?|lamp|thermostat|heat|heating|cool|ac|garage|door|lock|unlock|camera|cam|doorbell|dim|brighten|scene|inside|degrees|percent|plug|fan)\b/i;
 async function handle(text){
   if (convo.pending){                                   // answering "Should I open the garage door?"
@@ -1923,11 +2006,11 @@ async function handle(text){
   // Searches take a little longer: say so, like a person would.
   const filler = setTimeout(() => { if (brain.thinking && convo.on) speak(LOOKUP.test(text) ? `Checking now, ${VS.address}.` : `One moment, ${VS.address}.`); }, 3500);
   try{
-    const r = await api("/api/ask", {text, session: convo.session, address: VS.address});
+    const r = await api("/api/ask", {text, session: convo.session, xsession: convo.xsession, address: VS.address});
     clearTimeout(filler);
-    convo.session = r.session || convo.session;
+    convo.session = r.session || convo.session; convo.xsession = r.xsession || convo.xsession;
     brain.thinking = false;
-    await reply(r.reply || `I'm afraid I have nothing on that, ${VS.address}.`);
+    await reply(r.reply || `I'm afraid I have nothing on that, ${VS.address}.`, r.by);
     load();                                   // it may have added a task or sent feedback
   }catch(err){
     clearTimeout(filler);
@@ -1938,7 +2021,7 @@ async function handle(text){
 }
 async function startTalk(){
   if (!SR){ toast("Talking needs Chrome or Edge. Voice input isn't supported in this browser.", true); return; }
-  convo.on = true; convo.quiet = 0; convo.session = "";
+  convo.on = true; convo.quiet = 0; convo.session = ""; convo.xsession = "";
   $("#convoLog").innerHTML = ""; $("#convo").classList.remove("hidden");
   $("#talkBtn").classList.add("on"); $("#talkBtn").lastChild.textContent = "End";
   await reply(`Yes, ${VS.address}?`);
@@ -2171,7 +2254,7 @@ document.addEventListener("click", async e => {
   if (ask){
     const q = `Tell me more about this story: ${ask.dataset.askabout}`;
     location.hash = "#/";
-    if (!convo.on){ convo.on = true; convo.session = ""; $("#convoLog").innerHTML = ""; $("#convo").classList.remove("hidden"); $("#talkBtn").classList.add("on"); $("#talkBtn").lastChild.textContent = "End"; }
+    if (!convo.on){ convo.on = true; convo.session = ""; convo.xsession = ""; $("#convoLog").innerHTML = ""; $("#convo").classList.remove("hidden"); $("#talkBtn").classList.add("on"); $("#talkBtn").lastChild.textContent = "End"; }
     bubble("me", q); handle(q);
   }
 });
