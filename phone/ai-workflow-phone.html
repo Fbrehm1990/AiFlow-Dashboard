@@ -12,7 +12,7 @@
   --fg:#e4ebff; --muted:#8792b0;
   --accent:#46e3ff; --accent-2:#8f7bff; --accent-ink:#04111c; --accent-soft:rgba(70,227,255,.10);
   --ok:#38f2a6; --ok-soft:rgba(56,242,166,.12); --warn:#ffc65c; --warn-soft:rgba(255,198,92,.12); --bad:#ff5d7a; --bad-soft:rgba(255,93,122,.12);
-  --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5; --auto:#8792b0;
+  --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --web:#ff7ad9; --test:#7af0ff; --marketing:#ff9a4d; --plan:#c9d4f5; --auto:#8792b0;
   --glow:0 0 0 1px rgba(70,227,255,.35), 0 0 18px rgba(70,227,255,.18);
   --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -314,7 +314,7 @@ header.top h1{font-size:20px}
 <div id="toastRoot"></div>
 
 <script>
-const TYPES = {auto:"Team decides", research:"Research", web:"Website", marketing:"Marketing", code:"Code", brief:"Brief", docs:"Docs & data", plan:"Plan"};
+const TYPES = {auto:"Team decides", research:"Research", web:"Website", marketing:"Marketing", code:"Code", test:"Testing", brief:"Brief", docs:"Docs & data", plan:"Plan"};
 const TYPE_NOTE = {
   research:"Researcher: a cited report with a recommendation.",
   web:"Web builder: builds a site. Going live needs your approval.",
@@ -474,7 +474,7 @@ function blockedView(){
 const AGENTS = [
   {name: "Manager", role: "Operations lead", types: ["plan", "digest", "auto"], color: "--plan"},
   {name: "Researcher", role: "Research & leads", types: ["research", "brief", "docs"], color: "--research"},
-  {name: "Web builder", role: "Websites", types: ["web", "code"], color: "--web"},
+  {name: "Web builder", role: "Websites, code & testing", types: ["web", "code", "test"], color: "--web"},
   {name: "Marketer", role: "Social, ads & email", types: ["marketing"], color: "--marketing"},
 ];
 const agentOf = t => AGENTS.find(a => a.types.includes(t)) || AGENTS[1];

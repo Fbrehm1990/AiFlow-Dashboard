@@ -19,6 +19,7 @@ Nobody is watching while it runs, so finish work end-to-end and leave a clear re
 | `[docs]` | Researcher (`researcher`) | `docs-task` | file(s) in `outputs/docs/` |
 | `[web]` | Web builder (`web-builder`) | `web-build` | demo site in `outputs/sites/<slug>/` (local only) + summary in `outputs/web/`. Client launches go in `../CLIENT WEBSITES/<slug>/` |
 | `[code]` | Web builder (`web-builder`) | `coding-task` | branch + PR (or patch) and a summary in `outputs/code/` |
+| `[test]` | Web builder (`web-builder`) | `testing-task` | test report (pass/fail, reproduce steps, hand-offs) in `outputs/tests/`; never changes what it tests |
 | `[marketing]` | Marketer (`marketer`) | `marketing` | ready-to-publish drafts in `outputs/marketing/`: social, ads, and **all email drafts** (outreach, replies, follow-ups, proposals) |
 | `[plan]` | Manager (`manager`) | `manager-plan` | plan in `outputs/plans/` |
 | `[auto]` (or no tag) | Manager triages | see `run-queue` | routed to one agent, or split into steps marked "step of your task" |
@@ -91,7 +92,8 @@ Run these commands from this folder. They are quick, so call them at every phase
 - At each phase of a task: `python dashboard/progress.py step --task "<task title>" --type <research|code|docs|brief|digest> --step N --note "<short status>"`
   - The task title is the inbox text after the tags and before ` — `, copied exactly.
   - Types `web`, `marketing` and `plan` also exist: web 1 Planning the site · 2 Building · 3 Checking quality ·
-    4 Handing off. marketing 1 Researching audience · 2 Drafting · 3 Reviewing · 4 Submitting for approval.
+    4 Handing off. test 1 Setting up · 2 Running checks · 3 Investigating failures · 4 Writing report.
+    marketing 1 Researching audience · 2 Drafting · 3 Reviewing · 4 Submitting for approval.
     plan 1 Reviewing work · 2 Planning · 3 Assigning tasks.
   - Phases: research 1 Planning · 2 Searching · 3 Reading sources · 4 Verifying · 5 Writing report.
     code 1 Setting up branch · 2 Reading code · 3 Implementing · 4 Testing · 5 Handing off.

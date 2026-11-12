@@ -3,6 +3,11 @@ name: deep-research
 description: Multi-source web research producing a cited report with a clear recommendation. Use for [research] tasks or any "research / compare / investigate / find out" request.
 ---
 
+**Answer tasks.** When the task title starts with `Answer:`, the owner asked Jarvis a question that needs real
+research, and Jarvis reads your answer back to them. Start the report with a `## Short answer` section: 2–4
+plain spoken sentences that directly answer the question (no markdown, links or citations inside it), then
+the full cited report as usual. Keep the whole thing focused on the question.
+
 # Deep research
 
 ## Method
