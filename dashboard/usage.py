@@ -524,16 +524,20 @@ def _status():
         except ValueError as e:
             api["error"] = str(e)
 
-    owed = [{"name": cp["name"], "amount": float(cp["monthly_fee"]), "kind": "plan"}]
+    # Subscriptions are charged upfront when they renew, so they're listed as prepaid, not owed.
+    # "Owed" is only usage-based spend that hasn't been billed yet (the Anthropic API).
+    plans = [{"name": cp["name"], "amount": float(cp["monthly_fee"]), "renews": c_end.isoformat()}]
     if xp.get("on", True):
-        owed.append({"name": xp["name"], "amount": float(xp["monthly_fee"]), "kind": "plan"})
+        plans.append({"name": xp["name"], "amount": float(xp["monthly_fee"]), "renews": x_end.isoformat()})
+    owed = []
     if api.get("cost") is not None:
         owed.append({"name": "Anthropic API (this month)", "amount": api["cost"], "kind": "api"})
 
     iso = lambda t: t.isoformat(timespec="seconds") if t else None
     return {
         "updated": iso(now),
-        "owed": {"total": round(sum(o["amount"] for o in owed), 2), "parts": owed},
+        "owed": {"total": round(sum(o["amount"] for o in owed), 2), "parts": owed, "known": bool(owed)},
+        "plans": {"total": round(sum(p["amount"] for p in plans), 2), "items": plans},
         "tokens": {"today": claude["today"] + codex["today"], "week": claude["week"] + codex["week"],
                    "last_hour": claude["last_hour"] + codex["last_hour"],
                    "cycle": claude["cycle"] + codex["cycle"] + int(api.get("tokens") or 0)},

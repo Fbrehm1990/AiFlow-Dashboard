@@ -2155,7 +2155,7 @@ async function renderUsageTile(){
   const lim = u.claude.limits || {}, five = lim.five_hour, week = lim.seven_day, cx = u.codex.limit;
   const pcts = [five && `Claude 5h <b>${five.pct.toFixed(0)}%</b>`, week && `week <b>${week.pct.toFixed(0)}%</b>`, cx && `Codex <b>${cx.pct.toFixed(0)}%</b>`].filter(Boolean);
   el.innerHTML = `<div class="u-tile">
-      <div class="u-mini"><div class="hb-big">${fmtUsd(u.owed.total)}</div><div class="hb-sub">owed this month</div></div>
+      <div class="u-mini"><div class="hb-big">${u.owed.known ? fmtUsd(u.owed.total) : "—"}</div><div class="hb-sub">owed now · plans ${fmtUsd(u.plans.total)}/mo prepaid</div></div>
       <div class="u-mini"><div class="hb-big">${fmtTok(u.tokens.today)}</div><div class="hb-sub">tokens today · ${fmtTok(u.tokens.last_hour)} last hour</div></div>
     </div>
     <div class="hb-sub">${pcts.length ? pcts.join(" · ") + " of plan used" : "Connect your Claude plan to see % used"}</div>
@@ -2173,9 +2173,10 @@ async function renderUsage(first){
 
   const hero = `<section class="card"><div class="card-h"><h2>Right now</h2><span class="spacer"></span><span class="u-live">LIVE · updated ${new Date(u.updated).toLocaleTimeString([], {hour: "numeric", minute: "2-digit", second: "2-digit"})}</span></div>
     <div class="u-hero">
-      <div><div class="u-k">Owed this month</div><div class="u-big">${fmtUsd(u.owed.total)}</div>
-        <ul class="u-parts">${u.owed.parts.map(p => `<li><span>${esc(p.name)}${p.kind === "api" ? " · usage" : " · plan"}</span><b>${fmtUsd(p.amount)}</b></li>`).join("")}</ul>
-        ${a.connected ? "" : `<div class="u-note">Anthropic API spend isn't included yet. Add an Admin key below.</div>`}</div>
+      <div><div class="u-k">Owed right now</div><div class="u-big" style="color:${u.owed.total > 0 ? "var(--warn)" : "var(--ok)"}">${u.owed.known ? fmtUsd(u.owed.total) : "—"}</div>
+        <ul class="u-parts">${u.owed.parts.map(p => `<li><span>${esc(p.name)}</span><b>${fmtUsd(p.amount)}</b></li>`).join("")}
+          ${u.plans.items.map(p => `<li><span>${esc(p.name)} · prepaid, renews ${new Date(p.renews + "T12:00").toLocaleDateString([], {month: "short", day: "numeric"})}</span><b>${fmtUsd(p.amount)}/mo</b></li>`).join("")}</ul>
+        <div class="u-note">${a.connected ? "Only pay-as-you-go API usage is owed. Plan fees are charged upfront when they renew." : "Add an Admin key below to see pay-as-you-go API spend. Plan fees are prepaid, so they aren't owed."}</div></div>
       <div><div class="u-k">Tokens this cycle</div><div class="u-big">${fmtTok(u.tokens.cycle)}</div>
         <ul class="u-parts"><li><span>Today</span><b>${fmtTok(u.tokens.today)}</b></li><li><span>Last hour</span><b>${fmtTok(u.tokens.last_hour)}</b></li><li><span>Last 7 days</span><b>${fmtTok(u.tokens.week)}</b></li></ul></div>
       <div><div class="u-k">Claude Code at API rates</div><div class="u-big" style="color:${U_CLAUDE}">${fmtUsd(c.api_value)}</div>
