@@ -625,7 +625,7 @@ class Handler(BaseHTTPRequestHandler):
                 usage.install_statusline()
                 return self._send(200, usage.status())
             elif route == "/api/open-edge":
-                open_ui(f"http://127.0.0.1:{PORT}/")
+                open_ui(f"http://127.0.0.1:{PORT}/", edge=True)
             elif route == "/api/ai/test":
                 import models
                 p = body.get("provider")
@@ -668,11 +668,11 @@ EDGE = [Path(os.environ.get(v, "")) / "Microsoft" / "Edge" / "Application" / "ms
         for v in ("ProgramFiles(x86)", "ProgramFiles", "LocalAppData")]
 
 
-def open_ui(url):
-    """Open the dashboard in Microsoft Edge when it's installed: Edge has free, natural-sounding neural voices
-    (e.g. Microsoft Ryan), so Jarvis sounds far smoother there. Falls back to the default browser."""
+def open_ui(url, edge=False):
+    """Open the dashboard in the default browser. With edge=True (the "Open in Edge" button in voice settings),
+    use Microsoft Edge instead: its free natural voices (e.g. Microsoft Ryan) make Jarvis sound smoother."""
     import subprocess
-    edge = next((p for p in EDGE if p.is_absolute() and p.is_file()), None)
+    edge = edge and next((p for p in EDGE if p.is_absolute() and p.is_file()), None)
     if edge:
         try:
             subprocess.Popen([str(edge), url], close_fds=True)
