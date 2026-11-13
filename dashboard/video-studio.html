@@ -1,0 +1,1835 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>
+/* Foreman AI: run the studio against this PC instead of claude.ai.
+   Claude requests go to the local server, which runs the Claude Code CLI; saved videos go to outputs/videos. */
+(function () {
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("theme") === "dark" || qs.get("theme") === "light") document.documentElement.dataset.theme = qs.get("theme");
+  const H = { "X-AIWF": "1" };
+  const fail = (d, fallback) => Object.assign(new Error((d && d.error) || fallback), { code: (d && d.code) || "local_error" });
+  const toB64 = (blob) => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
+  async function call(input, opts, json) {
+    const images = [];
+    for (const b of (opts && opts.images) || []) images.push(await toB64(b));
+    const prompt = typeof input === "string" ? input : input.map((m) => m.content).join("\n\n");
+    const r = await fetch("/api/video/claude", { method: "POST", headers: { ...H, "Content-Type": "application/json" }, body: JSON.stringify({ prompt, images, json, tier: (opts && opts.modelTier) || "default" }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw fail(d, "Claude couldn't answer");
+    return d;
+  }
+  const sample = async (input, opts = {}) => ({ text: (await call(input, opts, false)).text, truncated: false });
+  sample.json = async (input, opts = {}) => (await call(input, opts, true)).value;
+  sample.limits = async () => ({ maxPromptBytes: 200000, images: { maxCount: 8, maxInputBytes: 20000000, mediaTypes: ["image/jpeg", "image/png"] } });
+  const downloads = {
+    async save({ filename, data }) {
+      const r = await fetch("/api/video/save?name=" + encodeURIComponent(filename), { method: "POST", headers: { ...H, "Content-Type": "application/octet-stream" }, body: data });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw fail(d, "Couldn't save the video");
+      return d;
+    },
+    openFolder() { return fetch("/api/video/open", { method: "POST", headers: { ...H, "Content-Type": "application/json" }, body: "{}" }); },
+  };
+  let ready = null;
+  const cliReady = () => (ready ??= fetch("/api/video/status").then((r) => r.json()).then((d) => !!d.ready).catch(() => false));
+  window.claude = { use: async (name) => (name === "sample" ? ((await cliReady()) ? sample : null) : name === "downloads" ? downloads : null) };
+})();
+</script>
+<title>Video Studio · Foreman AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a two-column edit bay (footage + settings | output reel), stacking to one column on phones. */
+:root {
+  --bg: #eceef4;
+  --surface: #ffffff;
+  --surface-2: #f4f5f9;
+  --line: #d6d9e4;
+  --fg: #11141f;
+  --muted: #5b6176;
+  --accent: #2f4bff;
+  --accent-soft: rgba(47, 75, 255, 0.1);
+  --on-accent: #ffffff;
+  --tally: #e0393f;
+  --ok: #17885a;
+  --warn: #a8690f;
+  --scrim: rgba(17, 20, 31, 0.72);
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0f15; --surface: #161922; --surface-2: #1d212d; --line: #2a2f3e; --fg: #eceef5;
+    --muted: #979db1; --accent: #7387ff; --accent-soft: rgba(115, 135, 255, 0.14); --on-accent: #0b0d14;
+    --tally: #ff5f66; --ok: #3ccf8e; --warn: #f0b54a; --scrim: rgba(0, 0, 0, 0.7); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0f15; --surface: #161922; --surface-2: #1d212d; --line: #2a2f3e; --fg: #eceef5;
+  --muted: #979db1; --accent: #7387ff; --accent-soft: rgba(115, 135, 255, 0.14); --on-accent: #0b0d14;
+  --tally: #ff5f66; --ok: #3ccf8e; --warn: #f0b54a; --scrim: rgba(0, 0, 0, 0.7); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 56px; }
+h1, h2 { font-family: var(--display); margin: 0; letter-spacing: -0.015em; text-wrap: balance; }
+h1 { font-size: clamp(26px, 4vw, 34px); font-weight: 800; }
+h2 { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; margin-bottom: 22px; }
+.brandline { display: flex; align-items: center; gap: 12px; }
+.mark { width: 40px; height: 40px; border-radius: 11px; background: var(--fg); display: grid; place-items: center; flex: none; }
+.mark i { width: 12px; height: 12px; border-radius: 50%; background: var(--tally); box-shadow: 0 0 0 4px rgba(224, 57, 63, 0.25); }
+.top .sub { margin-top: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; font: 600 12px var(--mono); letter-spacing: 0.02em; padding: 5px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.chip.ok { color: var(--ok); } .chip.ok .dot { background: var(--ok); }
+.chip.warn { color: var(--warn); } .chip.warn .dot { background: var(--warn); }
+
+.bay { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 880px) { .bay { grid-template-columns: minmax(0, 1fr); } }
+.col { display: grid; gap: 18px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 16px; min-width: 0; }
+.step { font: 600 11px var(--mono); color: var(--accent); background: var(--accent-soft); padding: 3px 7px; border-radius: 6px; letter-spacing: 0.04em; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+/* video types */
+.types { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.type { text-align: left; font: inherit; color: var(--fg); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; cursor: pointer; display: grid; gap: 2px; }
+.type b { font: 700 15px var(--display); }
+.type span { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.type[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.type:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.drop { border: 1.5px dashed var(--line); border-radius: 12px; padding: 20px 16px; text-align: center; background: var(--surface-2); cursor: pointer; display: grid; gap: 4px; justify-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop:focus-visible { border-color: var(--accent); outline: none; }
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop strong { font-family: var(--display); font-size: 16px; }
+.drop .btnrow { margin-top: 10px; }
+.clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.clip { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--line); max-width: 100%; }
+.clip canvas { width: 100%; height: 100%; display: block; }
+.clip .n { position: absolute; top: 5px; left: 5px; font: 600 11px var(--mono); background: var(--scrim); color: #fff; padding: 1px 6px; border-radius: 6px; }
+.clip .len { position: absolute; bottom: 5px; right: 5px; font: 600 11px var(--mono); background: var(--scrim); color: #fff; padding: 1px 6px; border-radius: 6px; }
+.clip .x { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--scrim); color: #fff; cursor: pointer; font-size: 13px; line-height: 1; display: grid; place-items: center; }
+.clip .x:focus-visible { outline: 2px solid var(--accent); }
+.clip .state { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 6px; font-size: 11px; color: var(--muted); }
+.clip.err { border-color: var(--tally); }
+.clip.err .state { color: var(--tally); }
+
+label.field { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+textarea, input[type=text], select { width: 100%; font: 15px/1.45 var(--body); color: var(--fg); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+textarea { resize: vertical; min-height: 76px; }
+textarea:focus, input[type=text]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+input[type=color] { width: 46px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); padding: 3px; cursor: pointer; }
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+.check { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.opt { display: grid; gap: 6px; }
+.opt > span { font-size: 13px; font-weight: 600; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 13px var(--body); color: var(--fg); background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.seg button:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg small { font: 500 11px var(--mono); opacity: .75; margin-left: 4px; }
+.optgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 520px) { .optgrid, .types { grid-template-columns: minmax(0, 1fr); } }
+.row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+.row > label { flex: 1; min-width: 140px; }
+.subpanel { border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 14px; display: grid; gap: 14px; }
+.subpanel h3 { margin: 0; font: 700 14px var(--display); }
+.btn { font: 700 14px var(--body); border-radius: 10px; padding: 9px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.big { width: 100%; padding: 14px; font-size: 16px; font-family: var(--display); letter-spacing: -0.01em; }
+.btn.small { padding: 6px 10px; font-size: 13px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.hint { font-size: 13px; color: var(--muted); }
+
+/* medal box editor */
+.region { position: relative; border-radius: 10px; overflow: hidden; background: #000; touch-action: none; max-width: 100%; }
+.region canvas { width: 100%; display: block; cursor: crosshair; }
+
+.reel { display: grid; gap: 14px; }
+.empty { border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 22px; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 18px; align-items: center; background: var(--surface); }
+.phone { width: 96px; aspect-ratio: 9/16; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); position: relative; overflow: hidden; max-width: 100%; }
+.phone::before { content: "HOOK"; position: absolute; top: 38%; left: 12%; right: 12%; text-align: center; font: 13px "Anton", Impact, sans-serif; color: var(--on-accent); background: var(--accent); border-radius: 4px; padding: 3px 0; }
+.phone::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 12px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--tally) 35%, var(--line) 35%); }
+.empty ol { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; display: grid; gap: 2px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; grid-template-columns: minmax(120px, 200px) minmax(0, 1fr); gap: 16px; min-width: 0; }
+@media (max-width: 520px) { .card { grid-template-columns: minmax(0, 1fr); } }
+.screen { background: #000; border-radius: 10px; overflow: hidden; position: relative; display: grid; place-items: center; max-width: 100%; }
+.screen video, .screen canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
+.screen .wait { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 8px; color: #c9cdda; font: 600 12px var(--mono); text-align: center; padding: 10px; }
+.rec { width: 10px; height: 10px; border-radius: 50%; background: var(--tally); animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .rec { animation: none; } }
+.cardbody { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.cardtop { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.cardtop h3 { margin: 0; font: 700 16px var(--display); }
+.specs { font: 500 12px var(--mono); color: var(--muted); }
+.bar { height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+.stage { font-size: 13px; color: var(--muted); }
+.stage.bad { color: var(--tally); }
+.cap textarea { min-height: 92px; font-size: 14px; }
+.note { font-size: 13px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+.note.warn { color: var(--warn); }
+.scan { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 8px; }
+.scan h3 { margin: 0; font: 700 15px var(--display); }
+.scanrow { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13px; }
+.scanrow .tag { font: 600 12px var(--mono); color: var(--muted); }
+.medals { display: flex; flex-wrap: wrap; gap: 5px; }
+.medal { font: 600 11.5px var(--mono); padding: 2px 7px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface-2); }
+.medal.hit { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 12px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 14px; opacity: 0; pointer-events: none; transition: .2s; max-width: calc(100% - 32px); z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brandline">
+      <div class="mark" aria-hidden="true"><i></i></div>
+      <div>
+        <h1>Video Studio</h1>
+        <p class="sub muted">Montages, movie edits, promos and highlights, edited by Claude and rendered on your device.</p>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip" id="aiChip"><span class="dot"></span><span id="aiChipText">Connecting to Claude…</span></span>
+      <span class="chip"><span class="dot"></span><span id="specText">1080×1920 · 30 fps</span></span>
+    </div>
+  </header>
+
+  <div class="bay">
+    <div class="col">
+      <section class="panel" aria-labelledby="h-type">
+        <div class="panel-head"><h2 id="h-type"><span class="step">STEP 1</span>What are you making?</h2></div>
+        <div class="types" id="types"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-clips">
+        <div class="panel-head">
+          <h2 id="h-clips"><span class="step">STEP 2</span>Your footage</h2>
+          <span class="hint mono" id="clipCount">0 items</span>
+        </div>
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add photos and videos">
+          <strong>Drop photos & videos here</strong>
+          <span class="muted" id="dropHint">or tap to pick from your camera roll · up to 40</span>
+          <div class="btnrow" id="sampleRow"><button class="btn" type="button" id="sampleBtn">Try with sample photos</button></div>
+          <input type="file" id="fileIn" class="sr" multiple accept="image/*,video/*,.mov,.mp4,.m4v,.heic">
+        </div>
+        <div class="clips" id="clips"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-opts">
+        <div class="panel-head"><h2 id="h-opts"><span class="step">STEP 3</span>How it should look</h2></div>
+        <label class="field" for="prompt"><span id="promptLabel">What's it about?</span>
+          <textarea id="prompt"></textarea>
+        </label>
+
+        <div class="subpanel" id="gameBlock" hidden>
+          <label class="check"><input type="checkbox" id="killOnly"> Only keep kill streaks (reads Call of Duty medals)</label>
+          <div id="killOpts" class="optgrid">
+            <div class="opt"><span>Count it as a streak at</span><div class="seg" id="o-minRank" data-key="minRank"></div></div>
+            <div class="opt"><span>Make</span><div class="seg" id="o-ksOutput" data-key="ksOutput"></div></div>
+            <div class="opt"><span>Show before the first kill</span><div class="seg" id="o-leadIn" data-key="leadIn"></div></div>
+          </div>
+          <div id="regionWrap" class="opt">
+            <span>Medal area: drag a box over where medals like "Triple Kill" pop up</span>
+            <div class="region" id="region"><canvas id="regionCanvas" width="640" height="360" aria-label="Medal area selector"></canvas></div>
+            <div class="btnrow"><button class="btn small" type="button" id="regionReset">Reset box</button><span class="hint" id="regionHint">Add a gameplay clip to see a frame here.</span></div>
+          </div>
+        </div>
+
+        <div class="optgrid">
+          <div class="opt" id="countOpt"><span>How many videos</span><div class="seg" id="o-count" data-key="count"></div></div>
+          <div class="opt" id="lengthOpt"><span id="lengthLabel">Length</span><div class="seg" id="o-length" data-key="length"></div></div>
+          <div class="opt"><span>Shape</span><div class="seg" id="o-aspect" data-key="aspect"></div></div>
+          <div class="opt"><span>Music</span><div class="seg" id="o-music" data-key="music"></div></div>
+        </div>
+        <div class="btnrow" id="songRow" hidden>
+          <span class="hint" id="songName"></span>
+          <button class="btn small" type="button" id="songBtn">Choose song</button>
+          <input type="file" id="songIn" class="sr" accept="audio/*,.mp3,.m4a,.wav">
+        </div>
+
+        <div class="opt">
+          <span>Editing style</span>
+          <div class="row">
+            <label class="field" for="styleSel" style="min-width:200px"><select id="styleSel"></select></label>
+            <button class="btn" type="button" id="learnBtn">Learn from a video</button>
+            <button class="btn" type="button" id="delStyleBtn" hidden>Delete style</button>
+            <input type="file" id="learnIn" class="sr" accept="video/*,.mov,.mp4,.m4v,.webm">
+          </div>
+          <p class="hint" id="styleHint"></p>
+        </div>
+
+        <div class="subpanel" id="endBlock">
+          <h3 id="endTitle">End card</h3>
+          <div class="row" id="followRow">
+            <label class="field" for="handle">Your @handle
+              <input type="text" id="handle" placeholder="@yourname" autocomplete="off" maxlength="32">
+            </label>
+          </div>
+          <div class="row" id="promoRow" hidden>
+            <label class="field" for="biz">Business name<input type="text" id="biz" placeholder="CyberPatriot" maxlength="40"></label>
+            <label class="field" for="site">Website<input type="text" id="site" placeholder="patrioticwebsites.com" maxlength="60"></label>
+            <label class="field" for="cta">Call to action<input type="text" id="cta" placeholder="Get your free quote" maxlength="40"></label>
+          </div>
+          <div class="row">
+            <label class="field" for="color" style="flex:none;min-width:0">Brand color<input type="color" id="color" value="#2f4bff"></label>
+          </div>
+        </div>
+
+        <button class="btn primary big" type="button" id="makeBtn">Make my video</button>
+        <p class="hint" id="makeHint">Rendering happens on this device. Keep this tab open until it's done.</p>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel" aria-labelledby="h-out">
+        <div class="panel-head"><h2 id="h-out"><span class="step">STEP 4</span>Ready to post</h2></div>
+        <div class="reel" id="reel">
+          <div class="empty" id="emptyState">
+            <div class="phone" aria-hidden="true"></div>
+            <div>
+              <p><strong>Your finished videos show up here.</strong></p>
+              <ol>
+                <li>Claude picks the best moments and the order</li>
+                <li>Adds a hook, captions, music, effects and transitions</li>
+                <li>You save the MP4 and copy the post caption</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ==========================================================================
+   Video Studio: footage → Claude edit plan → canvas compositor → MP4 (Mediabunny)
+   ========================================================================== */
+const MB_URL = "https://cdn.jsdelivr.net/npm/mediabunny@1.61.6/dist/bundles/mediabunny.min.mjs";
+const AAC_URL = "https://cdn.jsdelivr.net/npm/@mediabunny/aac-encoder@1.61.6/dist/bundles/mediabunny-aac-encoder.min.js";
+let MB = null;
+const mbReady = import(MB_URL).then((m) => { MB = m; window.Mediabunny = m; return m; }).catch((e) => { console.error("Mediabunny failed to load", e); return null; });
+
+const FPS = 30;
+const MAX_ITEMS = 40;
+const SIZES = { "9:16": [1080, 1920], "1:1": [1080, 1080], "16:9": [1920, 1080] };
+const MUSIC_STYLES = ["upbeat", "hype", "cinematic", "inspire", "chill"];
+const TRANSITIONS = ["cut", "fade", "slide", "zoom", "flash"];
+const GRADES = { natural: "none", vivid: "contrast(1.1) saturate(1.35)", cinematic: "contrast(1.16) saturate(0.8) brightness(0.96) sepia(0.12)", dark: "contrast(1.25) brightness(0.86) saturate(1.05)", warm: "saturate(1.15) sepia(0.18) contrast(1.05)" };
+const CAN_FILTER = (() => { try { const c = document.createElement("canvas").getContext("2d"); return "filter" in c; } catch { return false; } })();
+const CAPTION_FONT = '"Anton", Impact, "Arial Black", sans-serif';
+const MEDALS = [["Double Kill", 2], ["Triple Kill", 3], ["Fury Kill", 4], ["Frenzy Kill", 5], ["Super Kill", 6], ["Mega Kill", 7], ["Ultra Kill", 8], ["Kill Chain", 9]];
+const RANK_NAME = Object.fromEntries(MEDALS.map(([n, r]) => [r, n]));
+
+/* Video types: what Claude is told, and which style they start from */
+const TYPES = {
+  gaming: {
+    label: "Gaming montage", blurb: "Kill streaks and big plays, fast cuts, hype music.", style: "cod",
+    prompt: "What's the montage about? (optional)", placeholder: "e.g. Best streaks from tonight on MW4. Fast and hype.",
+    rules: "This is gameplay footage for a gaming montage. Keep only the most intense moments: kills, multi-kills, clutches and big plays. Cut out walking, menus, deaths and downtime. Pace it fast. Keep the game sound on kill moments (keep_sound true). Captions are short hype lines or none. Do not use text_card scenes.",
+  },
+  movie: {
+    label: "Movie edit", blurb: "Trailer-style recaps and fan edits with title cards.", style: "trailer",
+    prompt: "What's the edit? Name the movie or show and the angle.", placeholder: "e.g. 60-second recap of the first act, building to the big reveal.",
+    rules: "This is a movie/TV edit (trailer-style recap or fan edit). Build a story arc: setup, rising tension, the peak moment, then a final line. The hook teases the story. Captions give context or a dramatic line. Add 1-3 text_card scenes with short trailer lines (\"THIS SUMMER\", \"ONE CHOICE\"). Keep the clip's own sound when dialogue or a key sound matters.",
+  },
+  promo: {
+    label: "Business promo", blurb: "Show off your work and end with a call to action.", style: "promo",
+    prompt: "What are you promoting and who is it for?", placeholder: "e.g. Websites for local businesses in the Eastern Panhandle. Fast, modern, affordable.",
+    rules: "This is a promo video for the creator's business. Open with a hook that names a problem or a bold promise. Show the work. Captions state concrete benefits in a few words. Add 1-3 text_card scenes with short brand statements. Do not put the website or call to action in captions: an end card with them is added automatically.",
+  },
+  highlight: {
+    label: "Everyday highlights", blurb: "Trips, events, day-in-the-life and anything else.", style: "social",
+    prompt: "What's it about? (optional)", placeholder: "e.g. Weekend trip to Harpers Ferry. Hiking, the river, sunset at the overlook.",
+    rules: "This is an everyday highlight video. Find the story in the footage. Open with the most eye-catching shot.",
+  },
+};
+
+/* Editing styles. Built-ins plus styles learned from videos you like. */
+const BUILTIN_STYLES = [
+  { id: "cod", name: "CoD montage", builtin: true, summary: "Flash cuts, shake and zoom on kills, slow-mo on the final kill, hype music.", transition: "flash", music: "hype", grade: "vivid", letterbox: false, text: { pos: "top", upper: true }, effects: { punch: true, shake: true, flash: true, slowmo: true }, killText: true, gameAudio: 0.65, pace: 1.4 },
+  { id: "trailer", name: "Movie trailer", builtin: true, summary: "Cinematic color, letterbox bars, slow fades and booming title cards.", transition: "fade", music: "cinematic", grade: "cinematic", letterbox: true, text: { pos: "center", upper: true }, effects: { punch: false, shake: false, flash: false, slowmo: false }, killText: false, gameAudio: 0.9, pace: 2.4 },
+  { id: "promo", name: "Clean promo", builtin: true, summary: "Crisp slides, bold benefit captions, upbeat inspiring music.", transition: "slide", music: "inspire", grade: "natural", letterbox: false, text: { pos: "bottom", upper: false }, effects: { punch: false, shake: false, flash: false, slowmo: false }, killText: false, gameAudio: 0.8, pace: 2.4 },
+  { id: "social", name: "Social highlights", builtin: true, summary: "Lets Claude pick music and transitions for each video.", transition: "auto", music: "auto", grade: "vivid", letterbox: false, text: { pos: "bottom", upper: true }, effects: { punch: false, shake: false, flash: false, slowmo: false }, killText: false, gameAudio: 1, pace: null },
+];
+
+const $ = (s, el = document) => el.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const clip = (s, n) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, n);
+const even = (n) => Math.max(2, Math.round(n / 2) * 2);
+const ease = (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+const fmtLen = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}` : `${s.toFixed(s < 10 ? 1 : 0)}s`);
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+const timecode = (s) => { const f = Math.round(s * FPS); const sec = Math.floor(f / FPS); return `00:${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}:${String(f % FPS).padStart(2, "0")}`; };
+const yieldUI = () => new Promise((r) => { const ch = new MessageChannel(); ch.port1.onmessage = () => r(); ch.port2.postMessage(0); });
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("vs:" + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("vs:" + k, JSON.stringify(v)); } catch {} },
+};
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 3400); }
+
+/* ---------------- state ---------------- */
+const DEFAULT_REGION = { x: 0.25, y: 0.12, w: 0.5, h: 0.5 };
+const S = {
+  items: [], nextN: 1, results: [], busy: false, song: null,
+  opts: Object.assign({ type: "highlight", count: 1, length: 30, aspect: "9:16", music: "auto", killOnly: true, minRank: 3, ksOutput: "montage", leadIn: 3, styleId: "auto" }, store.get("opts", {})),
+  brand: Object.assign({ handle: "", color: "#2f4bff", biz: "", site: "", cta: "" }, store.get("brand", {})),
+  region: store.get("region", DEFAULT_REGION),
+};
+const CAP = { sample: null, downloads: null, checked: false };
+const PST = { col: null, list: store.get("styles", []) };
+
+/* ---------------- viewer capabilities ---------------- */
+(async () => {
+  if (window.claude?.use) {
+    const [sample, downloads] = await Promise.all([
+      window.claude.use("sample").catch(() => null),
+      window.claude.use("downloads").catch(() => null),
+    ]);
+    CAP.sample = sample; CAP.downloads = downloads;
+  }
+  CAP.checked = true;
+  updateAiChip();
+})();
+function updateAiChip(note) {
+  const chip = $("#aiChip"), text = $("#aiChipText");
+  chip.classList.remove("ok", "warn");
+  if (!CAP.checked) { text.textContent = "Connecting to Claude…"; return; }
+  if (CAP.sample && !note) { chip.classList.add("ok"); text.textContent = "Claude edits your videos"; }
+  else { chip.classList.add("warn"); text.textContent = note || "Quick edit mode"; }
+}
+
+/* ---------------- saved styles (your account, so they follow you between devices) ---------------- */
+(async () => {
+  if (!window.claude?.use) return;
+  const [db, user] = await Promise.all([window.claude.use("db").catch(() => null), window.claude.use("user").catch(() => null)]);
+  if (!db || !user) return;
+  const id = await user.id().catch(() => null);
+  if (!id) return;
+  PST.col = db.collection("data/users/" + id);
+  try {
+    const snap = await PST.col.get();
+    const remote = snap.docs.map((d) => d.data()).filter((p) => p && p.kind === "style" && p.id);
+    const ids = new Set(remote.map((p) => p.id));
+    for (const p of PST.list) if (!ids.has(p.id)) PST.col.doc(p.id).set(JSON.parse(JSON.stringify(p))).catch(() => {});
+    PST.list = [...remote.map((p) => JSON.parse(JSON.stringify(p))), ...PST.list.filter((p) => !ids.has(p.id))];
+    store.set("styles", PST.list);
+    renderStyleSelect();
+  } catch (e) { console.warn("styles", e); }
+})();
+function allStyles() { return [...BUILTIN_STYLES, ...PST.list]; }
+function saveStyle(p) {
+  PST.list = [p, ...PST.list.filter((x) => x.id !== p.id)];
+  store.set("styles", PST.list);
+  PST.col?.doc(p.id).set(JSON.parse(JSON.stringify(p))).catch((e) => console.warn("save style", e));
+}
+function deleteStyle(id) {
+  PST.list = PST.list.filter((x) => x.id !== id);
+  store.set("styles", PST.list);
+  PST.col?.doc(id).delete().catch(() => {});
+}
+function resolveStyle(type = S.opts.type) {
+  const want = S.opts.styleId === "auto" ? TYPES[type].style : S.opts.styleId;
+  return structuredClone(allStyles().find((s) => s.id === want) || BUILTIN_STYLES.find((s) => s.id === TYPES[type].style));
+}
+
+/* ---------------- option controls ---------------- */
+function optionSets() {
+  const ks = S.opts.type === "gaming" && S.opts.killOnly;
+  return {
+    count: [[1, "1"], [2, "2"], [3, "3"], [4, "4"], [5, "5"]],
+    length: ks ? [[30, "Up to 30s"], [60, "Up to 60s"], [0, "All streaks"]] : [[15, "15s"], [30, "30s"], [60, "60s"]],
+    aspect: [["9:16", "Vertical", "9:16"], ["1:1", "Square", "1:1"], ["16:9", "Wide", "16:9"]],
+    music: [["auto", "Auto"], ["hype", "Hype"], ["upbeat", "Upbeat"], ["cinematic", "Cinematic"], ["inspire", "Inspiring"], ["chill", "Chill"], ["song", "My song"], ["none", "None"]],
+    minRank: [[3, "Triple Kill+"], [4, "Fury Kill+"], [5, "Frenzy Kill+"]],
+    ksOutput: [["montage", "One montage"], ["each", "A video per streak"]],
+    leadIn: [[1.5, "1.5s"], [3, "3s"], [5, "5s"]],
+  };
+}
+function renderTypes() {
+  const box = $("#types"); box.innerHTML = "";
+  for (const [key, t] of Object.entries(TYPES)) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "type"; b.setAttribute("aria-pressed", String(S.opts.type === key));
+    const h = document.createElement("b"); h.textContent = t.label;
+    const s = document.createElement("span"); s.textContent = t.blurb;
+    b.append(h, s);
+    b.onclick = () => { S.opts.type = key; saveOpts(); renderAll(); };
+    box.append(b);
+  }
+}
+function saveOpts() { store.set("opts", S.opts); }
+function renderOptions() {
+  const sets = optionSets();
+  if (!sets.length.some(([v]) => v === S.opts.length)) S.opts.length = sets.length[1][0];
+  for (const [key, list] of Object.entries(sets)) {
+    const box = $(`#o-${key}`);
+    box.innerHTML = "";
+    for (const [val, label, small] of list) {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = label;
+      if (small) { const s = document.createElement("small"); s.textContent = small; b.append(s); }
+      b.setAttribute("aria-pressed", String(S.opts[key] === val));
+      b.onclick = () => { S.opts[key] = val; saveOpts(); renderOptions(); };
+      box.append(b);
+    }
+  }
+  const type = TYPES[S.opts.type], gaming = S.opts.type === "gaming", ks = gaming && S.opts.killOnly;
+  $("#gameBlock").hidden = !gaming;
+  $("#killOnly").checked = !!S.opts.killOnly;
+  $("#killOpts").hidden = !ks; $("#regionWrap").hidden = !ks;
+  $("#countOpt").hidden = ks;
+  $("#lengthOpt").hidden = ks && S.opts.ksOutput === "each";
+  $("#lengthLabel").textContent = ks ? "Montage length" : "Length";
+  $("#songRow").hidden = S.opts.music !== "song";
+  $("#songName").textContent = S.song ? `Song: ${S.song.name}` : "Pick a song you own or have the rights to.";
+  $("#promptLabel").textContent = type.prompt;
+  $("#prompt").placeholder = type.placeholder;
+  const promo = S.opts.type === "promo";
+  $("#promoRow").hidden = !promo; $("#followRow").hidden = promo;
+  $("#endTitle").textContent = promo ? "End card: your call to action" : "End card";
+  $("#dropHint").textContent = gaming ? "gameplay clips from your capture app · up to 40" : "or tap to pick from your camera roll · up to 40";
+  const [W, H] = SIZES[S.opts.aspect];
+  $("#specText").textContent = `${W}×${H} · ${FPS} fps`;
+  setMakeLabel();
+  if (ks) drawRegion();
+}
+function setMakeLabel() {
+  const ks = S.opts.type === "gaming" && S.opts.killOnly;
+  $("#makeBtn").textContent = S.busy ? "Working…" : ks ? (S.opts.ksOutput === "each" ? "Find streaks & make videos" : "Find streaks & make montage") : S.opts.count > 1 ? `Make ${S.opts.count} videos` : "Make my video";
+}
+function renderStyleSelect() {
+  const sel = $("#styleSel"); sel.innerHTML = "";
+  const add = (parent, v, label) => { const o = document.createElement("option"); o.value = v; o.textContent = label; parent.append(o); };
+  add(sel, "auto", `Best for ${TYPES[S.opts.type].label.toLowerCase()}`);
+  const g1 = document.createElement("optgroup"); g1.label = "Built-in";
+  BUILTIN_STYLES.forEach((s) => add(g1, s.id, s.name)); sel.append(g1);
+  if (PST.list.length) { const g2 = document.createElement("optgroup"); g2.label = "Your styles"; PST.list.forEach((s) => add(g2, s.id, s.name)); sel.append(g2); }
+  if (S.opts.styleId !== "auto" && !allStyles().some((s) => s.id === S.opts.styleId)) S.opts.styleId = "auto";
+  sel.value = S.opts.styleId;
+  const st = resolveStyle();
+  $("#styleHint").textContent = st.summary || "";
+  $("#delStyleBtn").hidden = !PST.list.some((s) => s.id === S.opts.styleId);
+}
+function renderAll() { renderTypes(); renderOptions(); renderStyleSelect(); renderClips(); }
+
+/* ---------------- footage intake ---------------- */
+function isVideoFile(f) { return f.type.startsWith("video/") || /\.(mov|mp4|m4v|webm|mkv|3gp)$/i.test(f.name); }
+function isImageFile(f) { return f.type.startsWith("image/") || /\.(jpe?g|png|webp|heic|heif|gif|bmp|avif)$/i.test(f.name); }
+function userErr(msg) { const e = new Error(msg); e.userMessage = msg; return e; }
+
+async function addFiles(files) {
+  const list = [...files].filter((f) => isVideoFile(f) || isImageFile(f));
+  if (!list.length) { toast("Those files aren't photos or videos."); return; }
+  for (const f of list) {
+    if (S.items.length >= MAX_ITEMS) { toast(`That's the limit of ${MAX_ITEMS} items.`); break; }
+    const item = { id: uid(), n: S.nextN++, file: f, name: f.name, kind: isVideoFile(f) ? "video" : "image", status: "loading" };
+    S.items.push(item);
+    renderClips();
+    try {
+      if (item.kind === "image") await loadImage(item); else await loadVideo(item);
+      item.status = "ready";
+    } catch (e) {
+      console.warn(item.name, e);
+      item.status = "error";
+      item.error = e?.userMessage || (item.kind === "video" ? "Can't read this video here" : "Can't open this photo here");
+    }
+    renderClips();
+    if (S.opts.type === "gaming") drawRegion();
+  }
+}
+function makeCanvas(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+function drawCover(ctx, src, x, y, w, h) {
+  const sw = src.width, sh = src.height, s = Math.max(w / sw, h / sh);
+  const dw = sw * s, dh = sh * s;
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.drawImage(src, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  ctx.restore();
+}
+function shrink(src, maxSide) {
+  const s = Math.min(1, maxSide / Math.max(src.width, src.height));
+  const c = makeCanvas(Math.max(1, Math.round(src.width * s)), Math.max(1, Math.round(src.height * s)));
+  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+  return c;
+}
+async function loadImage(item) {
+  let bmp;
+  try { bmp = await createImageBitmap(item.file, { imageOrientation: "from-image" }); }
+  catch { throw userErr("Photo format not supported here. Use JPG or PNG."); }
+  const MAX = 2600;
+  if (Math.max(bmp.width, bmp.height) > MAX) {
+    const s = MAX / Math.max(bmp.width, bmp.height);
+    const b2 = await createImageBitmap(bmp, { resizeWidth: Math.round(bmp.width * s), resizeHeight: Math.round(bmp.height * s), resizeQuality: "high" });
+    bmp.close(); bmp = b2;
+  }
+  item.bitmap = bmp; item.w = bmp.width; item.h = bmp.height;
+  item.frames = [shrink(bmp, 360)];
+}
+async function openVideo(file) {
+  const mb = await mbReady;
+  if (!mb) throw userErr("Video tools didn't load. Reload the page.");
+  const input = new mb.Input({ source: new mb.BlobSource(file), formats: mb.ALL_FORMATS });
+  const vt = await input.getPrimaryVideoTrack();
+  if (!vt) throw userErr("No video in this file");
+  if (!(await vt.canDecode())) throw userErr("This browser can't play this format. Try Chrome or Safari.");
+  const at = await input.getPrimaryAudioTrack();
+  return { input, vt, at: at && (await at.canDecode()) ? at : null, duration: await input.computeDuration(), w: vt.displayWidth, h: vt.displayHeight };
+}
+async function loadVideo(item) {
+  const v = await openVideo(item.file);
+  Object.assign(item, { input: v.input, vt: v.vt, at: v.at, hasAudio: !!v.at, duration: v.duration, w: v.w, h: v.h });
+  const sink = new MB.CanvasSink(item.vt, { width: even(Math.min(640, item.w)) });
+  const ts = [0.08, 0.36, 0.64, 0.92].map((f) => Math.max(0, item.duration * f));
+  item.frames = [];
+  for await (const wc of sink.canvasesAtTimestamps(ts)) if (wc) item.frames.push(wc.canvas);
+  if (!item.frames.length) throw userErr("Couldn't read frames from this video");
+}
+function removeItem(id) {
+  if (S.busy) { toast("Wait for the current videos to finish."); return; }
+  const i = S.items.findIndex((x) => x.id === id);
+  if (i < 0) return;
+  const [it] = S.items.splice(i, 1);
+  try { it.input?.dispose?.(); it.bitmap?.close?.(); } catch {}
+  renderClips();
+  if (S.opts.type === "gaming") drawRegion();
+}
+function renderClips() {
+  const box = $("#clips");
+  box.innerHTML = "";
+  for (const it of S.items) {
+    const d = document.createElement("div");
+    d.className = "clip" + (it.status === "error" ? " err" : "");
+    if (it.status === "ready") {
+      const c = makeCanvas(240, 240);
+      drawCover(c.getContext("2d"), it.frames[Math.min(1, it.frames.length - 1)], 0, 0, 240, 240);
+      d.append(c);
+      if (it.kind === "video") { const l = document.createElement("span"); l.className = "len"; l.textContent = fmtLen(it.duration) + (it.hasAudio ? " ♪" : ""); d.append(l); }
+    } else {
+      const s = document.createElement("div"); s.className = "state";
+      s.textContent = it.status === "loading" ? "Reading…" : it.error;
+      d.append(s);
+    }
+    const n = document.createElement("span"); n.className = "n"; n.textContent = "#" + it.n; d.append(n);
+    const x = document.createElement("button"); x.className = "x"; x.type = "button"; x.textContent = "✕"; x.setAttribute("aria-label", `Remove ${it.name}`);
+    x.onclick = () => removeItem(it.id);
+    d.append(x);
+    box.append(d);
+  }
+  const ready = S.items.filter((i) => i.status === "ready");
+  const vids = ready.filter((i) => i.kind === "video");
+  const secs = vids.reduce((a, b) => a + b.duration, 0);
+  $("#clipCount").textContent = `${ready.length} item${ready.length === 1 ? "" : "s"}` + (vids.length ? ` · ${fmtLen(secs)} of video` : "");
+  $("#sampleRow").hidden = S.items.length > 0 || S.opts.type === "gaming";
+}
+
+/* Sample photos so the studio can be tried immediately */
+async function addSamples() {
+  const scenes = [
+    { a: "#ff7a45", b: "#5a1fd1", title: "Golden hour", shape: "sun", w: 1600, h: 1200 },
+    { a: "#00b4d8", b: "#03045e", title: "On the water", shape: "waves", w: 1080, h: 1350 },
+    { a: "#2d6a4f", b: "#081c15", title: "Trail day", shape: "peaks", w: 1350, h: 1080 },
+    { a: "#ffb703", b: "#d62828", title: "Night market", shape: "lights", w: 1080, h: 1920 },
+    { a: "#e0aaff", b: "#3c096c", title: "City lights", shape: "towers", w: 1920, h: 1080 },
+  ];
+  const files = [];
+  for (const [i, sc] of scenes.entries()) {
+    const c = makeCanvas(sc.w, sc.h), g = c.getContext("2d");
+    const grd = g.createLinearGradient(0, 0, sc.w * 0.3, sc.h);
+    grd.addColorStop(0, sc.a); grd.addColorStop(1, sc.b);
+    g.fillStyle = grd; g.fillRect(0, 0, sc.w, sc.h);
+    const u = Math.min(sc.w, sc.h);
+    g.fillStyle = "rgba(255,255,255,0.85)";
+    if (sc.shape === "sun") { g.beginPath(); g.arc(sc.w * 0.62, sc.h * 0.55, u * 0.22, 0, Math.PI * 2); g.fill(); g.fillStyle = "rgba(20,10,40,.55)"; g.fillRect(0, sc.h * 0.68, sc.w, sc.h); }
+    if (sc.shape === "waves") { for (let k = 0; k < 7; k++) { g.beginPath(); g.lineWidth = u * 0.025; g.strokeStyle = `rgba(255,255,255,${0.2 + k * 0.1})`; for (let x = 0; x <= sc.w; x += 20) g.lineTo(x, sc.h * (0.45 + k * 0.07) + Math.sin(x / 70 + k) * u * 0.02); g.stroke(); } }
+    if (sc.shape === "peaks") { g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.moveTo(0, sc.h); g.lineTo(sc.w * 0.3, sc.h * 0.35); g.lineTo(sc.w * 0.55, sc.h * 0.7); g.lineTo(sc.w * 0.8, sc.h * 0.25); g.lineTo(sc.w, sc.h * 0.6); g.lineTo(sc.w, sc.h); g.fill(); }
+    if (sc.shape === "lights") { for (let k = 0; k < 60; k++) { g.fillStyle = `hsla(${(k * 37) % 360},90%,70%,.8)`; g.beginPath(); g.arc((k * 173) % sc.w, (k * 97) % (sc.h * 0.7), u * (0.01 + (k % 5) * 0.006), 0, Math.PI * 2); g.fill(); } }
+    if (sc.shape === "towers") { for (let k = 0; k < 14; k++) { const tw = sc.w / 16, th = sc.h * (0.25 + ((k * 7) % 10) / 16); g.fillStyle = "rgba(10,0,30,.6)"; g.fillRect(k * tw * 1.15, sc.h - th, tw, th); } }
+    g.fillStyle = "rgba(255,255,255,.95)"; g.font = `800 ${Math.round(u * 0.07)}px sans-serif`;
+    g.fillText(sc.title, u * 0.06, u * 0.12);
+    const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.9));
+    files.push(new File([blob], `sample-${i + 1}.jpg`, { type: "image/jpeg" }));
+  }
+  if (!$("#prompt").value) $("#prompt").value = "A quick highlight reel of my week. Upbeat, make people want to follow along.";
+  await addFiles(files);
+}
+
+/* ---------------- medal area editor ---------------- */
+let dragStart = null;
+function regionFrame() { const v = S.items.find((i) => i.status === "ready" && i.kind === "video"); return v ? v.frames[Math.min(2, v.frames.length - 1)] : null; }
+function drawRegion() {
+  const cv = $("#regionCanvas"), g = cv.getContext("2d");
+  const f = regionFrame();
+  const W = 640, H = f ? Math.round(640 * f.height / f.width) : 360;
+  if (cv.height !== H) cv.height = H;
+  g.fillStyle = "#111"; g.fillRect(0, 0, W, H);
+  if (f) g.drawImage(f, 0, 0, W, H);
+  else { g.fillStyle = "#777"; g.font = "16px sans-serif"; g.textAlign = "center"; g.fillText("Your gameplay frame shows here", W / 2, H / 2); g.textAlign = "start"; }
+  const r = S.region, x = r.x * W, y = r.y * H, w = r.w * W, h = r.h * H;
+  g.fillStyle = "rgba(0,0,0,.55)";
+  g.fillRect(0, 0, W, y); g.fillRect(0, y + h, W, H - y - h); g.fillRect(0, y, x, h); g.fillRect(x + w, y, W - x - w, h);
+  g.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2f4bff";
+  g.lineWidth = 3; g.setLineDash([10, 6]); g.strokeRect(x, y, w, h); g.setLineDash([]);
+  $("#regionHint").textContent = f ? "Medals in MW games pop up near the middle of the screen. Cover them with a little room to spare." : "Add a gameplay clip to see a frame here.";
+}
+function regionPoint(e) { const cv = $("#regionCanvas"), r = cv.getBoundingClientRect(); return { x: clamp((e.clientX - r.left) / r.width, 0, 1), y: clamp((e.clientY - r.top) / r.height, 0, 1) }; }
+$("#regionCanvas").addEventListener("pointerdown", (e) => { dragStart = regionPoint(e); e.target.setPointerCapture(e.pointerId); });
+$("#regionCanvas").addEventListener("pointermove", (e) => {
+  if (!dragStart) return;
+  const p = regionPoint(e);
+  S.region = { x: Math.min(dragStart.x, p.x), y: Math.min(dragStart.y, p.y), w: Math.max(0.05, Math.abs(p.x - dragStart.x)), h: Math.max(0.05, Math.abs(p.y - dragStart.y)) };
+  S.region.w = Math.min(S.region.w, 1 - S.region.x); S.region.h = Math.min(S.region.h, 1 - S.region.y);
+  drawRegion();
+});
+$("#regionCanvas").addEventListener("pointerup", () => { if (dragStart) { dragStart = null; store.set("region", S.region); } });
+$("#regionReset").addEventListener("click", () => { S.region = { ...DEFAULT_REGION }; store.set("region", S.region); drawRegion(); });
+
+/* ---------------- medal scan (Claude reads the medal area over time) ---------------- */
+function medalRank(name) {
+  const n = String(name || "").toLowerCase();
+  for (const [label, r] of [["chain", 9], ["ultra", 8], ["mega", 7], ["super", 6], ["frenzy", 5], ["fury", 4], ["triple", 3], ["double", 2]]) if (n.includes(label)) return r;
+  return 0;
+}
+async function scanClip(item, onProgress) {
+  const r = S.region;
+  const key = `det2:${item.file.name}:${item.file.size}:${item.file.lastModified}:${[r.x, r.y, r.w, r.h].map((v) => v.toFixed(2)).join(",")}`;
+  const cached = store.get(key, null);
+  if (cached) return cached;
+  const crop = { left: Math.round(r.x * item.w), top: Math.round(r.y * item.h), width: Math.round(r.w * item.w), height: Math.round(r.h * item.h) };
+  const tw = 384, th = Math.min(320, even(tw * crop.height / crop.width));
+  const sink = new MB.CanvasSink(item.vt, { crop, width: tw, height: th, fit: "fill" });
+  const step = 0.5, ts = [];
+  for (let t = 0.2; t < item.duration; t += step) ts.push(+t.toFixed(2));
+  const COLS = 4, PER = 16, sheets = [];
+  let sheet = null, k = 0, got = 0;
+  for await (const wc of sink.canvasesAtTimestamps(ts)) {
+    const t = ts[got++];
+    if (!wc) continue;
+    if (k % PER === 0) { sheet = makeCanvas(COLS * tw, Math.ceil(Math.min(PER, ts.length - got + 1) / COLS) * th); sheet.getContext("2d").fillStyle = "#000"; sheet.getContext("2d").fillRect(0, 0, sheet.width, sheet.height); sheets.push(sheet); }
+    const g = sheet.getContext("2d"), x = (k % COLS) * tw, y = Math.floor((k % PER) / COLS) * th;
+    g.drawImage(wc.canvas, x, y, tw, th);
+    g.strokeStyle = "#000"; g.lineWidth = 2; g.strokeRect(x, y, tw, th);
+    const label = `${t.toFixed(1)}s`;
+    g.font = "bold 26px sans-serif";
+    g.fillStyle = "rgba(0,0,0,.85)"; g.fillRect(x, y, g.measureText(label).width + 14, 34);
+    g.fillStyle = "#ffeb3b"; g.fillText(label, x + 7, y + 26);
+    k++;
+    if (got % 10 === 0) onProgress?.(0.5 * got / ts.length);
+  }
+  const blobs = [];
+  for (const s of sheets) blobs.push(await new Promise((res) => s.toBlob(res, "image/jpeg", 0.85)));
+  const lim = await CAP.sample.limits().catch(() => null);
+  if (!lim?.images) throw Object.assign(new Error("images"), { code: "images_unavailable" });
+  const per = Math.max(1, Math.min(lim.images.maxCount || 1, 8));
+  const medals = [], kills = [];
+  for (let i = 0; i < blobs.length; i += per) {
+    const prompt = `These images come from one Call of Duty gameplay clip. Each image is a grid of crops of the same part of the screen, the area where medals pop up. Each tile shows its timestamp in seconds in yellow in its top-left corner.
+
+Report two things:
+1. kills: every moment the player gets a kill. Signs of a kill: the hitmarker turns red or shows a skull, a kill score pops up (like "+100" or "Kill +100"), or a kill notice such as "ELIMINATED" or "KILLED" with a name. Report each kill once, at the first tile where its sign appears. Two kills close together often show as two score pops or a score number that jumps up.
+2. medals: multi-kill medals only: Double Kill, Triple Kill, Fury Kill, Frenzy Kill, Super Kill, Mega Kill, Ultra Kill, Kill Chain. A medal stays on screen for about 1 to 2 seconds: report it once, at the first tile where it appears.
+Ignore every other medal and notification. Only report what you can actually see; never guess.
+
+Reply with only JSON: {"kills":[{"t":10.5},{"t":11.5}],"medals":[{"t":12.0,"name":"Double Kill"}]} and use empty lists when there are none.`;
+    const res = await CAP.sample.json(prompt, { images: blobs.slice(i, i + per) });
+    for (const m of Array.isArray(res?.medals) ? res.medals : []) {
+      const rank = medalRank(m?.name), t = Number(m?.t);
+      if (rank >= 2 && isFinite(t)) medals.push({ t: clamp(t, 0, item.duration), rank, name: RANK_NAME[rank] });
+    }
+    for (const k of Array.isArray(res?.kills) ? res.kills : []) { const t = Number(k?.t ?? k); if (isFinite(t)) kills.push(clamp(t, 0, item.duration)); }
+    onProgress?.(0.5 + 0.5 * Math.min(1, (i + per) / blobs.length));
+  }
+  medals.sort((a, b) => a.t - b.t);
+  const dedup = medals.filter((m, i) => !medals.slice(0, i).some((o) => o.rank === m.rank && Math.abs(o.t - m.t) < 2.5));
+  kills.sort((a, b) => a - b);
+  const killList = kills.filter((t, i) => !i || t - kills[i - 1] > 0.45);
+  const out = { medals: dedup, kills: killList };
+  store.set(key, out);
+  return out;
+}
+function streaksFrom(item, det, minRank, style, leadIn) {
+  const medals = det.medals, allKills = det.kills || [];
+  const chains = [];
+  for (const m of medals) {
+    const c = chains[chains.length - 1];
+    if (c && m.t - c.at(-1).t <= 7) c.push(m); else chains.push([m]);
+  }
+  return chains.map((c) => {
+    const top = Math.max(...c.map((m) => m.rank));
+    if (top < minRank) return null;
+    const first = c[0], last = c.at(-1);
+    // the kills that make up this streak: walk back from the first medal while kills stay close together
+    const before = allKills.filter((t) => t <= first.t + 0.6).reverse();
+    const chainKills = [];
+    let prev = first.t;
+    for (const t of before) { if (prev - t > 6) break; chainKills.unshift(t); prev = t; }
+    const inside = allKills.filter((t) => t > first.t + 0.6 && t <= last.t + 0.6);
+    const kills = [...chainKills, ...inside];
+    // the first kill has no medal, so if the scan saw fewer kills than the medal says, allow ~2.5 s per missing kill
+    const seenBefore = chainKills.length;
+    const needBefore = first.rank;
+    const estFirst = first.t - Math.max(0, needBefore - Math.max(1, seenBefore)) * 2.5 - (seenBefore ? 0 : 2.5);
+    const firstKill = Math.min(kills.length ? kills[0] : first.t, estFirst);
+    const startT = Math.max(0, firstKill - leadIn);
+    const endT = Math.min(item.duration - 0.05, last.t + 2.0);
+    if (endT - startT < 1.5) return null;
+    let pieces = [{ s0: startT, s1: endT, rate: 1 }];
+    if (style.effects.slowmo) {
+      const fk = kills.length ? Math.max(last.t - 0.3, kills.at(-1)) : last.t;
+      const a = Math.max(startT, fk - 0.45), b = Math.min(endT, fk + 0.75);
+      pieces = [{ s0: startT, s1: a, rate: 1 }, { s0: a, s1: b, rate: 0.5 }, { s0: b, s1: endT, rate: 1 }].filter((p) => p.s1 - p.s0 > 0.05);
+    }
+    // effects on every kill, medal text on each medal
+    const fx = kills.map((t) => ({ src: t, name: "" }));
+    for (const m of c) { if (!fx.some((k) => Math.abs(k.src - m.t) < 0.4)) fx.push({ src: m.t, name: "" }); fx.push({ src: m.t + 0.05, name: m.name, label: true }); }
+    fx.sort((a, b) => a.src - b.src);
+    return { itemId: item.id, item, start: startT, end: endT, pieces, kills: fx, killCount: Math.max(kills.length, top), rank: top, best: RANK_NAME[top], keep: !!item.at, caption: "" };
+  }).filter(Boolean);
+}
+
+/* ---------------- Claude plans the edit ---------------- */
+async function contactSheets(items, maxSheets) {
+  let cols = 3;
+  if (Math.ceil(items.length / 9) > maxSheets) cols = 4;
+  if (Math.ceil(items.length / 16) > maxSheets) cols = 5;
+  const per = cols * cols, tile = { 3: 340, 4: 270, 5: 216 }[cols];
+  const blobs = [];
+  for (let i = 0; i < items.length && blobs.length < maxSheets; i += per) {
+    const chunk = items.slice(i, i + per);
+    const rows = Math.ceil(chunk.length / cols);
+    const c = makeCanvas(cols * tile, rows * tile), g = c.getContext("2d");
+    g.fillStyle = "#101010"; g.fillRect(0, 0, c.width, c.height);
+    chunk.forEach((it, k) => {
+      const x = (k % cols) * tile + 3, y = Math.floor(k / cols) * tile + 3, s = tile - 6;
+      if (it.kind === "image" || it.frames.length < 4) drawCover(g, it.frames[0], x, y, s, s);
+      else it.frames.slice(0, 4).forEach((f, j) => drawCover(g, f, x + (j % 2) * (s / 2), y + Math.floor(j / 2) * (s / 2), s / 2 - 1, s / 2 - 1));
+      const label = `#${it.n}`;
+      g.font = `bold ${Math.round(tile * 0.11)}px sans-serif`;
+      g.fillStyle = "rgba(0,0,0,.8)"; g.fillRect(x, y, g.measureText(label).width + 14, tile * 0.15);
+      g.fillStyle = "#fff"; g.fillText(label, x + 7, y + tile * 0.115);
+      if (it.kind === "video") {
+        const t = `video ${it.duration.toFixed(1)}s${it.hasAudio ? " +sound" : ""}`;
+        g.font = `bold ${Math.round(tile * 0.07)}px sans-serif`;
+        g.fillStyle = "rgba(0,0,0,.8)"; g.fillRect(x, y + s - tile * 0.1, g.measureText(t).width + 12, tile * 0.1);
+        g.fillStyle = "#fff"; g.fillText(t, x + 6, y + s - tile * 0.028);
+      }
+    });
+    blobs.push(await new Promise((r) => c.toBlob(r, "image/jpeg", 0.85)));
+  }
+  return blobs;
+}
+function buildPrompt(items, opts, style, withImages) {
+  const type = TYPES[opts.type];
+  const lines = items.map((it) => it.kind === "video"
+    ? `#${it.n} video, ${it.duration.toFixed(1)} s long, ${it.w}x${it.h}${it.hasAudio ? ", has sound" : ", no sound"}`
+    : `#${it.n} photo, ${it.w}x${it.h}`);
+  const musicFixed = opts.music !== "auto" ? (MUSIC_STYLES.includes(opts.music) ? opts.music : "upbeat") : style.music !== "auto" ? style.music : null;
+  const trFixed = style.transition !== "auto" ? style.transition : null;
+  const brandLine = opts.type === "promo"
+    ? `Business: ${opts.biz || "(not given)"}. Website: ${opts.site || "(not given)"}. Call to action: ${opts.cta || "(not given)"}.`
+    : `Creator's handle: ${opts.handle || "(none)"}`;
+  return `You are a professional short-form video editor making videos for TikTok, Instagram Reels and YouTube Shorts.
+
+Video type: ${type.label}. ${type.rules}
+Make ${opts.count} separate video${opts.count > 1 ? "s" : ""}, each about ${opts.length} seconds long, in ${opts.aspect} format.
+Creator's notes, follow them closely: ${opts.prompt ? `"${opts.prompt}"` : "(none: find the story in the footage)"}
+${brandLine}
+Editing style: ${style.name}. ${style.summary || ""}${style.pace ? ` Aim for shots around ${style.pace.toFixed(1)} s long.` : ""}
+
+Footage (${items.length} items):
+${lines.join("\n")}
+${withImages ? "\nThe attached contact sheets show every item with its #number in the top-left corner. Videos show four frames from start to end.\n" : ""}
+Rules:
+- Use only the item numbers listed. ${opts.count > 1 ? "Spread the footage so each video feels different; use each item in only one video when there is enough footage." : "Use the strongest items; skip weak or repetitive ones."}
+- Hook: at most 6 words shown over the opening shot that make people keep watching.
+- scenes, in play order, each either a shot {"item","start","duration","caption","keep_sound"} or a title card {"text_card":"SHORT LINE","duration":2}. Photos 1.5-5 s. For videos, start is seconds into the clip; pick the best moment and keep start + duration inside the clip. Durations add up to about ${opts.length} s.
+- caption: on-screen text, at most 7 words, or "". Skip captions on some shots. Never repeat the hook.
+- keep_sound: true when the clip's own sound matters (talking, dialogue, a reaction, gunfire on a kill).
+- music: ${musicFixed ? `"${musicFixed}" (already chosen)` : `the best fit, one of ${MUSIC_STYLES.join(", ")}`}.
+- transition: ${trFixed ? `"${trFixed}" (already chosen)` : `one of ${TRANSITIONS.join(", ")}`}.
+- post_caption: 1-2 short sentences for the post${opts.type === "promo" ? " that end with the call to action" : " that end with a reason to follow"}. hashtags: 3-6 relevant tags.
+
+Reply with only JSON in exactly this shape:
+{"videos":[{"title":"Short title","hook":"Hook text","scenes":[{"item":1,"start":0,"duration":3,"caption":"","keep_sound":false},{"text_card":"ONE LINE","duration":2}],"music":"upbeat","transition":"slide","post_caption":"...","hashtags":["#tag"]}]}`;
+}
+async function planWithClaude(items, opts, style) {
+  const lim = await CAP.sample.limits().catch(() => null);
+  let images = [];
+  if (lim?.images) images = await contactSheets(items, Math.max(1, Math.min(lim.images.maxCount || 1, 6)));
+  const prompt = buildPrompt(items, opts, style, images.length > 0);
+  return CAP.sample.json(prompt, images.length ? { images, cache: false } : { cache: false });
+}
+const motionFor = (i) => ["zoom_in", "pan_right", "zoom_out", "pan_left"][i % 4];
+const cleanTags = (arr) => (Array.isArray(arr) ? arr : []).map((h) => "#" + String(h).replace(/^#+/, "").replace(/\s+/g, "")).filter((h) => h.length > 1).slice(0, 8);
+function normalizePlans(raw, items, opts) {
+  const byN = new Map(items.map((i) => [i.n, i]));
+  return (Array.isArray(raw?.videos) ? raw.videos : []).slice(0, opts.count).map((v) => {
+    const scenes = (Array.isArray(v?.scenes) ? v.scenes : []).map((s, k) => {
+      if (s?.text_card && opts.type !== "gaming") return { kind: "title", text: clip(s.text_card, 40), dur: clamp(Number(s.duration) || 2, 1.2, 3) };
+      const it = byN.get(Number(s?.item));
+      if (!it) return null;
+      let dur = clamp(Number(s.duration) || 3, 1, 8), start = 0;
+      if (it.kind === "video") {
+        dur = Math.min(dur, Math.max(0.8, it.duration - 0.05));
+        start = clamp(Number(s.start) || 0, 0, Math.max(0, it.duration - dur - 0.05));
+      }
+      return { itemId: it.id, start, dur, caption: clip(s.caption, 70), keep: !!s.keep_sound && it.hasAudio, motion: motionFor(k) };
+    }).filter(Boolean).slice(0, 40);
+    if (!scenes.some((s) => s.itemId)) return null;
+    return {
+      title: clip(v.title, 60) || "Untitled", hook: clip(v.hook, 50), scenes,
+      music: MUSIC_STYLES.includes(v.music) ? v.music : null,
+      transition: TRANSITIONS.includes(v.transition) ? v.transition : null,
+      caption: clip(v.post_caption, 800), tags: cleanTags(v.hashtags),
+    };
+  }).filter(Boolean);
+}
+function quickPlans(items, opts) {
+  const n = Math.min(opts.count, items.length);
+  const groups = Array.from({ length: n }, () => []);
+  items.forEach((it, i) => groups[i % n].push(it));
+  const lines = (opts.prompt || "").split(/[.!?\n]+/).map((s) => s.trim()).filter(Boolean);
+  return groups.map((g, gi) => {
+    const per = clamp(opts.length / g.length + 0.45, 1.8, 6);
+    return {
+      title: `${TYPES[opts.type].label} ${gi + 1}`,
+      hook: (lines[0] || "").split(/\s+/).slice(0, 6).join(" "),
+      scenes: g.map((it, k) => {
+        const dur = it.kind === "video" ? Math.min(per, Math.max(0.8, it.duration - 0.05)) : per;
+        const start = it.kind === "video" ? Math.max(0, (it.duration - dur) / 2) : 0;
+        return { itemId: it.id, start, dur, caption: k > 0 ? (lines[k] || "").split(/\s+/).slice(0, 7).join(" ") : "", keep: opts.type === "gaming" && it.hasAudio, motion: motionFor(k) };
+      }),
+      music: null, transition: null,
+      caption: lines.join(". ") + (lines.length ? "." : ""), tags: [],
+    };
+  });
+}
+function sampleErrorNote(e) {
+  switch (e?.code) {
+    case "not_granted": return "Claude Code isn't signed in on this PC, so this used quick edit. Run claude auth login once, then try again.";
+    case "rate_limited": return "Claude is busy or your usage limit was reached, so this used quick edit. Try again in a bit.";
+    case "sampling_disabled": return "Claude isn't available on this account, so this used quick edit.";
+    case "images_unavailable": case "image_rejected": return "Claude couldn't look at the footage, so this used quick edit.";
+    case "invalid_json": case "empty_completion": return "Claude's plan didn't come through cleanly, so this used quick edit. Try again for a Claude edit.";
+    default: return "Claude couldn't plan this one, so this used quick edit.";
+  }
+}
+
+/* ---------------- learn a style from a video ---------------- */
+async function estimateBpm(at, maxSec) {
+  try {
+    const sink = new MB.AudioBufferSink(at);
+    const hop = 0.01, env = [];
+    for await (const wb of sink.buffers(0, maxSec)) {
+      const d = wb.buffer.getChannelData(0), per = Math.max(1, Math.round(wb.buffer.sampleRate * hop));
+      for (let i = 0; i + per <= d.length; i += per) { let s = 0; for (let j = i; j < i + per; j++) s += d[j] * d[j]; env.push(Math.sqrt(s / per)); }
+    }
+    if (env.length < 500) return null;
+    const on = env.map((v, i) => (i ? Math.max(0, v - env[i - 1]) : 0));
+    let best = 0, bestLag = 0;
+    for (let lag = Math.round(60 / 180 / hop); lag <= Math.round(60 / 70 / hop); lag++) {
+      let s = 0; for (let i = lag; i < on.length; i++) s += on[i] * on[i - lag];
+      if (s > best) { best = s; bestLag = lag; }
+    }
+    return bestLag ? Math.round(60 / (bestLag * hop)) : null;
+  } catch { return null; }
+}
+async function learnStyle(file) {
+  const hint = $("#styleHint");
+  const btn = $("#learnBtn");
+  btn.disabled = true;
+  try {
+    hint.textContent = "Opening the video…";
+    const v = await openVideo(file);
+    const dur = Math.min(v.duration, 240);
+    // 1. cut rhythm and flashes from tiny frames
+    const sink = new MB.CanvasSink(v.vt, { width: 64, height: 36, fit: "fill" });
+    const work = makeCanvas(64, 36), wg = work.getContext("2d", { willReadFrequently: true });
+    const ts = []; for (let t = 0; t < dur; t += 0.1) ts.push(t);
+    let prev = null, prevB = 0, i = 0;
+    const diffs = [], brights = [];
+    for await (const wc of sink.canvasesAtTimestamps(ts)) {
+      i++;
+      if (!wc) { diffs.push(0); brights.push(prevB); continue; }
+      wg.drawImage(wc.canvas, 0, 0);
+      const d = wg.getImageData(0, 0, 64, 36).data, lumArr = new Float32Array(64 * 36);
+      let b = 0;
+      for (let p = 0, q = 0; p < d.length; p += 4, q++) { lumArr[q] = 0.3 * d[p] + 0.59 * d[p + 1] + 0.11 * d[p + 2]; b += lumArr[q]; }
+      b /= lumArr.length;
+      let diff = 0;
+      if (prev) { for (let q = 0; q < lumArr.length; q++) diff += Math.abs(lumArr[q] - prev[q]); diff /= lumArr.length; }
+      diffs.push(diff); brights.push(b); prev = lumArr; prevB = b;
+      if (i % 50 === 0) { hint.textContent = `Studying the cuts… ${Math.round(100 * i / ts.length)}%`; await yieldUI(); }
+    }
+    const sorted = [...diffs].sort((a, b) => a - b), median = sorted[Math.floor(sorted.length / 2)] || 1;
+    const thr = Math.max(26, median * 5), cuts = [];
+    diffs.forEach((d, k) => { const t = ts[k]; if (d > thr && (!cuts.length || t - cuts.at(-1) > 0.3)) cuts.push(t); });
+    const shots = [0, ...cuts, dur].map((t, k, a) => (k ? t - a[k - 1] : null)).filter((x) => x && x > 0.05).sort((a, b) => a - b);
+    const pace = shots.length ? shots[Math.floor(shots.length / 2)] : 2;
+    let flashes = 0; brights.forEach((b, k) => { if (k && b > 205 && b - brights[k - 1] > 45) flashes++; });
+    const flashRate = flashes / (dur / 60);
+    hint.textContent = "Listening to the music…";
+    const bpm = v.at ? await estimateBpm(v.at, Math.min(dur, 60)) : null;
+    // 2. Claude describes the look
+    let desc = null;
+    if (CAP.sample) {
+      hint.textContent = "Claude is studying the look…";
+      const pick = Array.from({ length: 12 }, (_, k) => (dur * (k + 0.5)) / 12);
+      const tsink = new MB.CanvasSink(v.vt, { width: 320 });
+      const frames = []; for await (const wc of tsink.canvasesAtTimestamps(pick)) if (wc) frames.push(shrink(wc.canvas, 320));
+      const th = Math.round(320 * v.h / v.w), cols = 4, sheet = makeCanvas(cols * 320, Math.ceil(frames.length / cols) * th), sg = sheet.getContext("2d");
+      frames.forEach((f, k) => sg.drawImage(f, (k % cols) * 320, Math.floor(k / cols) * th, 320, th));
+      const blob = await new Promise((r) => sheet.toBlob(r, "image/jpeg", 0.85));
+      const lim = await CAP.sample.limits().catch(() => null);
+      const prompt = `You are a video editor. Describe the editing style of a reference video so it can be copied. ${lim?.images ? "The attached image shows 12 frames from it in order." : ""}
+Measured: median shot length ${pace.toFixed(2)} s, ${cuts.length} cuts in ${dur.toFixed(0)} s, ${flashRate.toFixed(1)} white flashes per minute, music tempo ${bpm || "unknown"} BPM. File name: "${file.name}".
+Reply with only JSON:
+{"name":"2-4 word style name","summary":"one sentence describing the style","transition":"cut|fade|slide|zoom|flash","music":"hype|upbeat|cinematic|inspire|chill","color":"natural|vivid|cinematic|dark|warm","letterbox":false,"text_position":"top|center|bottom","text_uppercase":true,"kill_effects":{"punch":false,"shake":false,"flash":false,"slowmo":false},"big_text_on_kills":false,"game_sound":"loud|low|off"}`;
+      try { desc = await CAP.sample.json(prompt, lim?.images ? { images: [blob] } : {}); } catch (e) { console.warn("style", e); }
+    }
+    const pickOne = (v, list, d) => (list.includes(v) ? v : d);
+    const music = desc ? pickOne(desc.music, MUSIC_STYLES, "upbeat") : bpm >= 130 ? "hype" : bpm && bpm < 90 ? "cinematic" : "upbeat";
+    const style = {
+      kind: "style", id: "s-" + uid(), builtin: false,
+      name: clip(desc?.name, 40) || clip(file.name.replace(/\.[^.]+$/, ""), 40) || "My style",
+      summary: clip(desc?.summary, 200) || `Learned from ${file.name}: ~${pace.toFixed(1)}s shots${bpm ? `, ${bpm} BPM` : ""}.`,
+      transition: desc ? pickOne(desc.transition, TRANSITIONS, "cut") : pace < 1.2 ? "cut" : flashRate > 3 ? "flash" : "fade",
+      music, grade: desc ? pickOne(desc.color, Object.keys(GRADES), "vivid") : "vivid",
+      letterbox: !!desc?.letterbox,
+      text: { pos: desc ? pickOne(desc.text_position, ["top", "center", "bottom"], "bottom") : "bottom", upper: desc ? desc.text_uppercase !== false : true },
+      effects: { punch: !!desc?.kill_effects?.punch, shake: !!desc?.kill_effects?.shake, flash: !!desc?.kill_effects?.flash || flashRate > 3, slowmo: !!desc?.kill_effects?.slowmo },
+      killText: !!desc?.big_text_on_kills,
+      gameAudio: desc?.game_sound === "off" ? 0 : desc?.game_sound === "low" ? 0.4 : 0.7,
+      pace: +pace.toFixed(2), bpm: bpm || null, learnedFrom: file.name.slice(0, 80), createdAt: new Date().toISOString(),
+    };
+    try { v.input.dispose?.(); } catch {}
+    saveStyle(style);
+    S.opts.styleId = style.id; saveOpts();
+    renderStyleSelect();
+    toast(`Saved style "${style.name}"`);
+  } catch (e) {
+    console.error(e);
+    hint.textContent = e?.userMessage || "Couldn't study that video. Try an MP4 or MOV file.";
+  } finally { btn.disabled = false; }
+}
+
+/* ---------------- music (generated, royalty-free) ---------------- */
+const STYLES = {
+  upbeat: { bpm: 116, chords: [[60, 64, 67], [67, 71, 74], [69, 72, 76], [65, 69, 72]], pad: "sawtooth", cutoff: 2200, kick: "four", clap: true, hats: 8, bass: "eighths", lead: true },
+  chill: { bpm: 82, chords: [[57, 60, 64, 67], [53, 57, 60, 64], [48, 52, 55, 59], [55, 59, 62, 65]], pad: "triangle", cutoff: 1300, kick: "chill", rim: true, hats: 8, hatVol: 0.5, bass: "halves" },
+  cinematic: { bpm: 88, chords: [[50, 57, 62, 65], [46, 53, 58, 62], [53, 57, 60, 65], [48, 55, 60, 64]], pad: "sawtooth", cutoff: 900, kick: "boom", hats: 0, bass: "whole", pulse: true },
+  hype: { bpm: 140, chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]], pad: "square", cutoff: 1600, kick: "trap", clap: "half", hats: 16, bass: "808", lead: true },
+  inspire: { bpm: 100, chords: [[60, 64, 67, 72], [57, 60, 64, 69], [65, 69, 72, 77], [67, 71, 74, 79]], pad: "triangle", cutoff: 2600, kick: "chill", clap: true, hats: 8, hatVol: 0.6, bass: "halves", arp: true },
+};
+const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+function noiseBuffer(ac) {
+  if (ac._noise) return ac._noise;
+  const b = ac.createBuffer(1, ac.sampleRate, ac.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return (ac._noise = b);
+}
+function env(ac, dest, t, a, peak, hold, rel) {
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t + a);
+  g.gain.setValueAtTime(peak, t + a + hold);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + rel);
+  g.connect(dest);
+  return g;
+}
+function synthMusic(ac, out, style, total) {
+  const st = STYLES[style];
+  const beat = 60 / st.bpm, bar = beat * 4;
+  const bus = ac.createGain(); bus.gain.value = 0.55; bus.connect(out);
+  const padFilter = ac.createBiquadFilter(); padFilter.type = "lowpass"; padFilter.frequency.value = st.cutoff; padFilter.Q.value = 0.7; padFilter.connect(bus);
+  const nb = noiseBuffer(ac);
+  const noise = (t, type, freq, vol, dur) => {
+    const s = ac.createBufferSource(); s.buffer = nb;
+    const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+    s.connect(f).connect(env(ac, bus, t, 0.002, vol, 0, dur));
+    s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.05);
+  };
+  const tone = (t, freq, type, vol, a, hold, rel, dest = bus, glideTo) => {
+    const o = ac.createOscillator(); o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t + 0.12);
+    o.connect(env(ac, dest, t, a, vol, hold, rel));
+    o.start(t); o.stop(t + a + hold + rel + 0.05);
+  };
+  const bars = Math.ceil(total / bar) + 1;
+  for (let b = 0; b < bars; b++) {
+    const t0 = b * bar;
+    if (t0 > total) break;
+    const chord = st.chords[b % st.chords.length];
+    for (const m of chord) for (const det of [-6, 6]) {
+      const o = ac.createOscillator(); o.type = st.pad; o.frequency.value = mtof(m); o.detune.value = det;
+      o.connect(env(ac, padFilter, t0, style === "cinematic" ? 0.9 : 0.06, st.pad === "square" ? 0.035 : 0.06, bar - 0.4, 0.5));
+      o.start(t0); o.stop(t0 + bar + 0.6);
+    }
+    const root = chord[0] - 24;
+    for (let i = 0; i < 16; i++) {
+      const t = t0 + i * (beat / 4);
+      if (t > total) break;
+      const onBeat = i % 4 === 0, beatIdx = Math.floor(i / 4);
+      const kickHit = (st.kick === "four" && onBeat) || (st.kick === "chill" && (i === 0 || i === 10)) || (st.kick === "boom" && i === 0) || (st.kick === "trap" && (i === 0 || i === 7 || i === 10));
+      if (kickHit) tone(t, st.kick === "boom" ? 90 : 150, "sine", st.kick === "boom" ? 1.0 : 0.9, 0.002, 0.02, st.kick === "boom" ? 1.1 : 0.3, bus, st.kick === "boom" ? 32 : 45);
+      if (st.clap === true && onBeat && (beatIdx === 1 || beatIdx === 3)) noise(t, "bandpass", 1500, 0.4, 0.18);
+      if (st.clap === "half" && i === 8) noise(t, "bandpass", 1800, 0.5, 0.22);
+      if (st.rim && onBeat && (beatIdx === 1 || beatIdx === 3)) noise(t, "bandpass", 2600, 0.18, 0.06);
+      if (st.hats === 8 && i % 2 === 0) noise(t, "highpass", 8000, (i % 4 === 2 ? 0.16 : 0.08) * (st.hatVol || 1), 0.04);
+      if (st.hats === 16) noise(t, "highpass", 9000, i % 2 ? 0.06 : 0.11, 0.03);
+      if (st.hats === 16 && b % 2 === 1 && i >= 12) noise(t + beat / 8, "highpass", 9000, 0.06, 0.02);
+      if (st.bass === "eighths" && i % 2 === 0) tone(t, mtof(root + (i % 8 === 6 ? 12 : 0)), "triangle", 0.32, 0.005, beat / 2 - 0.08, 0.06);
+      if (st.bass === "halves" && i % 8 === 0) tone(t, mtof(root), "sine", 0.4, 0.02, beat * 1.6, 0.3);
+      if (st.bass === "whole" && i === 0) tone(t, mtof(root), "sawtooth", 0.16, 0.4, bar - 0.8, 0.5, padFilter);
+      if (st.bass === "808" && (i === 0 || i === 7 || i === 10)) tone(t, mtof(root - 12 + (i === 10 ? 3 : 0)), "sine", 0.55, 0.005, 0.05, i === 0 ? 0.9 : 0.4);
+      if (st.pulse && i % 2 === 0) tone(t, mtof(chord[(i / 2) % chord.length] + 12), "triangle", 0.05, 0.005, 0.05, 0.18);
+      if (st.arp && i % 2 === 0) tone(t, mtof(chord[(i / 2) % chord.length] + 12), "triangle", 0.07, 0.004, 0.06, 0.25);
+      if (st.lead && [0, 3, 6, 10, 12].includes(i) && b % 4 !== 3) tone(t, mtof(chord[[0, 2, 1, 2, 0][[0, 3, 6, 10, 12].indexOf(i)]] + 12), "square", 0.03, 0.004, 0.05, 0.16);
+    }
+    if (style === "cinematic" && b % 4 === 3) {
+      const s = ac.createBufferSource(); s.buffer = nb; s.loop = true;
+      const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.setValueAtTime(300, t0); f.frequency.exponentialRampToValueAtTime(5000, t0 + bar);
+      const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.25, t0 + bar - 0.05); g.gain.linearRampToValueAtTime(0, t0 + bar);
+      s.connect(f).connect(g).connect(bus); s.start(t0); s.stop(t0 + bar);
+    }
+  }
+}
+function whoosh(ac, out, t) {
+  const s = ac.createBufferSource(); s.buffer = noiseBuffer(ac); s.loop = true;
+  const f = ac.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 1.2;
+  f.frequency.setValueAtTime(350, t); f.frequency.exponentialRampToValueAtTime(3500, t + 0.45);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.28); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+  s.connect(f).connect(g).connect(out); s.start(t); s.stop(t + 0.6);
+}
+function boom(ac, out, t, vol = 0.9) {
+  const o = ac.createOscillator(); o.type = "sine";
+  o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(28, t + 1.2);
+  o.connect(env(ac, out, t, 0.005, vol, 0.05, 1.3)); o.start(t); o.stop(t + 1.5);
+}
+function hitSfx(ac, out, t) {
+  const o = ac.createOscillator(); o.type = "triangle"; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.15);
+  o.connect(env(ac, out, t, 0.002, 0.35, 0.01, 0.2)); o.start(t); o.stop(t + 0.3);
+}
+
+/* ---------------- timeline ---------------- */
+function srcAt(sc, lt) {
+  let acc = 0;
+  for (const p of sc.pieces) { const len = (p.s1 - p.s0) / p.rate; if (lt < acc + len) return p.s0 + (lt - acc) * p.rate; acc += len; }
+  const last = sc.pieces.at(-1); return last.s1;
+}
+function outOf(sc, src) {
+  let acc = 0;
+  for (const p of sc.pieces) { const len = (p.s1 - p.s0) / p.rate; if (src <= p.s1) return acc + Math.max(0, src - p.s0) / p.rate; acc += len; }
+  return acc;
+}
+function buildTimeline(plan) {
+  const st = plan.style;
+  const tr = plan.transition;
+  const T = tr === "cut" ? 0 : tr === "flash" ? 0.3 : 0.45;
+  const bpm = plan.music in STYLES ? STYLES[plan.music].bpm : 0, beat = bpm ? 60 / bpm : 0;
+  const scenes = plan.scenes.map((s) => {
+    if (s.kind === "title") return { ...s, kind: "title", dur: Math.max(s.dur, T * 2 + 0.6) };
+    const it = S.items.find((x) => x.id === s.itemId);
+    if (!it || it.status !== "ready") return null;
+    if (it.kind === "image") {
+      let dur = Math.max(s.dur, T * 2 + 0.4);
+      if (beat) dur = Math.max(2, Math.round((dur - T) / beat)) * beat + T;
+      return { ...s, dur, item: it, kind: "image" };
+    }
+    const pieces = s.pieces || [{ s0: s.start, s1: Math.min(it.duration - 0.04, s.start + Math.max(s.dur, T * 2 + 0.3)), rate: 1 }];
+    const sc = { ...s, pieces, item: it, kind: "video" };
+    sc.dur = pieces.reduce((a, p) => a + (p.s1 - p.s0) / p.rate, 0);
+    sc.killsOut = (s.kills || []).map((k) => ({ lt: outOf(sc, k.src), name: k.name, label: !!k.label }));
+    return sc;
+  }).filter(Boolean);
+  if (!scenes.some((s) => s.item)) throw new Error("The footage for this video was removed.");
+  let t = 0;
+  for (const sc of scenes) { sc.t0 = t; t += sc.dur - T; }
+  let end = scenes.at(-1).t0 + scenes.at(-1).dur;
+  if (plan.endCard) { scenes.push({ kind: "card", t0: end - T, dur: 2.6 }); end = end - T + 2.6; }
+  // when a video opens on a title card, the hook waits for the first shot
+  const firstShot = scenes.find((x) => x.item);
+  const hookAt = firstShot === scenes[0] ? 0 : firstShot.t0 + T;
+  return { scenes, T, total: end, transition: tr, hook: plan.hook, hookAt, firstShot };
+}
+
+/* ---------------- audio mix ---------------- */
+async function mixAudio(plan, tl) {
+  const SR = 48000;
+  const ac = new OfflineAudioContext(2, Math.ceil(tl.total * SR), SR);
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 3.5; comp.attack.value = 0.006; comp.release.value = 0.25;
+  comp.connect(ac.destination);
+  const master = ac.createGain(); master.connect(comp);
+  const music = ac.createGain(); music.connect(master);
+  const gaming = plan.type === "gaming";
+  const base = gaming ? 0.75 : 0.85, duck = gaming ? 0.5 : 0.22;
+  const g = music.gain;
+  g.setValueAtTime(0.0001, 0); g.linearRampToValueAtTime(base, 0.35);
+  let last = 0.35;
+  for (const sc of tl.scenes) {
+    if (!sc.keep) continue;
+    const a = Math.max(last, sc.t0), b = Math.max(a + 0.3, sc.t0 + sc.dur);
+    g.setValueAtTime(base, a); g.linearRampToValueAtTime(duck, a + 0.15);
+    g.setValueAtTime(duck, b - 0.15); g.linearRampToValueAtTime(base, b);
+    last = b;
+  }
+  const fadeAt = Math.min(tl.total - 0.05, Math.max(last, tl.total - 1.4));
+  g.setValueAtTime(base, fadeAt); g.linearRampToValueAtTime(0.0001, tl.total);
+  if (plan.music === "song" && S.song) {
+    const src = ac.createBufferSource(); src.buffer = S.song.buffer; src.loop = true;
+    const lvl = ac.createGain(); lvl.gain.value = 0.8;
+    src.connect(lvl).connect(music); src.start(0);
+  } else if (STYLES[plan.music]) synthMusic(ac, music, plan.music, tl.total);
+
+  const clipLevel = (gaming ? 1.0 : 1.15) * (plan.style.gameAudio ?? 1);
+  for (const sc of tl.scenes) {
+    if (!sc.keep || !sc.item?.at || clipLevel <= 0) continue;
+    const sg = ac.createGain(), end = sc.t0 + sc.dur;
+    sg.gain.setValueAtTime(0, sc.t0); sg.gain.linearRampToValueAtTime(clipLevel, sc.t0 + 0.08);
+    sg.gain.setValueAtTime(clipLevel, Math.max(sc.t0 + 0.09, end - 0.12)); sg.gain.linearRampToValueAtTime(0, end);
+    sg.connect(master);
+    let pieceOut = sc.t0;
+    for (const p of sc.pieces) {
+      const pEnd = pieceOut + (p.s1 - p.s0) / p.rate;
+      const sink = new MB.AudioBufferSink(sc.item.at);
+      for await (const wb of sink.buffers(p.s0, p.s1)) {
+        const when = pieceOut + (wb.timestamp - p.s0) / p.rate;
+        const offset = when < pieceOut ? (pieceOut - when) * p.rate : 0;
+        if (offset >= wb.buffer.duration) continue;
+        const node = ac.createBufferSource(); node.buffer = wb.buffer; node.playbackRate.value = p.rate; node.connect(sg);
+        node.start(Math.max(pieceOut, when), offset); node.stop(pEnd);
+      }
+      pieceOut = pEnd;
+    }
+  }
+  const T = tl.T;
+  tl.scenes.forEach((sc, k) => {
+    if (k && T > 0) whoosh(ac, master, Math.max(0, sc.t0 - 0.12));
+    if (sc.kind === "title" && plan.type === "movie") boom(ac, master, sc.t0 + T * 0.5);
+    if (sc.kind === "card") boom(ac, master, sc.t0 + T * 0.5, 0.5);
+    if (sc.killsOut && (plan.style.effects.punch || plan.style.effects.shake)) sc.killsOut.filter((kk) => !kk.label).forEach((kk) => hitSfx(ac, master, sc.t0 + kk.lt));
+  });
+  const buf = await ac.startRendering();
+  let peak = 0;
+  for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i += 4) { const v = Math.abs(d[i]); if (v > peak) peak = v; } }
+  if (peak > 0.001) { const k = 0.89 / peak; for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] *= k; } }
+  return buf;
+}
+function sliceAudio(buf, from, to) {
+  const SR = buf.sampleRate, a = Math.floor(from * SR), b = Math.min(buf.length, Math.floor(to * SR));
+  const out = new AudioBuffer({ length: Math.max(1, b - a), numberOfChannels: buf.numberOfChannels, sampleRate: SR });
+  for (let c = 0; c < buf.numberOfChannels; c++) out.copyToChannel(buf.getChannelData(c).subarray(a, b), c);
+  return out;
+}
+
+/* ---------------- frame sources ---------------- */
+function prepareScene(sc, W, H) {
+  if (!sc.item) return;
+  const it = sc.item;
+  const srcAR = it.w / it.h, dstAR = W / H;
+  sc.mode = Math.abs(srcAR - dstAR) / dstAR < 0.3 ? "cover" : "contain";
+  sc.tiny = makeCanvas(Math.max(8, Math.round(W / 28)), Math.max(8, Math.round(H / 28)));
+  if (it.kind === "image") {
+    sc.frame = it.bitmap;
+    if (sc.mode === "contain") drawCover(sc.tiny.getContext("2d"), it.bitmap, 0, 0, sc.tiny.width, sc.tiny.height);
+    return;
+  }
+  const scale = sc.mode === "cover" ? Math.max(W / it.w, H / it.h) * 1.08 : Math.min(W / it.w, H / it.h) * 1.08;
+  const s = Math.min(1, scale);
+  const sink = new MB.CanvasSink(it.vt, { width: even(it.w * s), height: even(it.h * s), fit: "fill", poolSize: 3 });
+  const n = Math.ceil(sc.dur * FPS) + 2;
+  // timestamps must keep rising for the fast decode path
+  let lastT = -1;
+  const ts = Array.from({ length: n }, (_, i) => { const t = Math.max(lastT, Math.min(it.duration - 0.02, srcAt(sc, i / FPS))); lastT = t; return t; });
+  sc.iter = sink.canvasesAtTimestamps(ts)[Symbol.asyncIterator]();
+  sc.idx = 0; sc.frame = null; sc.nFrames = n;
+}
+async function advanceScene(sc, lt) {
+  if (!sc.iter) return;
+  const want = Math.min(sc.nFrames - 1, Math.round(lt * FPS));
+  while (sc.idx <= want) {
+    const r = await sc.iter.next();
+    if (r.done) { sc.iter = null; break; }
+    if (r.value) sc.frame = r.value.canvas;
+    sc.idx++;
+  }
+  if (sc.mode === "contain" && sc.frame) drawCover(sc.tiny.getContext("2d"), sc.frame, 0, 0, sc.tiny.width, sc.tiny.height);
+}
+function releaseScene(sc) { try { sc.iter?.return?.(); } catch {} sc.iter = null; sc.frame = null; sc.released = true; }
+
+/* ---------------- drawing ---------------- */
+function lum(hex) {
+  const n = parseInt(hex.slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const f = (c) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+function shade(hex, k) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.round(clamp(v * k, 0, 255)));
+  return `rgb(${c.join(",")})`;
+}
+const onColor = (hex) => (lum(hex) > 0.45 ? "#111111" : "#ffffff");
+function killImpulse(sc, lt, labels = false) {
+  let best = null;
+  for (const k of sc.killsOut || []) { if (!!k.label !== labels) continue; const dt = lt - k.lt; if (dt >= 0 && dt < 1.4 && (!best || dt < best.dt)) best = { dt, name: k.name }; }
+  return best;
+}
+function drawScene(c, sc, lt, W, H, plan) {
+  c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1;
+  if (sc.kind === "card") return drawCard(c, lt, W, H, plan);
+  if (sc.kind === "title") return drawTitleCard(c, sc.text, lt, W, H, plan);
+  const src = sc.frame;
+  c.fillStyle = "#000"; c.fillRect(0, 0, W, H);
+  if (!src) return;
+  const grade = CAN_FILTER ? GRADES[plan.style.grade] || "none" : "none";
+  if (grade !== "none") c.filter = grade;
+  if (sc.mode === "contain") {
+    c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "low";
+    c.drawImage(sc.tiny, -W * 0.05, -H * 0.05, W * 1.1, H * 1.1);
+    c.filter = "none";
+    c.fillStyle = "rgba(0,0,0,.3)"; c.fillRect(0, 0, W, H);
+    if (grade !== "none") c.filter = grade;
+  }
+  c.imageSmoothingQuality = "high";
+  const p = clamp(lt / sc.dur, 0, 1), e = ease(p);
+  const fit = sc.mode === "cover" ? Math.max(W / src.width, H / src.height) : Math.min(W / src.width, H / src.height);
+  let z = 1, dx = 0, dy = 0;
+  if (sc.kind === "image") {
+    if (sc.motion === "zoom_in") z = 1 + 0.12 * e;
+    else if (sc.motion === "zoom_out") z = 1.12 - 0.12 * e;
+    else { z = 1.12; const extra = (src.width * fit * z - W) / 2; dx = (sc.motion === "pan_left" ? 1 : -1) * (1 - 2 * e) * Math.max(0, extra) * 0.9; }
+  } else z = 1 + 0.03 * p;
+  const imp = killImpulse(sc, lt);
+  if (imp && imp.dt < 0.4) {
+    const fx = plan.style.effects;
+    if (fx.punch) z *= 1 + 0.09 * Math.exp(-imp.dt * 11);
+    if (fx.shake) { const a = Math.exp(-imp.dt * 9) * Math.min(W, H) * 0.014; dx += Math.sin(imp.dt * 95) * a; dy += Math.cos(imp.dt * 73) * a; }
+  }
+  const dw = src.width * fit * z, dh = src.height * fit * z;
+  c.drawImage(src, (W - dw) / 2 + dx, (H - dh) / 2 + dy, dw, dh);
+  c.filter = "none";
+}
+function fitFont(c, text, size, maxW) { let s = size; c.font = `${Math.round(s)}px ${CAPTION_FONT}`; while (c.measureText(text).width > maxW && s > 18) { s *= 0.93; c.font = `${Math.round(s)}px ${CAPTION_FONT}`; } return s; }
+function drawCard(c, lt, W, H, plan) {
+  const u = Math.min(W, H), col = plan.color, ec = plan.endCard, fg = onColor(col);
+  const g = c.createLinearGradient(0, 0, W * 0.4, H);
+  g.addColorStop(0, col); g.addColorStop(1, shade(col, 0.55));
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  const pop = 1 + 0.12 * (1 - ease(clamp(lt / 0.35, 0, 1)));
+  c.save(); c.translate(W / 2, H / 2); c.scale(pop, pop);
+  c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = fg;
+  if (ec.kind === "promo") {
+    if (ec.biz) { fitFont(c, ec.biz.toUpperCase(), u * 0.05, W * 0.8); c.globalAlpha = 0.85; c.fillText(ec.biz.toUpperCase(), 0, -u * 0.17); c.globalAlpha = 1; }
+    const cta = (ec.cta || "Learn more").toUpperCase();
+    fitFont(c, cta, u * 0.11, W * 0.86); c.fillText(cta, 0, -u * 0.04);
+    if (ec.site) {
+      c.font = `600 ${Math.round(u * 0.048)}px ${getComputedStyle(document.body).fontFamily}`;
+      const w = c.measureText(ec.site).width + u * 0.08;
+      c.fillStyle = fg; c.beginPath(); c.roundRect ? c.roundRect(-w / 2, u * 0.06, w, u * 0.09, u * 0.045) : c.rect(-w / 2, u * 0.06, w, u * 0.09); c.fill();
+      c.fillStyle = col; c.fillText(ec.site, 0, u * 0.105);
+    }
+  } else {
+    c.font = `${Math.round(u * 0.05)}px ${CAPTION_FONT}`;
+    c.globalAlpha = 0.85; c.fillText("FOLLOW FOR MORE", 0, -u * 0.11); c.globalAlpha = 1;
+    fitFont(c, ec.handle, u * 0.12, W * 0.86); c.fillText(ec.handle, 0, u * 0.01);
+    c.fillRect(-u * 0.12, u * 0.1, u * 0.24, u * 0.012);
+  }
+  c.restore();
+}
+function drawTitleCard(c, text, lt, W, H, plan) {
+  const u = Math.min(W, H);
+  if (plan.type === "promo") {
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, shade(plan.color, 0.35)); g.addColorStop(1, "#0b0c10");
+    c.fillStyle = g;
+  } else c.fillStyle = "#050507";
+  c.fillRect(0, 0, W, H);
+  const p = clamp(lt / 0.5, 0, 1), sc = 1.08 - 0.08 * ease(p);
+  c.save(); c.translate(W / 2, H / 2); c.scale(sc, sc);
+  c.globalAlpha = ease(p);
+  c.textAlign = "center"; c.textBaseline = "middle";
+  const size = u * (plan.type === "movie" ? 0.085 : 0.095);
+  c.font = `${Math.round(size)}px ${CAPTION_FONT}`;
+  const lines = wrapLines(c, text.toUpperCase(), W * 0.8, 3), lh = size * 1.15;
+  c.fillStyle = plan.type === "promo" ? "#ffffff" : "#eae6dc";
+  if (plan.type === "movie" && "letterSpacing" in c) c.letterSpacing = `${Math.round(size * 0.08)}px`;
+  lines.forEach((l, i) => c.fillText(l, 0, (i - (lines.length - 1) / 2) * lh));
+  if ("letterSpacing" in c) c.letterSpacing = "0px";
+  if (plan.type === "promo") { c.fillStyle = plan.color; c.fillRect(-u * 0.08, (lines.length / 2) * lh + u * 0.03, u * 0.16, u * 0.012); }
+  c.restore();
+}
+function wrapLines(c, text, maxW, maxLines) {
+  const words = text.split(/\s+/).filter(Boolean), lines = [];
+  let line = "";
+  for (const w of words) { const t = line ? line + " " + w : w; if (c.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  return lines.slice(0, maxLines);
+}
+function textY(pos, H, W) { const v = H > W; return pos === "top" ? H * (v ? 0.2 : 0.16) : pos === "center" ? H * 0.5 : H * (v ? 0.72 : 0.82); }
+function drawCaption(c, text, alpha, popIn, W, H, style) {
+  const u = Math.min(W, H), vertical = H > W;
+  const size = Math.round(u * (vertical ? 0.085 : 0.065));
+  c.save();
+  c.font = `${size}px ${CAPTION_FONT}`; c.textAlign = "center"; c.textBaseline = "middle";
+  const lines = wrapLines(c, style.text.upper ? text.toUpperCase() : text, W * 0.84, 3);
+  const lh = size * 1.12;
+  c.globalAlpha = alpha;
+  c.translate(W / 2, textY(style.text.pos === "top" ? "bottom" : style.text.pos, H, W)); c.scale(popIn, popIn);
+  c.lineJoin = "round"; c.lineWidth = size * 0.18; c.strokeStyle = "rgba(0,0,0,.9)"; c.fillStyle = "#fff";
+  lines.forEach((l, i) => { const y = (i - (lines.length - 1) / 2) * lh; c.strokeText(l, 0, y); c.fillText(l, 0, y); });
+  c.restore();
+}
+function drawPop(c, text, lt, W, H, color, y, life, sizeK) {
+  const u = Math.min(W, H);
+  const size = Math.round(u * sizeK);
+  c.save();
+  c.font = `${size}px ${CAPTION_FONT}`; c.textAlign = "center"; c.textBaseline = "middle";
+  const lines = wrapLines(c, text.toUpperCase(), W * 0.82, 3);
+  const inP = ease(clamp(lt / 0.25, 0, 1));
+  const alpha = lt > life - 0.4 ? clamp((life - lt) / 0.4, 0, 1) : 1;
+  const scale = 1.3 - 0.3 * inP;
+  const lh = size * 1.22, fg = onColor(color);
+  c.globalAlpha = alpha * inP;
+  c.translate(W / 2, y); c.scale(scale, scale); c.rotate(-0.03);
+  lines.forEach((l, i) => {
+    const yy = (i - (lines.length - 1) / 2) * lh, w = c.measureText(l).width;
+    c.fillStyle = color;
+    const px = size * 0.28, top = yy - size * 0.58, h = size * 1.16, r = size * 0.14;
+    c.beginPath(); c.roundRect ? c.roundRect(-w / 2 - px, top, w + px * 2, h, r) : c.rect(-w / 2 - px, top, w + px * 2, h); c.fill();
+    c.fillStyle = fg; c.fillText(l, 0, yy + size * 0.03);
+  });
+  c.restore();
+}
+function composite(c, layers, p, kind, W, H) {
+  const [A, B] = layers, e = ease(p);
+  c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1;
+  if (kind === "slide") { c.drawImage(A, -e * W, 0); c.drawImage(B, (1 - e) * W, 0); return; }
+  if (kind === "zoom") {
+    const za = 1 + 0.25 * e, zb = 1.25 - 0.25 * e;
+    c.drawImage(A, (W - W * za) / 2, (H - H * za) / 2, W * za, H * za);
+    c.globalAlpha = e; c.drawImage(B, (W - W * zb) / 2, (H - H * zb) / 2, W * zb, H * zb); c.globalAlpha = 1; return;
+  }
+  if (kind === "flash") {
+    c.drawImage(p < 0.5 ? A : B, 0, 0);
+    c.globalAlpha = 0.92 * (1 - Math.abs(p - 0.5) * 2); c.fillStyle = "#fff"; c.fillRect(0, 0, W, H); c.globalAlpha = 1; return;
+  }
+  c.drawImage(A, 0, 0); c.globalAlpha = e; c.drawImage(B, 0, 0); c.globalAlpha = 1;
+}
+
+/* ---------------- render one video ---------------- */
+let aacLoaded = null;
+function loadAac() {
+  if (!aacLoaded) aacLoaded = new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = AAC_URL;
+    s.onload = () => { try { window.MediabunnyAacEncoder.registerAacEncoder(); res(); } catch (e) { rej(e); } };
+    s.onerror = () => rej(new Error("The audio encoder didn't load. Check your connection."));
+    document.head.append(s);
+  });
+  return aacLoaded;
+}
+async function renderVideo(plan, onProgress) {
+  const mb = await mbReady;
+  if (!mb) throw new Error("Video tools didn't load. Check your connection and reload the page.");
+  const [W, H] = SIZES[plan.aspect];
+  const bitrate = Math.round(W * H * FPS * 0.16);
+  let container = "mp4", vcodec = "avc", acodec = "aac";
+  if (!(await mb.canEncodeVideo("avc", { width: W, height: H, bitrate }))) {
+    if (await mb.canEncodeVideo("vp9", { width: W, height: H, bitrate })) { container = "webm"; vcodec = "vp9"; acodec = "opus"; }
+    else throw new Error("This browser can't create video files. Use the latest Chrome, Edge or Safari.");
+  }
+  if (acodec === "aac" && !(await mb.canEncodeAudio("aac", { numberOfChannels: 2, sampleRate: 48000, bitrate: 192000 }))) await loadAac();
+  await Promise.all([document.fonts.load(`80px Anton`).catch(() => {}), document.fonts.ready]);
+
+  const tl = buildTimeline(plan);
+  onProgress("Mixing music and sound", 0.01);
+  const audio = await mixAudio(plan, tl);
+
+  const canvas = makeCanvas(W, H), ctx = canvas.getContext("2d", { alpha: false });
+  const layers = [makeCanvas(W, H), makeCanvas(W, H)];
+  const lctx = layers.map((l) => l.getContext("2d", { alpha: false }));
+  const output = new mb.Output({ format: container === "mp4" ? new mb.Mp4OutputFormat({ fastStart: "in-memory" }) : new mb.WebMOutputFormat(), target: new mb.BufferTarget() });
+  const vsrc = new mb.CanvasSource(canvas, { codec: vcodec, bitrate, keyFrameInterval: 2 });
+  const asrc = new mb.AudioBufferSource({ codec: acodec, bitrate: 192000 });
+  output.addVideoTrack(vsrc, { frameRate: FPS });
+  output.addAudioTrack(asrc);
+  await output.start();
+
+  const st = plan.style, letterbox = st.letterbox && W > H * 1.2;
+  const barH = letterbox ? Math.round((H - W / 2.39) / 2) : 0;
+  const hookY = plan.type === "gaming" ? H * (H > W ? 0.2 : 0.18) : H * (H > W ? 0.42 : 0.45);
+  const N = Math.round(tl.total * FPS);
+  let audioAt = 0, poster = null;
+  const posterFrame = Math.min(N - 1, Math.round(FPS * 1.3));
+  for (let f = 0; f < N; f++) {
+    const t = f / FPS;
+    const vis = tl.scenes.filter((s) => t >= s.t0 && t < s.t0 + s.dur);
+    if (!vis.length) vis.push(tl.scenes.at(-1));
+    for (const s of vis) { if (!s.prepared) { prepareScene(s, W, H); s.prepared = true; } await advanceScene(s, t - s.t0); }
+    for (const s of tl.scenes) if (s.prepared && !s.released && t >= s.t0 + s.dur) releaseScene(s);
+
+    let dominant = vis.at(-1);
+    if (vis.length >= 2) {
+      const [A, B] = vis.slice(-2);
+      const p = clamp((t - B.t0) / Math.max(tl.T, 0.001), 0, 1);
+      drawScene(lctx[0], A, t - A.t0, W, H, plan);
+      drawScene(lctx[1], B, t - B.t0, W, H, plan);
+      composite(ctx, layers, p, tl.transition, W, H);
+      dominant = p < 0.5 ? A : B;
+    } else drawScene(ctx, vis[0], t - vis[0].t0, W, H, plan);
+
+    if (barH && dominant.kind !== "card") { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, barH); ctx.fillRect(0, H - barH, W, barH); }
+    const lt = t - dominant.t0;
+    const imp = killImpulse(dominant, lt);
+    if (imp && st.effects.flash && imp.dt < 0.14) { ctx.globalAlpha = 0.5 * (1 - imp.dt / 0.14); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+    const medalPop = killImpulse(dominant, lt, true);
+    if (medalPop && st.killText && medalPop.dt < 1.3) drawPop(ctx, medalPop.name, medalPop.dt, W, H, plan.color, H * (H > W ? 0.78 : 0.8), 1.3, H > W ? 0.095 : 0.07);
+    const hookT = t - tl.hookAt;
+    if (tl.hook && hookT >= 0 && hookT < 2.7) drawPop(ctx, tl.hook, hookT, W, H, plan.color, hookY, 2.7, H > W ? 0.12 : 0.085);
+    if (dominant.caption && dominant.item) {
+      const capStart = dominant === tl.firstShot && tl.hook ? tl.hookAt - dominant.t0 + 2.7 : 0.15;
+      if (lt >= capStart) {
+        const a = clamp((lt - capStart) / 0.2, 0, 1) * clamp((dominant.dur - lt) / 0.2, 0, 1);
+        drawCaption(ctx, dominant.caption, a, 0.92 + 0.08 * ease(clamp((lt - capStart) / 0.2, 0, 1)), W, H, st);
+      }
+    }
+    await vsrc.add(t, 1 / FPS);
+    if (f === posterFrame) poster = shrink(canvas, 540);
+    while (audioAt < tl.total && audioAt <= t + 1) { const to = Math.min(tl.total, audioAt + 1); await asrc.add(sliceAudio(audio, audioAt, to)); audioAt = to; }
+    if (f % 5 === 0) { onProgress("Rendering", 0.04 + 0.92 * (f / N)); await yieldUI(); }
+  }
+  while (audioAt < tl.total) { const to = Math.min(tl.total, audioAt + 1); await asrc.add(sliceAudio(audio, audioAt, to)); audioAt = to; }
+  tl.scenes.forEach(releaseScene);
+  onProgress("Finishing file", 0.98);
+  vsrc.close(); asrc.close();
+  await output.finalize();
+  return { blob: new Blob([output.target.buffer], { type: container === "mp4" ? "video/mp4" : "video/webm" }), ext: container, duration: tl.total, poster, W, H };
+}
+
+/* ---------------- results ---------------- */
+function postText(r) { return [r.plan.caption, r.plan.tags.join(" ")].filter(Boolean).join("\n\n"); }
+function safeName(s) { return (s || "video").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").slice(0, 50) || "video"; }
+function cardFor(r) {
+  let el = document.getElementById("r-" + r.id);
+  if (!el) {
+    el = document.createElement("article"); el.className = "card"; el.id = "r-" + r.id;
+    const [W, H] = SIZES[r.plan.aspect];
+    el.innerHTML = `
+      <div class="screen" style="aspect-ratio:${W}/${H}"><div class="wait"><span class="rec"></span><span class="wtxt">Queued</span></div></div>
+      <div class="cardbody">
+        <div class="cardtop"><h3></h3><span class="specs mono"></span></div>
+        <div class="bar"><div></div></div>
+        <p class="stage">Waiting its turn</p>
+        <div class="btnrow acts" hidden>
+          <button class="btn primary save" type="button">Save to Foreman AI</button>
+          <button class="btn copy" type="button">Copy caption</button>
+          <button class="btn remix" type="button" title="Same shots, different music and transition">Remix</button>
+        </div>
+        <label class="field cap" hidden>Post caption<textarea></textarea></label>
+      </div>`;
+    $("h3", el).textContent = r.plan.title;
+    const ta = $(".cap textarea", el);
+    ta.id = "cap-" + r.id; ta.value = postText(r);
+    ta.oninput = () => { r.customText = ta.value; };
+    $(".save", el).onclick = () => saveVideo(r);
+    $(".copy", el).onclick = () => copyCaption(r, ta);
+    $(".remix", el).onclick = () => remix(r);
+  }
+  return el;
+}
+function updateCard(r) {
+  const el = cardFor(r);
+  const [W, H] = SIZES[r.plan.aspect];
+  $(".specs", el).textContent = r.out ? `${timecode(r.out.duration)} · ${W}×${H} · ${(r.out.blob.size / 1048576).toFixed(1)} MB` : `${TYPES[r.plan.type].label} · ${W}×${H}`;
+  $(".bar div", el).style.width = `${Math.round((r.progress || 0) * 100)}%`;
+  const stage = $(".stage", el);
+  stage.classList.toggle("bad", r.status === "failed");
+  const musicName = r.plan.music === "song" ? "your song" : r.plan.music === "none" ? "no music" : r.plan.music;
+  stage.textContent = r.status === "failed" ? r.error : r.status === "done" ? `Ready. ${r.plan.style.name} style, ${musicName}, ${r.plan.transition} transitions.` : r.status === "rendering" ? `${r.stage || "Rendering"}… ${Math.round((r.progress || 0) * 100)}%` : "Waiting its turn";
+  $(".bar", el).hidden = r.status === "done";
+  $(".acts", el).hidden = r.status !== "done";
+  $(".cap", el).hidden = r.status !== "done";
+  $(".remix", el).disabled = S.busy;
+  const screen = $(".screen", el), wt = $(".wtxt", el);
+  if (wt) wt.textContent = r.status === "rendering" ? `REC ${Math.round((r.progress || 0) * 100)}%` : r.status === "failed" ? "Didn't finish" : "Queued";
+  if (r.status === "done" && !screen.dataset.ready) {
+    screen.dataset.ready = "1"; screen.innerHTML = "";
+    const v = document.createElement("video");
+    v.controls = true; v.playsInline = true; v.preload = "metadata";
+    if (r.out.poster) try { v.poster = r.out.poster.toDataURL("image/jpeg", 0.8); } catch {}
+    v.onerror = () => { screen.innerHTML = ""; if (r.out.poster) screen.append(r.out.poster); };
+    v.src = r.url;
+    screen.append(v);
+  }
+  return el;
+}
+function showNote(note) {
+  const reel = $("#reel");
+  $("#emptyState")?.remove();
+  reel.querySelectorAll(":scope > .note").forEach((n) => n.remove());
+  if (note) { const n = document.createElement("p"); n.className = "note warn"; n.textContent = note; reel.prepend(n); }
+}
+function renderReel(note) {
+  const reel = $("#reel");
+  showNote(note);
+  const anchor = reel.querySelector(":scope > .scan") || null;
+  const frag = document.createDocumentFragment();
+  for (const r of S.results) frag.append(updateCard(r));
+  if (anchor) anchor.after(frag); else reel.append(frag);
+  const n = reel.querySelector(":scope > .note"); if (n) reel.prepend(n);
+}
+async function saveVideo(r) {
+  const name = `${safeName(r.plan.title)}.${r.out.ext}`;
+  if (CAP.downloads) {
+    try {
+      const res = await CAP.downloads.save({ filename: name, data: r.out.blob });
+      toast(res?.where ? `Saved to ${res.where}` : "Saved");
+      if (res?.where && CAP.downloads.openFolder) CAP.downloads.openFolder();
+    }
+    catch (e) {
+      if (e?.code === "declined") return;
+      if (e?.code === "rate_limited") return toast("A save is already open. Finish that one first.");
+      toast("Couldn't save the file here. Try again, or open this page in your browser.");
+    }
+    return;
+  }
+  const a = document.createElement("a"); a.href = r.url; a.download = name; document.body.append(a); a.click(); a.remove();
+}
+async function copyCaption(r, ta) {
+  const text = r.customText ?? ta.value;
+  try { await navigator.clipboard.writeText(text); toast("Caption copied"); }
+  catch { ta.focus(); ta.select(); toast("Caption selected. Copy it with your keyboard or long-press."); }
+}
+async function runRender(r) {
+  r.status = "rendering"; r.progress = 0; updateCard(r);
+  try {
+    r.out = await renderVideo(r.plan, (stage, p) => { r.stage = stage; r.progress = p; updateCard(r); });
+    if (r.url) URL.revokeObjectURL(r.url);
+    r.url = URL.createObjectURL(r.out.blob);
+    r.status = "done"; r.progress = 1;
+    delete $(".screen", cardFor(r)).dataset.ready;
+  } catch (e) {
+    console.error(e);
+    r.status = "failed"; r.error = e?.message || "Something went wrong while rendering.";
+  }
+  updateCard(r);
+}
+let wakeLock = null;
+async function holdAwake(on) {
+  try {
+    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch {}
+}
+function setBusy(b) {
+  S.busy = b;
+  $("#makeBtn").disabled = b;
+  setMakeLabel();
+  for (const r of S.results) { const el = document.getElementById("r-" + r.id); if (el) $(".remix", el).disabled = b; }
+}
+
+/* ---------------- make: everyday, movie, promo, gaming ---------------- */
+function currentOpts() {
+  return { ...S.opts, prompt: $("#prompt").value.trim(), handle: S.brand.handle, biz: S.brand.biz.trim(), site: S.brand.site.trim(), cta: S.brand.cta.trim() };
+}
+function endCardFor(opts) {
+  if (opts.type === "promo") return opts.cta || opts.site || opts.biz ? { kind: "promo", biz: opts.biz, site: opts.site, cta: opts.cta } : null;
+  return opts.handle ? { kind: "follow", handle: opts.handle } : null;
+}
+function finishPlan(p, opts, style) {
+  p.type = opts.type; p.aspect = opts.aspect; p.color = S.brand.color; p.style = style;
+  p.endCard = endCardFor(opts);
+  p.music = opts.music !== "auto" ? opts.music : style.music !== "auto" ? style.music : p.music || ["upbeat", "hype", "cinematic", "inspire"][Math.floor(Math.random() * 4)];
+  p.transition = style.transition !== "auto" ? style.transition : p.transition || "fade";
+  return p;
+}
+async function make() {
+  if (S.busy) return;
+  const items = S.items.filter((i) => i.status === "ready");
+  if (!items.length) { toast(S.items.length ? "Wait for your footage to finish loading." : "Add some photos or clips first."); return; }
+  if (S.opts.music === "song" && !S.song) { toast("Choose a song first, or pick another music option."); return; }
+  const opts = currentOpts();
+  const style = resolveStyle(opts.type);
+  setBusy(true); holdAwake(true);
+  try {
+    if (opts.type === "gaming" && opts.killOnly) await makeKillMontage(items, opts, style);
+    else await makeEdited(items, opts, style);
+  } finally { setBusy(false); holdAwake(false); }
+}
+async function makeEdited(items, opts, style) {
+  $("#makeHint").textContent = CAP.sample ? "Claude is looking at your footage…" : "Planning the edit…";
+  let plans = null, note = "";
+  if (CAP.sample) {
+    try { plans = normalizePlans(await planWithClaude(items, opts, style), items, opts); if (!plans.length) note = "Claude's plan didn't match the footage, so this used quick edit."; }
+    catch (e) { console.warn("plan", e); note = sampleErrorNote(e); }
+  } else note = CAP.checked ? "Claude isn't available in this view, so this used quick edit." : "";
+  if (!plans?.length) plans = quickPlans(items, opts);
+  updateAiChip(note && CAP.sample ? "Quick edit used" : undefined);
+  plans.forEach((p) => finishPlan(p, opts, style));
+  await renderBatch(plans, note);
+}
+async function renderBatch(plans, note) {
+  const batch = plans.map((plan) => ({ id: uid(), plan, status: "queued", progress: 0 }));
+  S.results = [...batch, ...S.results];
+  renderReel(note);
+  $("#makeHint").textContent = "Rendering on this device. Keep this tab open until it's done.";
+  for (const r of batch) await runRender(r);
+  const done = batch.filter((r) => r.status === "done").length;
+  $("#makeHint").textContent = done === 1 ? "Your video is ready. Save it, then post it with the copied caption." : done ? `${done} videos ready. Save them, then post each with its copied caption.` : "Rendering didn't finish. See the message on the video.";
+}
+
+function scanPanel() {
+  const el = document.createElement("section"); el.className = "scan";
+  el.innerHTML = `<h3>Kill streak scan</h3><div class="rows"></div>`;
+  const reel = $("#reel");
+  $("#emptyState")?.remove();
+  reel.querySelectorAll(":scope > .scan").forEach((s) => s.remove());
+  reel.prepend(el);
+  return el;
+}
+function scanRow(panel, item) {
+  const row = document.createElement("div"); row.className = "scanrow";
+  row.innerHTML = `<span class="tag"></span><div><div class="medals"><span class="hint">Waiting…</span></div></div>`;
+  $(".tag", row).textContent = "#" + item.n;
+  $(".rows", panel).append(row);
+  return {
+    status(text) { $(".medals", row).innerHTML = ""; const s = document.createElement("span"); s.className = "hint"; s.textContent = text; $(".medals", row).append(s); },
+    medals(list, minRank, kills = []) {
+      const box = $(".medals", row); box.innerHTML = "";
+      const kc = document.createElement("span"); kc.className = "medal"; kc.textContent = `${kills.length} kill${kills.length === 1 ? "" : "s"}`; box.append(kc);
+      if (!list.length) { const s = document.createElement("span"); s.className = "hint"; s.textContent = "No multi-kill medals seen"; box.append(s); return; }
+      for (const m of list) { const s = document.createElement("span"); s.className = "medal" + (m.rank >= minRank ? " hit" : ""); s.textContent = `${m.name} ${mmss(m.t)}`; box.append(s); }
+    },
+  };
+}
+async function makeKillMontage(items, opts, style) {
+  const videos = items.filter((i) => i.kind === "video");
+  if (!videos.length) { toast("Add your gameplay clips first. Kill streak mode needs videos."); return; }
+  if (!CAP.sample) { showNote("Kill streak mode needs Claude to read the medals. Allow Claude for this page when asked, then try again."); return; }
+  const panel = scanPanel();
+  const rows = videos.map((v) => scanRow(panel, v));
+  const streaks = [];
+  let failed = 0, firstErr = null;
+  for (const [k, v] of videos.entries()) {
+    $("#makeHint").textContent = `Scanning clip ${k + 1} of ${videos.length} for medals…`;
+    rows[k].status("Scanning…");
+    try {
+      const det = await scanClip(v, (p) => rows[k].status(`Scanning… ${Math.round(p * 100)}%`));
+      rows[k].medals(det.medals, opts.minRank, det.kills || []);
+      streaks.push(...streaksFrom(v, det, opts.minRank, style, Number(opts.leadIn) || 3));
+    } catch (e) {
+      console.warn("scan", e); failed++; firstErr = firstErr || e;
+      rows[k].status(e?.code === "not_granted" ? "Claude wasn't allowed" : e?.code === "rate_limited" ? "Claude is busy. Try later" : "Couldn't scan this clip");
+      if (e?.code === "not_granted" || e?.code === "sampling_disabled") break;
+    }
+  }
+  if (!streaks.length) {
+    showNote(failed === videos.length ? sampleErrorNote(firstErr).replace(", so this used quick edit", "") : `No ${RANK_NAME[opts.minRank]} or better found. If you see medals in your clips, move the medal box so it covers where they pop up, then try again.`);
+    $("#makeHint").textContent = "No streaks to edit yet.";
+    return;
+  }
+  const label = (s) => `${s.best}, ${s.killCount} kills (#${s.item.n} at ${mmss(s.end - 2)})`;
+  let groups;
+  if (opts.ksOutput === "each") groups = streaks.slice(0, 10).map((s) => [s]);
+  else {
+    const pick = [...streaks].sort((a, b) => b.rank - a.rank || a.start - b.start);
+    const chosen = []; let total = 0;
+    for (const s of pick) { const d = s.pieces.reduce((a, p) => a + (p.s1 - p.s0) / p.rate, 0); if (opts.length && chosen.length && total + d > opts.length + 4) continue; chosen.push(s); total += d; }
+    groups = [chosen.sort((a, b) => a.rank - b.rank || a.start - b.start)];
+  }
+  $("#makeHint").textContent = "Writing captions…";
+  const plans = [];
+  for (const g of groups) {
+    const best = g.reduce((a, b) => (b.rank > a.rank ? b : a));
+    let text = null;
+    try {
+      text = await CAP.sample.json(`Write the text for a Call of Duty kill streak ${g.length > 1 ? "montage" : "clip"} for TikTok, Reels and Shorts. Streaks in it: ${g.map(label).join(", ")}. Creator's notes: ${opts.prompt || "(none)"}. Creator handle: ${opts.handle || "(none)"}.
+Reply with only JSON: {"title":"short title","hook":"on-screen hook, max 5 words","post_caption":"1-2 punchy sentences ending with a reason to follow","hashtags":["#tag"]}`, { modelTier: "quick" });
+    } catch (e) { console.warn("caption", e); }
+    const plan = {
+      title: clip(text?.title, 60) || `${best.best}${g.length > 1 ? ` + ${g.length - 1} more` : ""}`,
+      hook: clip(text?.hook, 40) || `${best.best}${g.length > 1 ? " INCOMING" : ""}`,
+      scenes: g.map((s) => ({ itemId: s.itemId, pieces: s.pieces, kills: s.kills, keep: s.keep, caption: "", start: s.start, dur: s.end - s.start })),
+      caption: clip(text?.post_caption, 600) || `${best.best} in Call of Duty. Follow for more streaks.`,
+      tags: cleanTags(text?.hashtags).length ? cleanTags(text?.hashtags) : ["#callofduty", "#cod", "#gaming", "#killstreak"],
+    };
+    plans.push(finishPlan(plan, opts, style));
+  }
+  await renderBatch(plans, failed ? `${failed} clip${failed === 1 ? "" : "s"} couldn't be scanned and ${failed === 1 ? "was" : "were"} skipped.` : "");
+}
+async function remix(r) {
+  if (S.busy) return;
+  const choices = MUSIC_STYLES;
+  if (r.plan.music !== "song" && r.plan.music !== "none") r.plan.music = choices[(choices.indexOf(r.plan.music) + 1) % choices.length];
+  const tr = TRANSITIONS.filter((x) => x !== "cut");
+  r.plan.transition = tr[(tr.indexOf(r.plan.transition) + 1) % tr.length];
+  r.plan.color = S.brand.color;
+  setBusy(true); holdAwake(true);
+  await runRender(r);
+  setBusy(false); holdAwake(false);
+}
+
+/* ---------------- wiring ---------------- */
+const drop = $("#drop"), fileIn = $("#fileIn");
+drop.addEventListener("click", (e) => { if (e.target.closest("button")) return; fileIn.click(); });
+drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileIn.click(); } });
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); addFiles(e.dataTransfer.files); });
+fileIn.addEventListener("change", () => { addFiles(fileIn.files); fileIn.value = ""; });
+$("#sampleBtn").addEventListener("click", (e) => { e.stopPropagation(); addSamples(); });
+$("#makeBtn").addEventListener("click", make);
+$("#killOnly").addEventListener("change", (e) => { S.opts.killOnly = e.target.checked; saveOpts(); renderOptions(); });
+$("#songBtn").addEventListener("click", () => $("#songIn").click());
+$("#songIn").addEventListener("change", async () => {
+  const f = $("#songIn").files[0]; if (!f) return;
+  try { const buf = await new OfflineAudioContext(2, 1, 48000).decodeAudioData(await f.arrayBuffer()); S.song = { name: f.name, buffer: buf }; renderOptions(); toast("Song added"); }
+  catch { toast("That song couldn't be read. Try an MP3 or M4A."); }
+  $("#songIn").value = "";
+});
+$("#styleSel").addEventListener("change", (e) => { S.opts.styleId = e.target.value; saveOpts(); renderStyleSelect(); });
+$("#learnBtn").addEventListener("click", () => $("#learnIn").click());
+$("#learnIn").addEventListener("change", () => { const f = $("#learnIn").files[0]; $("#learnIn").value = ""; if (f) learnStyle(f); });
+$("#delStyleBtn").addEventListener("click", () => {
+  const btn = $("#delStyleBtn");
+  if (btn.dataset.confirm !== "1") { btn.dataset.confirm = "1"; btn.textContent = "Tap again to delete"; setTimeout(() => { btn.dataset.confirm = ""; btn.textContent = "Delete style"; }, 3000); return; }
+  btn.dataset.confirm = ""; btn.textContent = "Delete style";
+  deleteStyle(S.opts.styleId); S.opts.styleId = "auto"; saveOpts(); renderStyleSelect(); toast("Style deleted");
+});
+const bindBrand = (id, key, fix) => {
+  const el = $("#" + id); el.value = S.brand[key];
+  el.addEventListener("input", () => { S.brand[key] = fix ? fix(el.value) : el.value; store.set("brand", S.brand); });
+};
+bindBrand("handle", "handle", (v) => { v = v.trim(); return v && !v.startsWith("@") && !v.includes(" ") ? "@" + v : v; });
+bindBrand("biz", "biz"); bindBrand("site", "site", (v) => v.trim().replace(/^https?:\/\//, "").replace(/\/$/, "")); bindBrand("cta", "cta");
+bindBrand("color", "color");
+
+renderAll();
+updateAiChip();
+setTimeout(() => { if (!CAP.checked) { CAP.checked = true; updateAiChip(); } }, 11000);
+</script>
+</body>
+</html>
