@@ -172,6 +172,16 @@ A private **claude.ai artifact** that mirrors the PC and can be added to the hom
 
 It syncs with the PC through the artifact's owner-only document database (see [Phone sync](#phone-sync)).
 
+### 6. Video Studio (`dashboard/video-studio.html`, `dashboard/video.py`)
+
+A video editor built into the dashboard (sidebar **Video Studio**, or the block on the Overview). Drop in photos and
+clips and pick a type: **gaming montage** (finds Call of Duty kill streaks by reading the medals and kills),
+**movie edit**, **business promo** or **everyday highlights**. Claude plans the edit through the local Claude Code
+CLI: frames are saved as images it reads, and it replies with the shot order, hook, captions, music and transitions.
+The browser then renders a 1080p H.264/AAC MP4 with WebCodecs ([Mediabunny](https://mediabunny.dev)), with
+generated royalty-free music, effects and an end card. **Save to Foreman AI** writes the file to `outputs/videos/`.
+Styles can be learned from a reference video you like.
+
 ---
 
 ## Architecture

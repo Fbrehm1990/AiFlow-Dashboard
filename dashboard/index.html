@@ -624,6 +624,7 @@ body{zoom:1.14}
 .hubrow{grid-template-columns:repeat(4,minmax(0,1fr))}
 .hb-usage{grid-column:span 2}
 .hb-wide{grid-column:1/-1;min-height:0}
+#videoFrame{display:block;width:100%;height:calc(100vh - 150px);min-height:600px;border:1px solid var(--border);border-radius:var(--radius);background:#0d0f15}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.hubrow{grid-template-columns:1fr}.hb-usage{grid-column:auto}}
 .hb-usage .u-tile{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
@@ -718,7 +719,7 @@ body{zoom:1.14}
       <div class="nav-label">Tools</div>
       <a href="#/resources" data-route="resources"><svg class="i"><use href="#i-res"/></svg>Resources</a>
       <button type="button" id="openFolder"><svg class="i"><use href="#i-folder"/></svg>Open folder</button>
-      <a href="https://claude.ai/artifact/3VpB9WtAqvXWvk8kTDtUZR" target="_blank" rel="noopener" id="videoStudio" title="Opens Video Studio in your browser"><svg class="i"><use href="#i-video"/></svg>Video Studio</a>
+      <a href="#/video" data-route="video" id="videoStudio"><svg class="i"><use href="#i-video"/></svg>Video Studio</a>
     </nav>
     <div class="side-foot">
       <div class="side-status"><span class="pulse" id="sidePulse"></span><a href="#/running" id="sideStatus">Checking…</a></div>
@@ -803,7 +804,7 @@ body{zoom:1.14}
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
         <a class="hb" href="#/devices" id="hbDevices"><div class="hb-h"><svg class="i"><use href="#i-plug"/></svg>Smart devices</div><div class="hb-b"></div></a>
-        <a class="hb hb-wide" href="https://claude.ai/artifact/3VpB9WtAqvXWvk8kTDtUZR" target="_blank" rel="noopener" id="hbVideo" title="Opens Video Studio in your browser"><div class="hb-h"><svg class="i"><use href="#i-video"/></svg>Video Studio</div><div class="hb-b"><div class="hb-sub">Gaming montages, movie edits, business promos and highlights, edited by Claude.</div><div class="hb-foot">Open the studio ↗</div></div></a>
+        <a class="hb hb-wide" href="#/video" id="hbVideo"><div class="hb-h"><svg class="i"><use href="#i-video"/></svg>Video Studio</div><div class="hb-b"><div class="hb-sub">Gaming montages, movie edits, business promos and highlights, edited by Claude.</div><div class="hb-foot">Open the studio →</div></div></a>
       </section>
 
       <div id="actHome" class="hidden"></div>
@@ -858,6 +859,7 @@ body{zoom:1.14}
     <div id="devicesPage" class="hidden col hubpage"></div>
 
     <!-- AI usage: tokens, plan limits and what you owe -->
+    <div id="videoPage" class="hidden"><iframe id="videoFrame" title="Video Studio" allow="screen-wake-lock; clipboard-write; fullscreen"></iframe></div>
     <div id="usagePage" class="hidden col"><div class="col" id="uLive"></div><div id="uSettings"></div></div>
 
     <!-- AiFlow: the team, one box per member -->
@@ -1324,6 +1326,7 @@ const PAGES = {
   news:      {title:"News", desc:"Headlines from NPR, BBC and Ars Technica, refreshed every 15 minutes."},
   cameras:   {title:"Cameras", desc:"Your security cameras, live."},
   devices:   {title:"Smart devices", desc:"Lights, plugs, locks and more, controlled by you or by Jarvis."},
+  video:     {title:"Video Studio", desc:"Montages, movie edits, promos and highlights. Claude plans the edit, this PC renders it, and saved videos go to outputs/videos."},
   usage:     {title:"AI usage", desc:"Tokens, plan limits and what you owe across Claude Code, Codex and the Anthropic API. Updates live."},
 };
 const HUB_PAGES = ["weather", "news", "cameras", "devices"];
@@ -1344,6 +1347,8 @@ function go(){
   $("#aiflowPage").classList.toggle("hidden", route !== "aiflow");
   $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
   $("#usagePage").classList.toggle("hidden", route !== "usage");
+  $("#videoPage").classList.toggle("hidden", route !== "video");
+  if (route === "video" && !$("#videoFrame").src) $("#videoFrame").src = "/video-studio.html?theme=dark";
   if (route === "usage") renderUsage(changed);
   HUB_PAGES.forEach(p => $("#" + p + "Page").classList.toggle("hidden", route !== p));
   if (HUB_PAGES.includes(route)) renderHubPage(route);
