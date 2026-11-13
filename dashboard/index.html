@@ -623,6 +623,7 @@ body{zoom:1.14}
 /* ---------- AI usage ---------- */
 .hubrow{grid-template-columns:repeat(4,minmax(0,1fr))}
 .hb-usage{grid-column:span 2}
+.hb-wide{grid-column:1/-1;min-height:0}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.hubrow{grid-template-columns:1fr}.hb-usage{grid-column:auto}}
 .hb-usage .u-tile{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
@@ -802,6 +803,7 @@ body{zoom:1.14}
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
         <a class="hb" href="#/devices" id="hbDevices"><div class="hb-h"><svg class="i"><use href="#i-plug"/></svg>Smart devices</div><div class="hb-b"></div></a>
+        <a class="hb hb-wide" href="https://claude.ai/artifact/3VpB9WtAqvXWvk8kTDtUZR" target="_blank" rel="noopener" id="hbVideo" title="Opens Video Studio in your browser"><div class="hb-h"><svg class="i"><use href="#i-video"/></svg>Video Studio</div><div class="hb-b"><div class="hb-sub">Gaming montages, movie edits, business promos and highlights, edited by Claude.</div><div class="hb-foot">Open the studio ↗</div></div></a>
       </section>
 
       <div id="actHome" class="hidden"></div>
