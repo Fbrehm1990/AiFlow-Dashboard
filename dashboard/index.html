@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AiFLOW</title>
+<title>Foreman AI</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2307101f'/><rect x='1' y='1' width='30' height='30' rx='7' fill='none' stroke='%2346e3ff' stroke-width='2'/><path d='M9 17l4 4 10-10' stroke='%2346e3ff' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -27,13 +27,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{background:
-  radial-gradient(1100px 600px at 85% -10%, rgba(143,123,255,.16), transparent 60%),
-  radial-gradient(900px 500px at -10% 110%, rgba(70,227,255,.10), transparent 60%),
-  var(--bg);background-attachment:fixed}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:linear-gradient(rgba(110,160,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(110,160,255,.05) 1px,transparent 1px);
-  background-size:36px 36px;mask-image:radial-gradient(ellipse at 60% 30%,#000 30%,transparent 80%)}
+body{background:var(--bg)}
 .app{position:relative;z-index:1}
 button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--accent)}
@@ -46,6 +40,8 @@ svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-widt
 .app{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
 .side{position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 12px;gap:4px;overflow-y:auto}
 .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;font-weight:650;font-size:15.5px;color:var(--text);text-decoration:none}
+.bt{display:grid;line-height:1.15}
+.bt small{font-size:10.5px;font-weight:450;letter-spacing:.02em;color:var(--muted);text-transform:none}
 .logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px}
 .nav{display:flex;flex-direction:column;gap:2px}
 .nav-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:14px 10px 6px}
@@ -294,8 +290,7 @@ h1,h2,h3,.brand,.act-title,.stat .n,.kpi .n,.count .v{font-family:var(--display)
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 30px rgba(0,0,0,.25);
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .card-h{border-bottom-color:var(--border)}
-.card-h h2{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:#c9d4f5}
-.card-h h2::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;vertical-align:2px;background:var(--accent);box-shadow:0 0 8px var(--accent);transform:rotate(45deg)}
+.card-h h2{font-size:15px;font-weight:600;letter-spacing:0;color:var(--text)}
 .item,.sched,.runrow,td,th,.help,.toolbar,.filters,.tabs{border-color:var(--border)!important}
 
 /* sidebar */
@@ -314,16 +309,16 @@ h1,h2,h3,.brand,.act-title,.stat .n,.kpi .n,.count .v{font-family:var(--display)
 
 /* top bar */
 .topbar h1{font-size:24px;font-weight:700;letter-spacing:.02em}
-.topbar .desc{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.topbar .desc{font-size:13px;color:var(--muted)}
 .iconbtn{background:var(--surface);border-color:var(--border)}
-.iconbtn:hover{color:var(--accent);border-color:var(--border-hi);box-shadow:var(--glow);background:var(--surface)}
-.iconbtn.active{color:var(--accent);border-color:var(--border-hi);background:var(--accent-soft);box-shadow:var(--glow)}
+.iconbtn:hover{color:var(--accent);border-color:var(--border-hi);background:var(--surface)}
+.iconbtn.active{color:var(--accent);border-color:var(--border-hi);background:var(--accent-soft)}
 
 /* buttons + inputs */
 .btn{background:rgba(20,28,48,.8);border-color:var(--border)}
 .btn:hover{background:rgba(32,44,72,.9);border-color:var(--border-hi)}
-.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:var(--accent-ink);font-weight:650;box-shadow:0 0 18px rgba(70,227,255,.25)}
-.btn.primary:hover{background:linear-gradient(135deg,var(--accent),var(--accent-2));filter:brightness(1.1);box-shadow:0 0 26px rgba(70,227,255,.4)}
+.btn.primary{background:var(--accent);border-color:transparent;color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{background:var(--accent);filter:brightness(1.08)}
 .btn.ghost{background:transparent;border-color:transparent}
 input[type=text],select,textarea{background:rgba(6,10,20,.7);border-color:var(--border);color:var(--text)}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(70,227,255,.15),0 0 16px rgba(70,227,255,.15)}
@@ -334,15 +329,11 @@ select option{background:#0c1324}
 
 /* stat tiles: HUD corner brackets + glowing numerals */
 .stat,.kpi{position:relative;overflow:hidden}
-.stat::before,.stat::after,.kpi::before{content:"";position:absolute;width:12px;height:12px;border-color:var(--accent);opacity:.55;pointer-events:none}
-.stat::before,.kpi::before{top:7px;left:7px;border-top:1.5px solid;border-left:1.5px solid}
-.stat::after{bottom:7px;right:7px;border-bottom:1.5px solid;border-right:1.5px solid}
-.stat .n{font-size:32px;font-weight:600;letter-spacing:.02em;color:#fff;text-shadow:0 0 18px rgba(70,227,255,.35)}
-.stat .l{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
-.stat:hover{border-color:var(--border-hi);box-shadow:var(--glow)}
-.stat.alert .n{color:var(--danger);text-shadow:0 0 18px rgba(255,93,122,.45)}
-.kpi .n{color:#fff;text-shadow:0 0 14px rgba(70,227,255,.3)}
-.kpi .l,.hint,.count{font-family:inherit}
+.stat .n{font-size:30px;font-weight:600;color:#fff}
+.stat .l{font-size:13px}
+.stat:hover{border-color:var(--border-hi)}
+.stat.alert .n{color:var(--danger)}
+.kpi .n{color:#fff}
 
 /* activity + progress */
 .act-title{font-size:16px;letter-spacing:.04em}
@@ -364,9 +355,9 @@ select option{background:#0c1324}
 .pos{font-family:var(--mono);background:rgba(110,160,255,.08);border:1px solid var(--border);color:var(--accent)}
 
 /* tabs + tables */
-.tabs button{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.tabs button{font-size:14px;letter-spacing:0;text-transform:none}
 .tabs button[aria-selected=true]{color:#fff;border-bottom-color:var(--accent);text-shadow:0 0 10px rgba(70,227,255,.5)}
-th{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#6f7a99}
+th{font-size:13px;letter-spacing:0;text-transform:none;color:var(--muted)}
 tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 
 /* schedule */
@@ -431,27 +422,68 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 @media (prefers-reduced-motion:reduce){.seg-run,.seg-done{box-shadow:none}}
 
 /* ================= overview: neural core, crew, timeline ================= */
-.core{display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 20px 22px;margin-bottom:16px;overflow:hidden;position:relative}
-.core-viz{position:relative;height:340px;width:100%;max-width:640px}
-.core-viz canvas{width:100%;height:100%;display:block}
-.core-side{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;max-width:640px;padding:0}
-.core-label,.core-actions{justify-content:center}
+.stage{display:flex;gap:16px;align-items:stretch;margin-bottom:16px}
+.core{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;text-align:left;padding:22px 24px;margin:0;position:relative;overflow:hidden}
+.orb{flex:0 0 112px;position:relative;min-height:112px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.orb canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.core-side{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;padding:0}
+.core-label,.core-actions{justify-content:flex-start}
 .brief-text{text-align:left}
-.core-label{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.core-label{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--accent)}
 .core h2{font-size:24px;font-weight:700;letter-spacing:.02em;line-height:1.25}
 .core-sub{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
 .core-actions{display:flex;gap:8px;flex-wrap:wrap}
 .brief-text{font-size:14px;line-height:1.6;color:var(--text);max-height:150px;overflow-y:auto;border-left:2px solid var(--accent);padding:2px 0 2px 12px}
 .brief-text:empty{display:none}
 .brief-text .now{background:var(--accent-soft);border-radius:4px}
-@media (max-width:860px){.core{padding:6px 10px 16px}.core-viz{height:240px}}
+@media (max-width:860px){.stage{flex-direction:column}.orb{flex:none;width:100%;height:104px;min-height:0}}
 
-/* AiFlow page: the four team members side by side */
+/* team strip: one clickable box per member, live status and an animated face */
+.teamstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media (max-width:900px){.teamstrip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bot{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;gap:12px;align-items:center;padding:12px 14px;min-width:0;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);transition:border-color .15s,box-shadow .15s,transform .15s;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.bot:hover,.bot:focus-visible{border-color:var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) 25%,transparent);transform:translateY(-2px);outline:none}
+.bot.busy{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 20px color-mix(in srgb,var(--c) 22%,transparent)}
+.bot .bt{display:flex;flex-direction:column;min-width:0;flex:1}
+.bot .bn{font-weight:650;font-size:14px}
+.bot .bc{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);margin-top:1px}
+.bot .bs{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.bot.busy .bs{color:var(--text)}
+
+/* animated faces (SVG; colour comes from --c) */
+.face{width:56px;height:56px;flex:none;overflow:visible}
+.mate .face{width:54px;height:54px}
+.face .ln{stroke:var(--c);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.face .fl{fill:var(--c)}
+.face .skin{fill:color-mix(in srgb,var(--c) 16%,#0c1324);stroke:var(--c);stroke-width:2.2}
+.face .eye ellipse{fill:#fff}
+.face .pupil{fill:#0c1324}
+.face .eye{transform-box:fill-box;transform-origin:center;animation:eyeblink 4.6s infinite}
+.face .eye.r{animation-delay:.12s}
+.face .head{transform-box:fill-box;transform-origin:center bottom;animation:bob 3.2s ease-in-out infinite}
+.face .antball{animation:glow 2.2s ease-in-out infinite}
+.face .cheek{opacity:.35}
+.face .mouth{fill:none;stroke:var(--c);stroke-width:2.4;stroke-linecap:round}
+.face .mouth.o{fill:#0c1324;stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center}
+.face.work .mouth.smile{opacity:0}
+.face.work .mouth.o{opacity:1;animation:talk .55s ease-in-out infinite alternate}
+.face.work .head{animation:bob .9s ease-in-out infinite}
+.face.work .pupil{animation:scan 1.8s ease-in-out infinite}
+.face.work .antball{animation:glow .6s ease-in-out infinite}
+.face.work .eye{animation-duration:2.6s}
+@keyframes eyeblink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+@keyframes bob{50%{transform:translateY(-2px)}}
+@keyframes scan{0%,100%{transform:translateX(-1.3px)}50%{transform:translateX(1.3px)}}
+@keyframes talk{to{transform:scale(1.3,.7)}}
+@keyframes glow{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.face *,.bot{animation:none!important;transition:none!important}}
+
+/* Crew page: the four team members side by side */
 .crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .crew .mate .tasks{max-height:420px}
 @media (max-width:1280px){.crew{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.crew{grid-template-columns:1fr}}
-/* AiFlow block on the Overview */
+/* Crew block on the Overview */
 .hb-flow{grid-column:span 2}
 .flow-mates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin-top:2px}
 .flow-mate{display:flex;align-items:center;gap:7px;font-size:13px;min-width:0}
@@ -557,8 +589,8 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.hubrow{grid-template-columns:1fr}.hb-flow{grid-column:auto}.flow-mates{grid-template-columns:1fr}}
 .hb{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:inherit;text-decoration:none;min-height:132px;transition:border-color .15s,box-shadow .15s;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.hb:hover{border-color:var(--border-hi);box-shadow:var(--glow)}
-.hb-h{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.hb:hover{border-color:var(--border-hi)}
+.hb-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text)}
 .hb-big{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.1}
 .hb-sub{color:var(--muted);font-size:13px}
 .hb-foot{margin-top:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
@@ -623,6 +655,8 @@ body{zoom:1.14}
 /* ---------- AI usage ---------- */
 .hubrow{grid-template-columns:repeat(4,minmax(0,1fr))}
 .hb-usage{grid-column:span 2}
+.hb-wide{grid-column:1/-1;min-height:0}
+#videoFrame{display:block;width:100%;height:calc(100vh - 150px);min-height:600px;border:1px solid var(--border);border-radius:var(--radius);background:#0d0f15}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.hubrow{grid-template-columns:1fr}.hb-usage{grid-column:auto}}
 .hb-usage .u-tile{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
@@ -653,6 +687,7 @@ body{zoom:1.14}
 .u-dot{width:9px;height:9px;border-radius:50%;flex:none}
 .u-rows{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:13px}
 .u-rows span{color:var(--muted)}.u-rows b{text-align:right;font-weight:560;font-variant-numeric:tabular-nums}
+.u-line{padding:10px 16px 6px}.u-line svg{display:block;overflow:visible}.u-line text{fill:var(--muted);font-size:11px;font-family:var(--mono)}
 .u-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding:16px 16px 4px}
 .u-col{flex:1;display:flex;flex-direction:column-reverse;min-width:0;height:100%;cursor:default}
 .u-col i{display:block;width:100%;border-radius:3px 3px 0 0}
@@ -667,6 +702,28 @@ body{zoom:1.14}
 .u-form input[type=password]{width:100%;border:1px solid var(--border);background:rgba(6,10,20,.7);color:var(--text);border-radius:8px;padding:8px 10px;outline:none}
 .u-note{font-size:12.5px;color:var(--muted);line-height:1.55;margin:8px 0 0}
 .u-warn{color:var(--warn)}.u-err{color:var(--danger)}
+
+/* ================= polish: a quieter, more professional look =================
+   Flat surfaces, no glows or gradients, sentence-case labels, one sans-serif face. */
+:root{--mono:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.nav-label,.pill,.livebadge,.actor,.agent .role,.agent .now b,.agent .nums span,.mate .role,.mate .tabs2 button,
+.hb-tag,.hb-foot,.u-k,.u-form h3,.convo-state,.answer .q,.convo-log .by,.proj .who,.tl-day,.dev .st,
+.u-live,.u-days span,.stat .l,.kpi .l,.card-h h2,th,.tabs button,.side-foot,.badge,.trail,.mate .ord,
+.tl-ev .tm,.ap .spend,.pos,.u-form h3{text-transform:none;letter-spacing:0;font-weight:600}
+.nav-label{font-size:12px;color:var(--muted);padding:16px 10px 6px}
+.stat .n,.kpi .n,.stat.alert .n{color:var(--text)}
+.stat::before,.stat::after,.kpi::before{display:none}
+*{text-shadow:none!important}
+*:not(.side):not(.drawer):not(.ai-panel):not(.toast):not(#tip){box-shadow:none}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!important}
+.btn.primary,.btn.primary:hover{background:var(--accent);filter:none}
+.nav a.active{background:var(--accent-soft);border-color:transparent}
+.seg-run{background:var(--accent)}
+.ev.say .ic{background:var(--accent)}
+.hbars .track span,.vbars .b span{background:var(--accent)}
+.convo,.answer,.dev.on{border-color:var(--border)}
+.stat:hover,.hb:hover,.mate:hover{border-color:var(--border-hi)}
+.orb{border-color:var(--border-hi)}
 </style>
 </head>
 <body>
@@ -678,6 +735,7 @@ body{zoom:1.14}
   <symbol id="i-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></symbol>
   <symbol id="i-res" viewBox="0 0 24 24"><path d="M4 19V5a1 1 0 0 1 1-1h5v16H5a1 1 0 0 1-1-1zM10 4h5v16h-5zM15 6.5l3.9-1.1a1 1 0 0 1 1.2.7l3 11.4"/><path d="M15 20l5-1.4"/></symbol>
   <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3z"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
@@ -695,7 +753,7 @@ body{zoom:1.14}
 
 <div class="app">
   <aside class="side" id="side" aria-label="Main navigation">
-    <a class="brand" href="#/"><span class="logo">✓</span>AiFLOW</a>
+    <a class="brand" href="#/"><span class="logo">✓</span><span class="bt">Foreman AI<small>Your AI team, on the job</small></span></a>
     <nav class="nav">
       <a href="#/" data-route=""><svg class="i"><use href="#i-home"/></svg>Overview</a>
       <div class="nav-label">Hub</div>
@@ -704,7 +762,7 @@ body{zoom:1.14}
       <a href="#/cameras" data-route="cameras"><svg class="i"><use href="#i-cam"/></svg>Cameras</a>
       <a href="#/devices" data-route="devices"><svg class="i"><use href="#i-plug"/></svg>Smart devices</a>
       <div class="nav-label">Workflow</div>
-      <a href="#/aiflow" data-route="aiflow"><svg class="i"><use href="#i-team"/></svg>AiFlow<span class="badge" id="bFlow"></span></a>
+      <a href="#/aiflow" data-route="aiflow"><svg class="i"><use href="#i-team"/></svg>Crew<span class="badge" id="bFlow"></span></a>
       <a href="#/team" data-route="team"><svg class="i"><use href="#i-approve"/></svg>Team &amp; goals</a>
       <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
       <a href="#/usage" data-route="usage"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="badge" id="bUsage"></span></a>
@@ -716,6 +774,7 @@ body{zoom:1.14}
       <div class="nav-label">Tools</div>
       <a href="#/resources" data-route="resources"><svg class="i"><use href="#i-res"/></svg>Resources</a>
       <button type="button" id="openFolder"><svg class="i"><use href="#i-folder"/></svg>Open folder</button>
+      <a href="#/video" data-route="video" id="videoStudio"><svg class="i"><use href="#i-video"/></svg>Video Studio</a>
     </nav>
     <div class="side-foot">
       <div class="side-status"><span class="pulse" id="sidePulse"></span><a href="#/running" id="sideStatus">Checking…</a></div>
@@ -747,12 +806,13 @@ body{zoom:1.14}
 
     <!-- Overview -->
     <div id="home">
-      <!-- Stage: the centred neural core -->
+      <!-- Team strip: the four members, live status, click to open the team -->
+      <section class="teamstrip" id="teamStrip" aria-label="Team at a glance"></section>
+
+      <!-- Stage: the talk panel, with the orbit graphic tucked into the top-right corner -->
       <div class="stage">
 
-      <!-- Neural core: animated brain + spoken recap, centred -->
       <section class="card core">
-        <div class="core-viz"><canvas id="brain" aria-hidden="true"></canvas></div>
         <div class="core-side">
           <div class="core-label"><span class="pulse" id="corePulse"></span><span id="coreState">Neural core online</span></div>
           <h2 id="coreHeadline">Linking to your team…</h2>
@@ -790,16 +850,19 @@ body{zoom:1.14}
           <div id="answers" aria-live="polite"></div>
         </div>
       </section>
+
+      <div class="orb" aria-hidden="true"><canvas id="brain"></canvas></div>
       </div>
 
       <!-- Hub: everyday blocks; each opens its own page -->
       <section class="hubrow" aria-label="Hub">
-        <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>AiFlow</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>Crew</div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-usage" href="#/usage" id="hbUsage"><div class="hb-h"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="spacer"></span><span class="u-live">LIVE</span></div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
         <a class="hb" href="#/devices" id="hbDevices"><div class="hb-h"><svg class="i"><use href="#i-plug"/></svg>Smart devices</div><div class="hb-b"></div></a>
+        <a class="hb hb-wide" href="#/video" id="hbVideo"><div class="hb-h"><svg class="i"><use href="#i-video"/></svg>Video Studio</div><div class="hb-b"><div class="hb-sub">Gaming montages, movie edits, business promos and highlights, edited by Claude.</div><div class="hb-foot">Open the studio →</div></div></a>
       </section>
 
       <div id="actHome" class="hidden"></div>
@@ -854,9 +917,10 @@ body{zoom:1.14}
     <div id="devicesPage" class="hidden col hubpage"></div>
 
     <!-- AI usage: tokens, plan limits and what you owe -->
+    <div id="videoPage" class="hidden"><iframe id="videoFrame" title="Video Studio" allow="screen-wake-lock; clipboard-write; fullscreen"></iframe></div>
     <div id="usagePage" class="hidden col"><div class="col" id="uLive"></div><div id="uSettings"></div></div>
 
-    <!-- AiFlow: the team, one box per member -->
+    <!-- Crew: the team, one box per member -->
     <div id="aiflowPage" class="hidden col">
       <section class="crew" id="crew" aria-label="Team"></section>
     </div>
@@ -1307,19 +1371,20 @@ function closeViewer(){ document.body.classList.remove("open"); viewing = null; 
 
 /* ---------- section pages ---------- */
 const PAGES = {
-  "":        {title:"Overview", desc:"Your AI workflow at a glance."},
+  "":        {title:"Overview", desc:"Your AI team, on the job."},
   queued:    {title:"Queued", desc:"Waiting for the next queue run. High priority goes first, then top to bottom, up to 3 per run."},
   running:   {title:"In progress", desc:"What's being worked on right now, step by step."},
   done:      {title:"Done", desc:"Finished tasks and their results."},
   blocked:   {title:"Blocked", desc:"Tasks a run couldn't finish, and why. Retry with more information, or dismiss."},
   resources: {title:"Resources", desc:"Outputs, history, run logs, recurring jobs and analytics."},
-  aiflow:    {title:"AiFlow", desc:"Your AI team. Open a task to see where its project stands, or give a member feedback."},
+  aiflow:    {title:"Crew", desc:"Your AI team. Open a task to see where its project stands, or give a member feedback."},
   team:      {title:"Team & goals", desc:"Your AI team: who's doing what, and the goals they work toward."},
   approvals: {title:"Approvals", desc:"Anything public or paid waits here for your decision."},
   weather:   {title:"Weather", desc:"Now, the next 24 hours, and the week ahead."},
   news:      {title:"News", desc:"Headlines from NPR, BBC and Ars Technica, refreshed every 15 minutes."},
   cameras:   {title:"Cameras", desc:"Your security cameras, live."},
   devices:   {title:"Smart devices", desc:"Lights, plugs, locks and more, controlled by you or by Jarvis."},
+  video:     {title:"Video Studio", desc:"Montages, movie edits, promos and highlights. Claude plans the edit, this PC renders it, and saved videos go to outputs/videos."},
   usage:     {title:"AI usage", desc:"Tokens, plan limits and what you owe across Claude Code, Codex and the Anthropic API. Updates live."},
 };
 const HUB_PAGES = ["weather", "news", "cameras", "devices"];
@@ -1340,6 +1405,8 @@ function go(){
   $("#aiflowPage").classList.toggle("hidden", route !== "aiflow");
   $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
   $("#usagePage").classList.toggle("hidden", route !== "usage");
+  $("#videoPage").classList.toggle("hidden", route !== "video");
+  if (route === "video" && !$("#videoFrame").src) $("#videoFrame").src = "/video-studio.html?theme=dark";
   if (route === "usage") renderUsage(changed);
   HUB_PAGES.forEach(p => $("#" + p + "Page").classList.toggle("hidden", route !== p));
   if (HUB_PAGES.includes(route)) renderHubPage(route);
@@ -1349,7 +1416,7 @@ function go(){
   document.querySelectorAll(".nav a[data-route]").forEach(a => a.classList.toggle("active", a.dataset.route === route));
   $("#resBtn").classList.toggle("active", route === "resources");
   $("#pageTitle").textContent = PAGES[route].title; $("#pageDesc").textContent = PAGES[route].desc;
-  document.title = route ? `${PAGES[route].title} · AiFLOW` : "AiFLOW";
+  document.title = route ? `${PAGES[route].title} · Foreman AI` : "Foreman AI";
   if (S){ renderPage(); renderTeamPages(); if (route === "") renderOverview(); if (route === "aiflow") renderCrew(); if (route === "resources") renderAnalytics(); }
   if (changed) window.scrollTo({top:0});
 }
@@ -1689,6 +1756,50 @@ function liveTasks(){
   return state !== "idle" ? Object.entries(S.progress?.tasks || {}).map(([title, t]) => ({title, ...t})) : [];
 }
 
+/* ---------- faces: each member has a little face that blinks, and works when busy ---------- */
+const FACE_GEAR = {
+  "Manager":     `<g class="ln"><rect x="17" y="24" width="13" height="11" rx="4"/><rect x="34" y="24" width="13" height="11" rx="4"/><path d="M30 28.5h4"/></g>`,
+  "Researcher":  `<path class="fl" d="M12 21 Q32 2 52 21 Z"/><rect class="fl" x="8" y="19" width="48" height="4" rx="2"/>`,
+  "Web builder": `<path class="ln" d="M11 34 V27 A21 21 0 0 1 53 27 V34"/><rect class="fl" x="7" y="29" width="6" height="10" rx="2.5"/><rect class="fl" x="51" y="29" width="6" height="10" rx="2.5"/><path class="ln" d="M53 38 Q52 46 44 46"/>`,
+  "Marketer":    `<path class="fl" d="M22 57 L32 52.5 L22 48 Z M42 57 L32 52.5 L42 48 Z"/><circle class="fl" cx="32" cy="52.5" r="1.8"/>`
+};
+function faceSVG(a, busy){
+  return `<svg class="face ${busy ? "work" : "idle"}" viewBox="0 0 64 64" aria-hidden="true">
+    <line class="ln" x1="32" y1="9" x2="32" y2="15"/><circle class="fl antball" cx="32" cy="7" r="3"/>
+    <g class="head">
+      <rect class="skin" x="10" y="15" width="44" height="40" rx="14"/>
+      <ellipse class="fl cheek" cx="19" cy="39" rx="3.4" ry="2"/><ellipse class="fl cheek" cx="45" cy="39" rx="3.4" ry="2"/>
+      <g class="eye l"><ellipse cx="24" cy="30" rx="4.2" ry="5"/><circle class="pupil" cx="24.5" cy="31" r="2.4"/></g>
+      <g class="eye r"><ellipse cx="40" cy="30" rx="4.2" ry="5"/><circle class="pupil" cx="40.5" cy="31" r="2.4"/></g>
+      ${FACE_GEAR[a.name] || ""}
+      <path class="mouth smile" d="M26 42 Q32 47 38 42"/>
+      <ellipse class="mouth o" cx="32" cy="43" rx="2.6" ry="3"/>
+    </g></svg>`;
+}
+/* the strip on the Overview: one box per member, showing what they're doing now */
+function renderTeamStrip(){
+  const live = liveTasks();
+  $("#teamStrip").innerHTML = AGENTS.map(a => {
+    const now = live.find(t => a.types.includes(t.type));
+    const waiting = S.tasks.filter(t => a.types.includes(t.type)).length;
+    const tag = now ? `Working${now.label ? " · " + now.label : ""}` : waiting ? `${waiting} queued` : "Standing by";
+    const line = now ? now.title : waiting ? "Starting shortly" : "Nothing in progress";
+    return `<button type="button" class="bot ${now ? "busy" : ""}" style="--c:var(${a.color})" data-goto="${esc(a.name)}" title="Open ${esc(a.name)} on the Crew page">
+      ${faceSVG(a, !!now)}
+      <span class="bt"><span class="bn">${esc(a.name)}</span><span class="bc">${esc(tag)}</span><span class="bs">${esc(line)}</span></span>
+    </button>`;
+  }).join("");
+}
+$("#teamStrip").addEventListener("click", e => {
+  const b = e.target.closest("[data-goto]"); if (!b) return;
+  const name = b.dataset.goto;
+  location.hash = "#/aiflow";
+  setTimeout(() => {
+    const c = [...document.querySelectorAll("#crew [data-agent]")].find(x => x.dataset.agent === name);
+    c?.scrollIntoView({behavior: "smooth", block: "start"});
+  }, 80);
+});
+
 function renderCrew(){
   if (fbOpen) return;                                   // don't wipe a feedback note while it's being written
   const live = liveTasks();
@@ -1710,7 +1821,7 @@ function renderCrew(){
     const busy = active.some(x => x.on);
     return `<article class="mate ${busy ? "busy" : ""}" style="--c:var(${a.color})" data-agent="${esc(a.name)}">
       <span class="ord">0${i + 1}</span>
-      <div class="hd"><span class="emblem">${a.name.split(" ").map(w => w[0]).join("").slice(0, 2)}</span>
+      <div class="hd">${faceSVG(a, busy)}
         <div><h3>${esc(a.name)}</h3><div class="role">${esc(a.role)}</div></div></div>
       <div class="state ${busy ? "on" : ""}"><span class="pulse ${busy ? "working" : ""}"></span>${busy ? esc(active.find(x => x.on).title) : active.length ? `${active.length} task${active.length > 1 ? "s" : ""} about to start` : "Standing by"}</div>
       <div class="tabs2" role="tablist">
@@ -1878,7 +1989,7 @@ function fillVoiceSettings(){
   let tip = $("#edgeTip");
   if (!natural && !tip.isConnected){ $("#voiceSet").insertAdjacentHTML("afterbegin", `<div class="hint" id="edgeTip" style="border:1px solid var(--border-hi);border-radius:10px;padding:8px 10px;margin-bottom:6px">
       This browser only has basic, robotic voices. Microsoft Edge has free natural ones (like Ryan, a British voice).
-      <button class="btn sm primary" type="button" id="openEdge" style="margin-left:6px">Open AiFLOW in Edge</button></div>`); }
+      <button class="btn sm primary" type="button" id="openEdge" style="margin-left:6px">Open Foreman AI in Edge</button></div>`); }
   else if (natural && tip.isConnected) tip.remove();
 }
 document.addEventListener("click", e => { if (e.target.closest("#openEdge")) api("/api/open-edge", {}).then(() => toast("Opening in Edge. Then choose Jarvis preset.")).catch(err => toast(err.message, true)); });
@@ -2110,9 +2221,9 @@ async function stopTalk(silent, words){
 }
 $("#talkBtn").addEventListener("click", () => convo.on ? (speechSynthesis.cancel(), stopTalk(true)) : startTalk());
 
-function renderOverview(){ if (!S) return; renderCore(); renderFlow(); renderHub(); renderUsageTile(); }
+function renderOverview(){ if (!S) return; renderTeamStrip(); renderCore(); renderFlow(); renderHub(); renderUsageTile(); }
 
-/* AiFlow block: one line per team member; the full boxes live on the AiFlow page */
+/* Crew block: one line per team member; the full boxes live on the Crew page */
 function renderFlow(){
   const live = liveTasks();
   const rows = AGENTS.map(a => {
@@ -2135,7 +2246,8 @@ const fmtTok = n => { n = n || 0; return n >= 1e9 ? (n / 1e9).toFixed(1) + "B" :
 const fmtUsd = x => "$" + (x || 0).toLocaleString([], {minimumFractionDigits: 2, maximumFractionDigits: 2});
 const ago = iso => { if (!iso) return "never"; const s = (Date.now() - new Date(iso)) / 1000; return s < 60 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " d ago"; };
 const untilReset = sec => { if (!sec) return ""; const s = sec - Date.now() / 1000; if (s <= 0) return "resetting now"; const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h >= 48 ? `resets in ${Math.round(h / 24)} days` : h ? `resets in ${h}h ${m}m` : `resets in ${m}m`; };
-const U_CLAUDE = "#ff9a6b", U_CODEX = "#38f2a6", U_API = "#8f7bff";
+// Foreman palette: Claude Code = accent, Codex = accent-2, Anthropic API = research blue
+const U_CLAUDE = "var(--accent)", U_CODEX = "var(--accent-2)", U_API = "var(--research)";
 async function usageNow(force){
   if (force || !USAGE.data || Date.now() - USAGE.at > 4000){
     try { USAGE.data = await api("/api/usage"); USAGE.at = Date.now(); USAGE.err = null; } catch (e) { USAGE.err = e.message; }
@@ -2149,17 +2261,39 @@ function uMeter(label, pct, sub, color){
     <div class="u-track" role="progressbar" aria-label="${esc(label)}" aria-valuenow="${pct.toFixed(0)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%;background:${c}"></i></div>
     <div class="hint" style="margin-top:6px">${sub}</div></div>`;
 }
+function uLineChart(daily, withCodex, width){
+  const W = Math.max(320, width), H = 220, L = 52, R = 16, T = 14, B = 30;
+  const series = [{key: "claude", name: "Claude Code", color: U_CLAUDE}];
+  if (withCodex) series.push({key: "codex", name: "Codex", color: U_CODEX});
+  const max = Math.max(1, ...daily.flatMap(d => series.map(sr => d[sr.key])));
+  const mag = Math.pow(10, Math.floor(Math.log10(max)));
+  const step = [1, 2, 5, 10].map(m => m * mag / 2).find(st => max / st <= 5), n = Math.ceil(max / step), nice = n * step;
+  const px = i => L + i * (W - L - R) / (daily.length - 1), py = v => T + (H - T - B) * (1 - v / nice);
+  let g = "";
+  for (let k = 0; k <= n; k++){ const v = step * k, y = py(v).toFixed(1);
+    g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" style="stroke:var(--border)"/><text x="${L - 8}" y="${+y + 4}" text-anchor="end">${fmtTok(v)}</text>`; }
+  daily.forEach((d, i) => { if (i % 2 === 0 || i === daily.length - 1)
+    g += `<text x="${px(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${i === daily.length - 1 ? "today" : new Date(d.date + "T12:00").toLocaleDateString([], {month: "numeric", day: "numeric"})}</text>`; });
+  const lines = series.map(sr => {
+    const pts = daily.map((d, i) => [px(i), py(d[sr.key])]);
+    const path = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+    const area = path + ` L${pts[pts.length - 1][0].toFixed(1)} ${py(0)} L${pts[0][0].toFixed(1)} ${py(0)} Z`;
+    const dots = daily.map((d, i) => `<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${i === daily.length - 1 ? 4.5 : 3}" style="fill:${sr.color};stroke:var(--bg);stroke-width:1.5"><title>${new Date(d.date + "T12:00").toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"})}: ${sr.name} ${fmtTok(d[sr.key])} tokens</title></circle>`).join("");
+    return `<path d="${area}" style="fill:${sr.color};opacity:.08"/><path d="${path}" style="fill:none;stroke:${sr.color};stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round"/>${dots}`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Tokens per day for the last 14 days">${g}${lines}</svg>`;
+}
 async function renderUsageTile(){
   const u = await usageNow(), el = $("#hbUsage .hb-b"); if (!el) return;
   if (!u){ el.innerHTML = `<div class="hb-sub">Usage unavailable${USAGE.err ? ": " + esc(USAGE.err) : ""}</div>`; return; }
   const lim = u.claude.limits || {}, five = lim.five_hour, week = lim.seven_day, cx = u.codex.limit;
   const pcts = [five && `Claude 5h <b>${five.pct.toFixed(0)}%</b>`, week && `week <b>${week.pct.toFixed(0)}%</b>`, cx && `Codex <b>${cx.pct.toFixed(0)}%</b>`].filter(Boolean);
   el.innerHTML = `<div class="u-tile">
-      <div class="u-mini"><div class="hb-big">${u.owed.known ? fmtUsd(u.owed.total) : "—"}</div><div class="hb-sub">owed now · plans ${fmtUsd(u.plans.total)}/mo prepaid</div></div>
+      <div class="u-mini"><div class="hb-big">${u.owed.known ? fmtUsd(u.owed.total) : "—"}</div><div class="hb-sub">owed now · plans ${fmtUsd(u.plans?.total || 0)}/mo prepaid</div></div>
       <div class="u-mini"><div class="hb-big">${fmtTok(u.tokens.today)}</div><div class="hb-sub">tokens today · ${fmtTok(u.tokens.last_hour)} last hour</div></div>
     </div>
     <div class="hb-sub">${pcts.length ? pcts.join(" · ") + " of plan used" : "Connect your Claude plan to see % used"}</div>
-    <div class="hb-foot">${fmtTok(u.tokens.cycle)} tokens this cycle · Claude API value ${fmtUsd(u.claude.api_value)}</div>`;
+    <div class="hb-foot">${fmtTok(u.tokens.cycle)} tokens this cycle · plan saved you ${fmtUsd(u.claude.api_value)} vs pay-per-token</div>`;
   const hot = [five, week, cx].some(w => w && w.pct >= 80);
   $("#bUsage").textContent = hot ? "!" : ""; $("#bUsage").classList.toggle("alert", hot);
 }
@@ -2175,12 +2309,15 @@ async function renderUsage(first){
     <div class="u-hero">
       <div><div class="u-k">Owed right now</div><div class="u-big" style="color:${u.owed.total > 0 ? "var(--warn)" : "var(--ok)"}">${u.owed.known ? fmtUsd(u.owed.total) : "—"}</div>
         <ul class="u-parts">${u.owed.parts.map(p => `<li><span>${esc(p.name)}</span><b>${fmtUsd(p.amount)}</b></li>`).join("")}
-          ${u.plans.items.map(p => `<li><span>${esc(p.name)} · prepaid, renews ${new Date(p.renews + "T12:00").toLocaleDateString([], {month: "short", day: "numeric"})}</span><b>${fmtUsd(p.amount)}/mo</b></li>`).join("")}</ul>
+          ${(u.plans?.items || []).map(p => `<li><span>${esc(p.name)} · prepaid, renews ${new Date(p.renews + "T12:00").toLocaleDateString([], {month: "short", day: "numeric"})}</span><b>${fmtUsd(p.amount)}/mo</b></li>`).join("")}</ul>
         <div class="u-note">${a.connected ? "Only pay-as-you-go API usage is owed. Plan fees are charged upfront when they renew." : "Add an Admin key below to see pay-as-you-go API spend. Plan fees are prepaid, so they aren't owed."}</div></div>
       <div><div class="u-k">Tokens this cycle</div><div class="u-big">${fmtTok(u.tokens.cycle)}</div>
         <ul class="u-parts"><li><span>Today</span><b>${fmtTok(u.tokens.today)}</b></li><li><span>Last hour</span><b>${fmtTok(u.tokens.last_hour)}</b></li><li><span>Last 7 days</span><b>${fmtTok(u.tokens.week)}</b></li></ul></div>
-      <div><div class="u-k">Claude Code at API rates</div><div class="u-big" style="color:${U_CLAUDE}">${fmtUsd(c.api_value)}</div>
-        <ul class="u-parts"><li><span>Today</span><b>${fmtUsd(c.api_value_today)}</b></li><li><span>Your plan costs</span><b>${fmtUsd(c.fee)}</b></li><li><span>Cycle ends</span><b>in ${daysLeft}</b></li></ul></div>
+      <div><div class="u-k">Claude Code billed</div><div class="u-big" style="color:var(--accent)">$0.00</div>
+        <ul class="u-parts"><li><span>Covered by</span><b>${esc(c.plan)}</b></li>
+          <li><span>Same use at pay-per-token prices</span><b>${fmtUsd(c.api_value)}</b></li>
+          <li><span>Cycle ends</span><b>in ${daysLeft}</b></li></ul>
+        <div class="u-note">Claude Code runs on your plan, so it never adds to what you owe. The pay-per-token figure only shows what your plan is saving you.</div></div>
     </div></section>`;
 
   const sl = c.statusline || {};
@@ -2213,14 +2350,9 @@ async function renderUsage(first){
              <div class="hint" style="margin-top:8px">From Anthropic's billing. Refreshes every 5 minutes; new usage shows up within about 5 minutes.</div>`}</div>
     </div></section>`;
 
-  const mx = Math.max(1, ...u.daily.map(d => d.claude + d.codex));
   const chart = `<section class="card"><div class="card-h"><h2>Last 14 days</h2><span class="spacer"></span>
       <div class="u-legend"><span><i class="u-dot" style="background:${U_CLAUDE}"></i>Claude Code</span>${x.on ? `<span><i class="u-dot" style="background:${U_CODEX}"></i>Codex</span>` : ""}</div></div>
-    <div class="u-chart">${u.daily.map(d => { const day = new Date(d.date + "T12:00").toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
-        return `<div class="u-col" title="${esc(day)}: Claude Code ${fmtTok(d.claude)} · Codex ${fmtTok(d.codex)}">
-          <i style="height:${100 * d.claude / mx}%;background:${U_CLAUDE};${d.codex ? "border-radius:0" : ""}"></i>
-          <i style="height:${100 * d.codex / mx}%;background:${U_CODEX}"></i></div>`; }).join("")}</div>
-    <div class="u-days">${u.daily.map((d, i) => `<span>${i === 13 ? "today" : i % 2 ? "" : new Date(d.date + "T12:00").toLocaleDateString([], {month: "numeric", day: "numeric"})}</span>`).join("")}</div></section>`;
+    <div class="u-line" id="uLine">${uLineChart(u.daily, x.on, $("#uLine")?.clientWidth || 1060)}</div></section>`;
 
   live.innerHTML = hero + meters + tools + chart;
   if (!USAGE.settingsShown || first) renderUsageSettings(u);
@@ -2316,7 +2448,7 @@ function haSetup(box, cams){
       <li><b>Run Home Assistant:</b> on a Home Assistant Green, or in VirtualBox on any computer at home (this PC or a laptop). Claude has the step-by-step.</li>
       <li>Open <b>http://homeassistant.local:8123</b> and create your Home Assistant account.</li>
       <li>In Home Assistant: <b>Settings → Devices &amp; services → Add integration</b>, then add <b>Ring</b>, <b>ecobee</b>, <b>Govee lights local</b> and <b>Alexa Devices</b>. You sign in to each one there.</li>
-      <li>Click your name (bottom left) → <b>Security</b> → <b>Long-lived access tokens</b> → <b>Create token</b>. Name it "AiFLOW" and copy it.</li>
+      <li>Click your name (bottom left) → <b>Security</b> → <b>Long-lived access tokens</b> → <b>Create token</b>. Name it "Foreman AI" and copy it.</li>
       <li>Paste it below. It's stored only on this PC and only ever sent to your own Home Assistant.</li>
     </ol>
     <form id="haForm" autocomplete="off" style="margin-top:12px">
@@ -2475,140 +2607,106 @@ document.addEventListener("click", async e => {
   }
 });
 
-/* ================= neural core: animated point-cloud brain ================= */
+/* ================= core: orbital reactor (replaces the brain) ================= */
+/* A hexagonal core with three tilted orbits. Nodes ride the orbits, a tick ring
+   turns outside them, and the speed and glow follow what Jarvis is doing. */
 const brain = {activity: .2, speaking: false, listening: false, thinking: false, kick: 0};
-(function initBrain(){
+(function initCore(){
   const cv = document.getElementById("brain"); if (!cv) return;
   const ctx = cv.getContext("2d");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Coordinates: x = left/right, y = up, z = front(+)/back(-). Viewed from the side, front facing left.
-  const P = []; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const fold = (x, y, z) => 1 + .045 * Math.sin(12*x + 5*y) * Math.sin(10*z + 3*y) + .028 * Math.sin(19*y + 7*z + 2*x) + .016 * Math.sin(27*z - 11*x);
-  // The cerebrum is modelled from its side silhouette (front = +z, facing left on screen):
-  // a tall dome peaking toward the back, a big rounded frontal lobe, the temporal lobe bulging
-  // down below the middle, and a raised back underside that leaves room for the cerebellum.
-  const clamp01 = v => Math.max(0, v);
-  const se = (v, n) => clamp01(1 - Math.abs(v) ** n) ** (1 / n);              // superellipse: blunt, rounded ends
-  const top = z => .08 + .72 * se((z + .08) / 1.0, 2.6);                     // tall dome, peak slightly back
-  const bottom = z => {
-    const temporal = Math.exp(-((z / .44) ** 6));                              // broad temporal lobe bulge
-    const occipital = (1 - temporal) / (1 + Math.exp((z + .45) * 12));         // back underside, above the cerebellum
-    return -(.04 + .44 * temporal + .22 * occipital);
-  };
-  const halfWidth = z => .82 * se(z, 3) ** .6;                                 // left-right half-width
-  function cerebrum(shellOnly){
-    let z, T, B, rx, ry;
-    for (;;){                                                                    // sample z in proportion to surface size
-      z = rnd() * 2 - 1;
-      T = top(z); B = bottom(z);
-      rx = halfWidth(z); ry = (T - B) / 2 * se(z, 3.5) ** .5;                    // close the ends roundly, not to a point
-      if (rnd() < (rx + ry) / 1.5) break;
-    }
-    const yc = (T + B) / 2, phi = rnd() * Math.PI * 2;
-    let k = fold(Math.cos(phi), Math.sin(phi), z);
-    if (!shellOnly) k *= .45 + rnd() * .45;                                       // interior structure
-    let x = rx * Math.cos(phi) * k, y = yc + ry * Math.sin(phi) * k;
-    // Lateral (Sylvian) fissure: a groove above the temporal lobe running up toward the back.
-    const ys = -.12 + .24 * (.45 - z);
-    if (shellOnly && z > -.35 && z < .5 && Math.abs(Math.cos(phi)) > .45 && Math.abs(y - ys) < .045) x *= .9;
-    x += Math.sign(x || 1) * .04;                                                 // gap between the hemispheres
-    return [x, y, z * .92];
+  const ORBITS = [
+    {rx: .92, ry: .34, tilt: -.35, speed: .16, nodes: 3, rgb: "70,227,255"},
+    {rx: .92, ry: .34, tilt:  .85, speed: -.11, nodes: 2, rgb: "143,123,255"},
+    {rx: .70, ry: .26, tilt: 1.75, speed: .22, nodes: 4, rgb: "70,227,255"}
+  ];
+  let W = 0, H = 0, dpr = 1, level = 0;
+  const t0 = performance.now();
+  function size(){
+    const r = cv.getBoundingClientRect();
+    dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height;
+    cv.width = W * dpr; cv.height = H * dpr;
   }
-  for (let i = 0; i < 1300; i++) P.push(cerebrum(true));
-  for (let i = 0; i < 260; i++) P.push(cerebrum(false));
-  for (let i = 0; i < 240; i++){                                                // cerebellum under the back, with folia stripes
-    const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, s = Math.sqrt(1 - u*u);
-    const r = 1 + .06 * Math.sin(36 * u);
-    P.push([s * Math.cos(th) * .54 * r, -.47 + u * .24 * r, -.55 + s * Math.sin(th) * .36 * r]);
-  }
-  for (let i = 0; i < 80; i++){                                                 // brain stem, dropping down and slightly forward
-    const t = rnd(), a = rnd() * 6.283;
-    P.push([Math.cos(a) * .085, -.36 - t * .66, -.16 + t * .08 + Math.sin(a) * .075]);
-  }
-  // Wire mesh: link each point to its nearest neighbours (computed once).
-  const E = [], adj = P.map(() => []);
-  for (let i = 0; i < P.length; i++){
-    const d = [];
-    for (let j = 0; j < P.length; j++) if (j !== i){
-      const dx = P[i][0]-P[j][0], dy = P[i][1]-P[j][1], dz = P[i][2]-P[j][2];
-      d.push([dx*dx + dy*dy + dz*dz, j]);
-    }
-    d.sort((a, b) => a[0] - b[0]);
-    for (const [dd, j] of d.slice(0, 4)) if (j > i && dd < .035){ adj[i].push(E.length); adj[j].push(E.length); E.push([i, j]); }
-  }
-  // Glowing hotspots on the upper surface, like the reference.
-  const hot = [];
-  for (let i = 0; hot.length < 9 && i < 4000; i++){
-    const k = (rnd() * 1300) | 0, p = P[k];
-    if (p[1] > -.05 && !hot.some(h => { const q = P[h.i]; return (q[0]-p[0])**2 + (q[1]-p[1])**2 + (q[2]-p[2])**2 < .12; }))
-      hot.push({i: k, ph: rnd() * 6.283, sp: .5 + rnd() * .8});
-  }
-  const pulses = [];
-  let W = 0, H = 0, dpr = 1, glow = 0, t0 = performance.now();
-  function size(){ const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; }
   new ResizeObserver(size).observe(cv); size();
-  function proj(p, ca, sa){
-    const x = p[0]*ca + p[2]*sa, z = -p[0]*sa + p[2]*ca;
-    const tilt = .1, y = p[1]*Math.cos(tilt) - z*Math.sin(tilt), z2 = p[1]*Math.sin(tilt) + z*Math.cos(tilt);
-    const f = 3.4 / (3.4 + z2), sc = Math.min(W * .4, H * .46);
-    return [W/2 + x*sc*f, H/2 - (y + .1)*sc*f, z2, f];    // screen y grows downward, so up stays up; centred on the whole brain
+  const hex = (r, rot) => Array.from({length: 6}, (_, i) => [Math.cos(rot + i * Math.PI / 3) * r, Math.sin(rot + i * Math.PI / 3) * r]);
+  function polyPath(pts, cx, cy){
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => i ? ctx.lineTo(cx + x, cy + y) : ctx.moveTo(cx + x, cy + y));
+    ctx.closePath();
   }
-  function spawn(e){ pulses.push({a: E[e][0], b: E[e][1], e, t: 0, v: .035 + Math.random() * .045, hops: 0}); }
   function frame(now){
     if (!document.hidden && W){
       const sec = (now - t0) / 1000;
-      // Slow sway around the side view (front facing left) instead of a full spin.
-      const ang = -Math.PI/2 + (reduce ? 0 : sec * .07);           // full turn about every 90 seconds, starting side-on
-      brain.kick *= .9; glow += ((brain.speaking ? .9 : brain.thinking ? 1 : brain.listening ? .6 : brain.activity * .55) + brain.kick * .6 - glow) * .05;
-      const ca = Math.cos(ang), sa = Math.sin(ang), Q = P.map(p => proj(p, ca, sa));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-      const g = ctx.createRadialGradient(W/2, H/2, 10, W/2, H/2, Math.min(W, H) * .6);
-      g.addColorStop(0, `rgba(90,170,255,${.14 + glow * .12})`); g.addColorStop(1, "rgba(40,90,200,0)");
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      // wireframe
-      ctx.lineWidth = .55;
-      for (const [i, j] of E){
-        const a = Q[i], b = Q[j], depth = (a[2] + b[2]) / 2;
-        ctx.strokeStyle = `rgba(200,232,255,${.10 + (1 - depth) * .16 + glow * .06})`;
-        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      const target = brain.speaking ? 1 : brain.thinking ? .9 : brain.listening ? .6 : brain.activity * .6;
+      level += ((target + brain.kick * .6) - level) * .05;
+      brain.kick *= .9;
+      const spin = reduce ? 0 : 1 + level * 1.6;
+      const cx = W / 2, cy = H / 2, R = Math.min(W, H) * .4;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      // soft backdrop glow
+      const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.3);
+      bg.addColorStop(0, `rgba(70,227,255,${.07 + level * .08})`);
+      bg.addColorStop(1, "rgba(70,227,255,0)");
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+      // outer tick ring
+      const ticks = 72;
+      for (let i = 0; i < ticks; i++){
+        const a = i / ticks * Math.PI * 2 + sec * .04 * spin;
+        const major = i % 6 === 0;
+        const r0 = R * 1.12, r1 = R * (major ? 1.2 : 1.16);
+        ctx.strokeStyle = `rgba(143,123,255,${major ? .55 : .22})`;
+        ctx.lineWidth = major ? 1.4 : 1;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0);
+        ctx.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+        ctx.stroke();
       }
-      for (const q of Q){
-        ctx.fillStyle = `rgba(225,243,255,${.22 + (1 - q[2]) * .3})`;
-        ctx.fillRect(q[0] - .6, q[1] - .6, 1.2, 1.2);
-      }
-      // shocks: pulses that chain along the mesh like lightning
-      if (!reduce){
-        const rate = .25 + brain.activity * 1.2 + (brain.speaking ? 2 : 0) + (brain.thinking ? 3 : 0) + (brain.listening ? .8 : 0) + brain.kick * 3;
-        if (Math.random() < rate * .35) spawn((Math.random() * E.length) | 0);
-      }
-      ctx.lineCap = "round";
-      for (let k = pulses.length - 1; k >= 0; k--){
-        const p = pulses[k]; p.t += p.v;
-        const j = p.b, a = Q[p.a], b = Q[p.b];
-        const t1 = Math.min(1, p.t), t2 = Math.max(0, p.t - .45);
-        ctx.strokeStyle = "rgba(255,190,250,.95)"; ctx.shadowColor = "#e9a6ff"; ctx.shadowBlur = 12; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(a[0] + (b[0]-a[0])*t2, a[1] + (b[1]-a[1])*t2); ctx.lineTo(a[0] + (b[0]-a[0])*t1, a[1] + (b[1]-a[1])*t1); ctx.stroke();
-        if (p.t >= 1){
-          pulses.splice(k, 1);
-          if (p.hops < 7 && Math.random() < .72){                     // jump to a neighbouring synapse
-            const nx = adj[j].filter(e => e !== p.e);
-            if (nx.length){
-              const e = nx[(Math.random() * nx.length) | 0];
-              pulses.push({a: j, b: E[e][0] === j ? E[e][1] : E[e][0], e, t: 0, v: p.v, hops: p.hops + 1});
-            }
+
+      // orbits: a faint track, a comet trail and a node for each member
+      for (const o of ORBITS){
+        const ct = Math.cos(o.tilt), st = Math.sin(o.tilt);
+        const at = ang => {
+          const x = Math.cos(ang) * o.rx * R, y = Math.sin(ang) * o.ry * R;
+          return [cx + x * ct - y * st, cy + x * st + y * ct];
+        };
+        ctx.beginPath();
+        for (let s = 0; s <= 96; s++){
+          const [x, y] = at(s / 96 * Math.PI * 2);
+          s ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(${o.rgb},.18)`; ctx.lineWidth = 1; ctx.stroke();
+
+        const head = sec * o.speed * spin;
+        for (let n = 0; n < o.nodes; n++){
+          const base = head + n * Math.PI * 2 / o.nodes;
+          for (let k = 1; k <= 14; k++){
+            const [x1, y1] = at(base - (k - 1) * .035), [x2, y2] = at(base - k * .035);
+            ctx.strokeStyle = `rgba(${o.rgb},${.5 * (1 - k / 15)})`;
+            ctx.lineWidth = 2.2 * (1 - k / 15) + .4;
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
           }
+          const [hx, hy] = at(base);
+          ctx.fillStyle = `rgba(${o.rgb},.95)`;
+          ctx.beginPath(); ctx.arc(hx, hy, 3.4, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,.9)";
+          ctx.beginPath(); ctx.arc(hx, hy, 1.4, 0, Math.PI * 2); ctx.fill();
         }
       }
-      ctx.shadowBlur = 0; ctx.lineWidth = .55;
-      if (pulses.length > 300) pulses.splice(0, pulses.length - 300);
-      // hotspots
-      for (const h of hot){
-        const q = Q[h.i], pulse = .55 + .45 * Math.sin(sec * h.sp * 1.6 + h.ph);
-        const r = (9 + 9 * pulse + glow * 6) * q[3], al = (.35 + .5 * pulse) * (1.15 - q[2] * .4);
-        const hg = ctx.createRadialGradient(q[0], q[1], 0, q[0], q[1], r);
-        hg.addColorStop(0, `rgba(255,240,255,${al})`); hg.addColorStop(.35, `rgba(225,150,255,${al * .65})`); hg.addColorStop(1, "rgba(160,90,255,0)");
-        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.283); ctx.fill();
-      }
+
+      // hexagonal core: outer hexagon, counter-rotating inner hexagon, glowing centre
+      const hr = R * .26, rot = sec * .18 * spin;
+      polyPath(hex(hr, rot), cx, cy);
+      ctx.fillStyle = `rgba(70,227,255,${.05 + level * .12})`; ctx.fill();
+      ctx.strokeStyle = `rgba(70,227,255,${.55 + level * .35})`; ctx.lineWidth = 1.6; ctx.stroke();
+      polyPath(hex(hr * .58, -rot * 1.7 + .5), cx, cy);
+      ctx.strokeStyle = "rgba(143,123,255,.7)"; ctx.lineWidth = 1.2; ctx.stroke();
+      const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, hr * .35);
+      cg.addColorStop(0, `rgba(255,255,255,${.6 + level * .35})`);
+      cg.addColorStop(1, "rgba(70,227,255,0)");
+      ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, hr * .35, 0, Math.PI * 2); ctx.fill();
     }
     requestAnimationFrame(frame);
   }

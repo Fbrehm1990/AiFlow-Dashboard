@@ -530,6 +530,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if u.path in ("/", "/index.html"):
                 return self._send(200, (HERE / "index.html").read_bytes(), "text/html; charset=utf-8")
+            if u.path == "/video-studio.html":
+                return self._send(200, (HERE / "video-studio.html").read_bytes(), "text/html; charset=utf-8")
+            if u.path == "/api/video/status":
+                import video
+                return self._send(200, video.status())
             if u.path == "/api/state":
                 return self._send(200, state())
             if u.path == "/api/weather":
@@ -583,14 +588,39 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, {"error": str(e)})
         self._send(404, {"error": "not found"})
 
+    def _video_post(self, route):
+        """Video Studio: larger bodies (frame images, finished MP4s) than the rest of the API."""
+        import video
+        try:
+            n = int(self.headers.get("Content-Length", "0"))
+            if route == "/api/video/save":
+                if n > video.MAX_VIDEO_BYTES:
+                    return self._send(413, {"error": "That video is too large to save here"})
+                name = parse_qs(urlparse(self.path).query).get("name", ["video.mp4"])[0]
+                return self._send(200, video.save(name, self.rfile.read(n)))
+            if n > 40_000_000:
+                return self._send(413, {"error": "Too many images at once", "code": "invalid_request"})
+            body = json.loads(self.rfile.read(n) or b"{}")
+            if route == "/api/video/claude":
+                return self._send(200, video.ask_claude(body))
+            if route == "/api/video/open":
+                return self._send(200, video.open_folder())
+            return self._send(404, {"error": "not found"})
+        except video.VideoError as e:
+            return self._send(502, {"error": str(e), "code": e.code})
+        except (ValueError, json.JSONDecodeError) as e:
+            return self._send(400, {"error": str(e), "code": "invalid_request"})
+
     def do_POST(self):
         # The custom header forces a CORS preflight that we never approve, so other sites can't post here.
         if not self._ok_host() or self.headers.get("X-AIWF") != "1":
             return self._send(403, {"error": "forbidden"})
+        route = urlparse(self.path).path
+        if route.startswith("/api/video/"):
+            return self._video_post(route)
         try:
             n = int(self.headers.get("Content-Length", "0"))
             body = json.loads(self.rfile.read(min(n, 200_000)) or b"{}")
-            route = urlparse(self.path).path
             if route == "/api/tasks":
                 add_task(body)
                 kick_dispatch()
