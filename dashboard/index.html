@@ -728,6 +728,47 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
 .nav-label[aria-expanded="false"].has-active{color:var(--text)}
 .nav-group{display:flex;flex-direction:column;gap:2px}
 .nav-group[hidden]{display:none}
+/* Leads & inbox */
+.hb-inbox{grid-column:span 2}
+.ib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:1200px){.ib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.ib-grid{grid-template-columns:1fr}.hb-inbox{grid-column:auto}}
+.ib-list{max-height:560px;overflow:auto;overscroll-behavior:contain}
+.ib-item{display:grid;gap:3px;padding:11px 16px;border-top:1px solid var(--border);color:inherit;text-decoration:none;min-width:0}
+.ib-list > .ib-item:first-child,.ib-day + .ib-item{border-top:0}
+a.ib-item:hover{background:var(--surface-2)}
+.ib-top{display:flex;align-items:center;gap:8px;min-width:0}
+.ib-top b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.ib-when{font-size:12px;color:var(--muted);white-space:nowrap}
+.ib-from,.ib-meta{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;min-width:0}
+.ib-subj{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib-sub{font-size:13px;color:var(--muted);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.ib-mail:not(.unread) b{font-weight:500;color:var(--muted)}
+.ib-mail.unread .ib-subj{font-weight:600}
+.ib-dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.ib-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap;text-transform:capitalize}
+.ib-pill.new{background:var(--accent-soft);color:var(--accent)}
+.ib-pill.ok{color:var(--ok);text-transform:none}.ib-pill.bad{color:var(--danger);text-transform:none;max-width:55%;overflow:hidden;text-overflow:ellipsis}
+.ib-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ib-acts .btn{text-decoration:none}
+.ib-date{grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
+.ib-cal{width:48px;border:1px solid var(--border);border-radius:10px;text-align:center;overflow:hidden;line-height:1.1}
+.ib-cal b{display:block;background:var(--accent-soft);color:var(--accent);font-size:11px;padding:3px 0;text-transform:uppercase}
+.ib-cal span{display:block;font-size:20px;font-weight:600;padding:4px 0}
+.ib-day{padding:10px 16px 2px;font-size:12px;font-weight:600;color:var(--muted);border-top:1px solid var(--border)}
+.ib-list > .ib-day:first-child{border-top:0}
+.ib-ev{grid-template-columns:72px minmax(0,1fr);gap:10px;align-items:baseline}
+.ib-time{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ib-setup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 28px}
+@media (max-width:760px){.ib-setup{grid-template-columns:1fr}}
+.ib-setup h3{font-size:14px;margin:0 0 6px}
+.ib-setup ol{margin:4px 0 8px;padding-left:20px;font-size:13px;color:var(--muted);line-height:1.55}
+.ib-setup input{width:100%}
+.ib-ok{margin:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ok)}
+.ib-ok b{color:var(--text)}
+.ib-code{font-size:26px;font-weight:700;letter-spacing:.18em;margin:6px 0;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.ib-date .ib-top{flex-wrap:wrap;row-gap:4px}.ib-date .ib-top b{flex-basis:100%;white-space:normal}.ib-pill.bad{max-width:100%}
+  .ib-item{padding:12px 14px}.ib-acts .btn{padding:8px 12px}.ib-list{max-height:none}}
 .seg-run{background:var(--accent)}
 .ev.say .ic{background:var(--accent)}
 .hbars .track span,.vbars .b span{background:var(--accent)}
@@ -751,6 +792,7 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
   <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1.3"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2"/><path d="M7.5 8.5h6M7.5 12h6M7.5 15.5h4"/></symbol>
@@ -773,6 +815,7 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
       <a href="#/devices" data-route="devices"><svg class="i"><use href="#i-plug"/></svg>Smart devices</a>
       <div class="nav-label">Workflow</div>
       <a href="#/aiflow" data-route="aiflow"><svg class="i"><use href="#i-team"/></svg>Crew<span class="badge" id="bFlow"></span></a>
+      <a href="#/inbox" data-route="inbox"><svg class="i"><use href="#i-mail"/></svg>Leads &amp; inbox<span class="badge" id="bInbox"></span></a>
       <a href="#/team" data-route="team"><svg class="i"><use href="#i-approve"/></svg>Team &amp; goals</a>
       <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
       <a href="#/usage" data-route="usage"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="badge" id="bUsage"></span></a>
@@ -868,6 +911,7 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
       <section class="hubrow" aria-label="Hub">
         <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>Crew</div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-usage" href="#/usage" id="hbUsage"><div class="hb-h"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="spacer"></span><span class="u-live">LIVE</span></div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-inbox" href="#/inbox" id="hbInbox"><div class="hb-h"><svg class="i"><use href="#i-mail"/></svg>Leads &amp; inbox</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
@@ -928,6 +972,9 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
 
     <!-- AI usage: tokens, plan limits and what you owe -->
     <div id="videoPage" class="hidden"><iframe id="videoFrame" title="Video Studio" allow="screen-wake-lock; clipboard-write; fullscreen"></iframe></div>
+    <!-- Leads & inbox: website leads, Gmail, Outlook, calendar and the dates mentioned in them -->
+    <div id="inboxPage" class="hidden col"><div class="col" id="ibLive"></div><div id="ibSetup"></div></div>
+
     <div id="usagePage" class="hidden col"><div class="col" id="uLive"></div><div id="uSettings"></div></div>
 
     <!-- Crew: the team, one box per member -->
@@ -1395,6 +1442,7 @@ const PAGES = {
   cameras:   {title:"Cameras", desc:"Your security cameras, live."},
   devices:   {title:"Smart devices", desc:"Lights, plugs, locks and more, controlled by you or by Jarvis."},
   video:     {title:"Video Studio", desc:"Montages, movie edits, promos and highlights. Claude plans the edit, this PC renders it, and saved videos go to outputs/videos."},
+  inbox:     {title:"Leads & inbox", desc:"Website leads, Gmail and Outlook in one place. Dates people mention are checked against your calendar."},
   usage:     {title:"AI usage", desc:"Tokens, plan limits and what you owe across Claude Code, Codex and the Anthropic API. Updates live."},
 };
 const HUB_PAGES = ["weather", "news", "cameras", "devices"];
@@ -1418,6 +1466,8 @@ function go(){
   $("#videoPage").classList.toggle("hidden", route !== "video");
   if (route === "video" && !$("#videoFrame").src) $("#videoFrame").src = "/video-studio.html?theme=dark";
   if (route === "usage") renderUsage(changed);
+  $("#inboxPage").classList.toggle("hidden", route !== "inbox");
+  if (route === "inbox") renderInbox(changed);
   HUB_PAGES.forEach(p => $("#" + p + "Page").classList.toggle("hidden", route !== p));
   if (HUB_PAGES.includes(route)) renderHubPage(route);
   document.querySelectorAll("#pageBody [data-only]").forEach(el => el.classList.toggle("hidden", el.dataset.only !== route));
@@ -2231,7 +2281,7 @@ async function stopTalk(silent, words){
 }
 $("#talkBtn").addEventListener("click", () => convo.on ? (speechSynthesis.cancel(), stopTalk(true)) : startTalk());
 
-function renderOverview(){ if (!S) return; renderTeamStrip(); renderCore(); renderFlow(); renderHub(); renderUsageTile(); }
+function renderOverview(){ if (!S) return; renderTeamStrip(); renderCore(); renderFlow(); renderHub(); renderUsageTile(); renderInboxTile(); }
 
 /* Crew block: one line per team member; the full boxes live on the Crew page */
 function renderFlow(){
@@ -2413,6 +2463,171 @@ document.addEventListener("click", async e => {
 // Live: the usage page refreshes every 5 s, the Overview tile every 15 s (only while the tab is visible).
 setInterval(() => { if (document.hidden) return; if (route === "usage") renderUsage(false); }, 5000);
 setInterval(() => { if (!document.hidden && route === "") renderUsageTile(); }, 15000);
+
+/* ================= Leads & inbox: website leads, Gmail, Outlook, calendar, dates people mention ================= */
+const IB = {data: null, at: 0, err: null, loading: null, setupShown: false, device: null};
+const IB_COL = {lead: "var(--accent)", gmail: "#ea4335", outlook: "#2f8cff"};
+const IB_NAME = {lead: "Website", gmail: "Gmail", outlook: "Outlook"};
+const ibUrl = u => /^https:\/\//.test(u || "") ? u : "#";        // links from mail and calendars open only as web pages
+async function inboxNow(force){
+  if (force || !IB.data || Date.now() - IB.at > 120000){
+    IB.loading ??= api("/api/inbox" + (force ? "?refresh=1" : "")).then(d => { IB.data = d; IB.at = Date.now(); IB.err = null; })
+      .catch(e => { IB.err = e.message; }).finally(() => { IB.loading = null; });
+    await IB.loading;
+  }
+  return IB.data;
+}
+const ibWhen = (iso, hasTime = true) => { const d = new Date(iso), t = new Date(); const day = d.toDateString() === t.toDateString() ? "Today"
+  : d.toDateString() === new Date(Date.now() + 864e5).toDateString() ? "Tomorrow" : d.toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
+  return hasTime ? `${day}, ${d.toLocaleTimeString([], {hour: "numeric", minute: "2-digit"})}` : day; };
+const ibNewLeads = u => (u?.leads || []).filter(l => (l.status || "new") === "new" && Date.now() - new Date(l.created_at) < 14 * 864e5);
+function ibBadge(u){
+  const n = ibNewLeads(u).length, b = $("#bInbox"); if (!b) return;
+  b.textContent = n || ""; b.classList.toggle("alert", n > 0);
+}
+async function renderInboxTile(){
+  const u = await inboxNow(), el = $("#hbInbox .hb-b"); if (!el) return;
+  if (!u){ el.innerHTML = `<div class="hb-sub">Unavailable${IB.err ? ": " + esc(IB.err) : ""}</div>`; return; }
+  ibBadge(u);
+  const c = u.connected;
+  if (!c.site && !c.gmail && !c.outlook && !c.ics){ el.innerHTML = `<div class="hb-sub">Connect your website leads, Gmail and Outlook to see them here.</div><div class="hb-foot">Set up →</div>`; return; }
+  const unread = u.mail.filter(m => m.unread && !m.bulk).length, next = u.events.find(e => new Date(e.end) > new Date() && !e.allday);
+  const nl = ibNewLeads(u), dt = u.dates[0];
+  el.innerHTML = `<div class="u-tile">
+      <div class="u-mini"><div class="hb-big" style="${nl.length ? "color:var(--accent)" : ""}">${c.site ? nl.length : "–"}</div><div class="hb-sub">new website lead${nl.length === 1 ? "" : "s"}</div></div>
+      <div class="u-mini"><div class="hb-big">${c.gmail || c.outlook ? unread : "–"}</div><div class="hb-sub">unread emails</div></div>
+      <div class="u-mini"><div class="hb-big">${u.dates.length}</div><div class="hb-sub">date${u.dates.length === 1 ? "" : "s"} to confirm</div></div>
+    </div>
+    ${dt ? `<div class="hb-line"><span class="hb-tag">${esc(IB_NAME[dt.kind])}</span>${esc(dt.who)} mentioned <b>${esc(ibWhen(dt.start, dt.has_time))}</b>${dt.free === true ? " · you're free" : dt.free === false ? " · clashes" : ""}</div>`
+      : nl[0] ? `<div class="hb-line"><span class="hb-tag">Lead</span>${esc(nl[0].name || nl[0].email || "")}${nl[0].business ? " · " + esc(nl[0].business) : ""}</div>` : ""}
+    <div class="hb-foot">${next ? "Next: " + esc(next.title) + " · " + esc(ibWhen(next.start)) : c.outlook || c.ics ? "Nothing on your calendar soon" : "Calendar not connected"}</div>`;
+}
+async function renderInbox(first){
+  const live = $("#ibLive");
+  if (first && !IB.data) live.innerHTML = `<section class="card"><div class="card-b hint">Checking your leads, email and calendar…</div></section>`;
+  const u = await inboxNow();
+  if (route !== "inbox") return;
+  if (!u){ live.innerHTML = `<section class="card"><div class="card-b u-err">Couldn't load${IB.err ? ": " + esc(IB.err) : ""}.</div></section>`; return; }
+  ibBadge(u);
+  const c = u.connected, E = u.errors || {};
+  const err = k => E[k] ? `<div class="card-b u-err" style="padding-top:8px;padding-bottom:8px">${esc(E[k])}</div>` : "";
+  const calOn = c.outlook || c.ics;
+
+  const dates = `<section class="card"><div class="card-h"><h2>Dates to confirm</h2><span class="count">${u.dates.length}</span><span class="spacer"></span>
+      <button class="btn sm" id="ibRefresh">↻ Refresh</button></div>
+    ${u.dates.length ? `<div class="ib-list">${u.dates.map(d => `<div class="ib-item ib-date">
+        <div class="ib-cal"><b>${esc(new Date(d.start).toLocaleDateString([], {month: "short"}))}</b><span>${new Date(d.start).getDate()}</span></div>
+        <div style="min-width:0">
+          <div class="ib-top"><b>${esc(ibWhen(d.start, d.has_time))}${d.has_time ? "" : " · no time given"}</b>
+            ${d.free === true ? `<span class="ib-pill ok">✓ You're free</span>` : d.free === false ? `<span class="ib-pill bad">Clashes${d.conflict ? ": " + esc(d.conflict) : ""}</span>` : `<span class="ib-pill">Calendar not connected</span>`}</div>
+          <div class="ib-from"><i class="ib-dot" style="background:${IB_COL[d.kind]}"></i>${esc(d.who)} · ${esc(d.subject)}</div>
+          <div class="ib-sub">“${esc(d.snippet)}”</div>
+          <div class="ib-acts"><a class="btn sm primary" href="${esc(ibUrl(d.add))}" target="_blank" rel="noopener">＋ Add to Outlook</a></div>
+        </div></div>`).join("")}</div>`
+      : `<div class="card-b hint">When a lead or an email mentions a day and time ("can we meet Tuesday at 3?"), it shows up here with whether you're free and a button that opens Outlook with the event filled in. You press Save.</div>`}</section>`;
+
+  const leads = `<section class="card"><div class="card-h"><h2>Website leads</h2><span class="count">${c.site ? u.leads.length : ""}</span><span class="spacer"></span><span class="hint">patrioticwebsites.com</span></div>${err("leads")}
+    ${!c.site ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !u.leads.length ? `<div class="card-b hint">No leads yet.</div>`
+      : `<div class="ib-list">${u.leads.map(l => `<div class="ib-item">
+          <div class="ib-top"><b>${esc(l.name || l.email || "Someone")}</b><span class="ib-pill ${(l.status || "new") === "new" ? "new" : ""}">${esc(l.status || "new")}</span><span class="ib-when">${esc(ago(l.created_at))}</span></div>
+          ${l.business || l.business_type ? `<div class="ib-from">${esc([l.business, l.business_type].filter(Boolean).join(" · "))}</div>` : ""}
+          ${l.message || l.need ? `<div class="ib-sub">${esc(l.message || l.need)}</div>` : ""}
+          <div class="ib-meta">${[l.timeline && "Timeline: " + esc(l.timeline), l.source && "via " + esc(l.source)].filter(Boolean).join(" · ")}</div>
+          <div class="ib-acts">${l.email ? `<a class="btn sm" href="mailto:${esc(l.email)}?subject=${encodeURIComponent("Your website inquiry")}">✉ Reply</a>` : ""}${l.phone ? `<a class="btn sm" href="tel:${esc(l.phone)}">☎ ${esc(l.phone)}</a>` : ""}</div>
+        </div>`).join("")}</div>`}</section>`;
+
+  const mailOn = c.gmail || c.outlook, people = u.mail.filter(m => !m.bulk), bulk = u.mail.length - people.length;
+  const mail = `<section class="card"><div class="card-h"><h2>Inbox</h2><span class="count">${mailOn ? people.filter(m => m.unread).length + " unread" : ""}</span><span class="spacer"></span>
+      <span class="hint">${[c.gmail && "Gmail", c.outlook && "Outlook"].filter(Boolean).join(" + ")}</span></div>${err("gmail")}${err("outlook")}
+    ${!mailOn ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !people.length ? `<div class="card-b hint">No emails from people in the last two weeks.</div>`
+      : `<div class="ib-list">${people.slice(0, 30).map(m => `<a class="ib-item ib-mail ${m.unread ? "unread" : ""}" href="${esc(ibUrl(m.link))}" target="_blank" rel="noopener">
+          <div class="ib-top"><i class="ib-dot" style="background:${IB_COL[m.acct]}" title="${IB_NAME[m.acct]}"></i><b>${esc(m.from_name)}</b><span class="ib-when">${esc(ago(m.date))}</span></div>
+          <div class="ib-subj">${esc(m.subject)}</div><div class="ib-sub">${esc(m.snippet)}</div></a>`).join("")}</div>
+        ${bulk ? `<div class="card-b hint" style="padding-top:8px">${bulk} newsletter${bulk === 1 ? "" : "s"} and notification${bulk === 1 ? "" : "s"} hidden.</div>` : ""}`}</section>`;
+
+  let lastDay = "";
+  const cal = `<section class="card"><div class="card-h"><h2>Calendar</h2><span class="count">next 2 weeks</span><span class="spacer"></span><span class="hint">Outlook</span></div>${err("calendar")}
+    ${!calOn ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !u.events.length ? `<div class="card-b hint">Nothing scheduled.</div>`
+      : `<div class="ib-list">${u.events.map(e => { const day = ibWhen(e.start, false), head = day !== lastDay ? `<div class="ib-day">${esc(day)}</div>` : ""; lastDay = day;
+          return head + `<a class="ib-item ib-ev" href="${esc(ibUrl(e.link))}" target="_blank" rel="noopener"><span class="ib-time">${e.allday ? "All day" : esc(new Date(e.start).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"}))}</span>
+            <span style="min-width:0"><b>${esc(e.title)}</b>${e.location ? `<span class="ib-sub" style="display:block">${esc(e.location)}</span>` : ""}</span></a>`; }).join("")}</div>`}</section>`;
+
+  live.innerHTML = dates + `<div class="ib-grid">${leads}${mail}${cal}</div>`;
+  if (!IB.setupShown || first) renderInboxSetup(u);
+}
+function renderInboxSetup(u){
+  IB.setupShown = true;
+  const c = u.connected, A = u.accounts || {}, d = u.site_defaults || {};
+  const done = (which, label) => `<p class="ib-ok">✓ Connected${label ? " as <b>" + esc(label) + "</b>" : ""} <button type="button" class="btn sm ghost" data-ibdis="${which}">Disconnect</button></p>`;
+  $("#ibSetup").innerHTML = `<section class="card"><div class="card-h"><h2>Connections</h2><span class="spacer"></span><span class="hint">Read-only. Saved encrypted on this PC only.</span></div>
+    <div class="card-b ib-setup">
+      <div><h3>Website leads · patrioticwebsites.com</h3>
+        ${c.site ? done("site", A.site) : `<p class="hint">Sign in with the email and password you use for your website's admin dashboard. Foreman keeps a sign-in token, never your password.</p>
+        <form data-ibform="site" autocomplete="off">
+          <input type="hidden" name="url" value="${esc(d.url || "")}"><input type="hidden" name="key" value="${esc(d.key || "")}">
+          ${d.url ? "" : `<label class="f">Supabase project address</label><input type="text" name="url" placeholder="https://xxxx.supabase.co"><label class="f">Publishable key</label><input type="text" name="key" placeholder="sb_publishable_…">`}
+          <label class="f">Email</label><input type="text" name="email" inputmode="email" autocomplete="off">
+          <label class="f">Password</label><input type="password" name="password" autocomplete="off">
+          <div class="form-foot"><button class="btn primary">Connect leads</button></div></form>`}</div>
+      <div><h3>Gmail</h3>
+        ${c.gmail ? done("gmail", A.gmail) : `<ol><li>Turn on <b>2-Step Verification</b> for your Google account if it isn't on.</li>
+          <li>Open <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>, name it "Foreman AI" and click <b>Create</b>.</li>
+          <li>Paste the 16-letter password below. It only lets Foreman read your inbox; nothing is marked read.</li></ol>
+        <form data-ibform="gmail" autocomplete="off"><label class="f">Gmail address</label><input type="text" name="email" inputmode="email">
+          <label class="f">App password</label><input type="password" name="password" placeholder="xxxx xxxx xxxx xxxx">
+          <div class="form-foot"><button class="btn primary">Connect Gmail</button></div></form>`}</div>
+      <div><h3>Outlook calendar</h3>
+        ${c.outlook ? `<p class="ib-ok">✓ Coming from your Outlook sign-in.</p>` : c.ics ? done("ics", "") : `<ol><li>Open <a href="https://outlook.live.com/calendar/0/options/calendar/SharedCalendars" target="_blank" rel="noopener">Outlook calendar settings → Shared calendars</a>.</li>
+          <li>Under <b>Publish a calendar</b>, pick your calendar and <b>Can view all details</b>, then <b>Publish</b>.</li>
+          <li>Copy the <b>ICS</b> link (not the HTML one) and paste it here. Keep it private: anyone with it can see your calendar.</li></ol>
+        <form data-ibform="ics" autocomplete="off"><label class="f">ICS link</label><input type="password" name="url" placeholder="https://outlook.live.com/owa/calendar/…/calendar.ics">
+          <div class="form-foot"><button class="btn primary">Connect calendar</button></div></form>`}</div>
+      <div><h3>Outlook mail <span class="hint">(optional)</span></h3>
+        ${c.outlook ? done("outlook", A.outlook) : IB.device ? `<p>Open <a href="${esc(IB.device.verification_uri)}" target="_blank" rel="noopener">${esc(IB.device.verification_uri)}</a> and enter this code:</p>
+          <p class="ib-code">${esc(IB.device.user_code)}</p><p class="hint">Sign in with your Outlook account and accept. This page notices automatically.</p>
+          <button type="button" class="btn sm ghost" id="ibCancelMs">Cancel</button>`
+        : `<p class="hint">Microsoft only lets apps read Outlook.com mail through an app you register once (free, about 5 minutes). If Microsoft asks you to create an Azure account first and you'd rather not, forward your Outlook mail to Gmail instead (Outlook settings → Mail → Forwarding) and Gmail covers it.</p>
+          <ol><li>Open <a href="https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener">App registrations</a> and sign in with your Outlook account. Click <b>New registration</b>.</li>
+          <li>Name it "Foreman AI". Under account types choose <b>Personal Microsoft accounts only</b>. Click <b>Register</b>.</li>
+          <li>Open <b>Authentication</b>, set <b>Allow public client flows</b> to <b>Yes</b> and <b>Save</b>.</li>
+          <li>Copy the <b>Application (client) ID</b> from Overview and paste it here.</li></ol>
+          <form data-ibform="outlook" autocomplete="off"><label class="f">Application (client) ID</label><input type="text" name="client_id" placeholder="1a2b3c4d-…">
+          <div class="form-foot"><button class="btn primary">Sign in to Outlook</button></div></form>`}</div>
+    </div></section>`;
+}
+async function ibAfter(d, msg){ IB.data = d; IB.at = Date.now(); toast(msg); renderInboxSetup(d); renderInbox(false); }
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("[data-ibform]"); if (!f) return;
+  e.preventDefault();
+  const kind = f.dataset.ibform, body = {}, btn = f.querySelector("button.primary");
+  new FormData(f).forEach((v, k) => { if (v !== "" || !(k in body)) body[k] = String(v).trim(); });
+  btn.disabled = true; const old = btn.textContent; btn.textContent = "Checking…";
+  try {
+    if (kind === "outlook"){
+      IB.device = await api("/api/inbox/outlook/start", body); renderInboxSetup(IB.data); ibPollMs();
+    } else {
+      await ibAfter(await api("/api/inbox/" + kind, body), {site: "Website leads connected", gmail: "Gmail connected", ics: "Calendar connected"}[kind]);
+    }
+  } catch (err) { toast(err.message, true); btn.disabled = false; btn.textContent = old; }
+});
+async function ibPollMs(){
+  while (IB.device){
+    await new Promise(r => setTimeout(r, 5000));
+    if (!IB.device) return;
+    try { const r = await api("/api/inbox/outlook/poll", {}); if (r.pending) continue; IB.device = null; return ibAfter(r, "Outlook connected"); }
+    catch (err) { IB.device = null; toast(err.message, true); renderInboxSetup(IB.data); return; }
+  }
+}
+document.addEventListener("click", async e => {
+  if (e.target.closest("#ibRefresh")){ e.target.closest("#ibRefresh").disabled = true; IB.at = 0; return renderInbox(true); }
+  if (e.target.closest("#ibCancelMs")){ IB.device = null; return renderInboxSetup(IB.data); }
+  const dis = e.target.closest("[data-ibdis]"); if (!dis) return;
+  if (!confirm("Disconnect this account from Foreman AI? You can connect it again any time.")) return;
+  try { await ibAfter(await api("/api/inbox/disconnect", {which: dis.dataset.ibdis}), "Disconnected"); } catch (err) { toast(err.message, true); }
+});
+// New leads and email arrive on their own: the page refreshes every 2 minutes (the server caches for the same time).
+setInterval(() => { if (document.hidden) return; if (route === "inbox") renderInbox(false); else if (route === "") renderInboxTile(); else inboxNow().then(ibBadge); }, 120000);
+inboxNow().then(ibBadge);
 
 /* ================= hub: weather, news, cameras, smart devices ================= */
 const HUB = {news: null, newsAt: 0, fc: null, fcAt: 0};

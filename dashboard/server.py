@@ -575,6 +575,9 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/usage":
                 import usage
                 return self._send(200, usage.status())
+            if u.path == "/api/inbox":
+                import inbox
+                return self._send(200, inbox.status(force=parse_qs(u.query).get("refresh") == ["1"]))
             if u.path == "/api/runs":
                 return self._send(200, feed.runs())
             if u.path == "/api/feed":
@@ -654,6 +657,22 @@ class Handler(BaseHTTPRequestHandler):
                 import usage
                 usage.install_statusline()
                 return self._send(200, usage.status())
+            elif route.startswith("/api/inbox/"):
+                import inbox
+                act = route[len("/api/inbox/"):]
+                if act == "site":
+                    return self._send(200, inbox.setup_site(body.get("url"), body.get("key"), body.get("email"), body.get("password")))
+                if act == "gmail":
+                    return self._send(200, inbox.setup_gmail(body.get("email"), body.get("password")))
+                if act == "ics":
+                    return self._send(200, inbox.setup_ics(body.get("url")))
+                if act == "outlook/start":
+                    return self._send(200, inbox.outlook_start(body.get("client_id")))
+                if act == "outlook/poll":
+                    return self._send(200, inbox.outlook_poll())
+                if act == "disconnect":
+                    return self._send(200, inbox.disconnect(body.get("which")))
+                return self._send(404, {"error": "not found"})
             elif route == "/api/open-edge":
                 open_ui(f"http://127.0.0.1:{PORT}/", edge=True)
             elif route == "/api/ai/test":

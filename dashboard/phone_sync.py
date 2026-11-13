@@ -125,6 +125,24 @@ def build():
                 for d in devs][:120]}
         except ValueError as e:
             state["home"] = {"connected": True, "error": str(e)}
+    # Leads & inbox: website leads, the newest emails from people, the calendar and dates to confirm (read-only)
+    import inbox
+    try:
+        ib = inbox.status()
+        c = ib["connected"]
+        state["inbox"] = {
+            "connected": c, "updated": ib["updated"], "errors": ib["errors"],
+            "leads": [{k: ld[k] for k in ("name", "email", "phone", "business", "business_type", "status", "source", "created_at", "timeline")
+                       if k in ld} | {"message": (ld.get("message") or ld.get("need") or "")[:300]} for ld in ib["leads"][:15]],
+            "unread": sum(1 for m in ib["mail"] if m["unread"] and not m["bulk"]),
+            "mail": [{k: m[k] for k in ("acct", "from_name", "subject", "date", "unread", "link", "snippet")}
+                     for m in ib["mail"] if not m["bulk"]][:12],
+            "events": [{k: e[k] for k in ("title", "start", "end", "allday", "location")} for e in ib["events"]][:25],
+            "dates": [{k: d[k] for k in ("kind", "who", "subject", "start", "has_time", "snippet", "free", "conflict", "add")}
+                      for d in ib["dates"]][:10],
+        } if any(c.values()) else {"connected": c}
+    except Exception as e:
+        state["inbox"] = {"error": f"Couldn't load ({e.__class__.__name__})"}
     briefs = sorted((ROOT / "outputs" / "briefs").glob("*.md"), reverse=True)
     if briefs:
         text = re.sub(r"\[(\d+|[^\]]{0,80})\]\([^)]*\)", r"\1", server.read(briefs[0]))   # drop link targets

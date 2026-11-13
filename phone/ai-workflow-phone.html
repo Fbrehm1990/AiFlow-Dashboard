@@ -247,6 +247,24 @@ a{color:var(--accent)}
 .hb{display:flex;flex-direction:column;gap:6px;text-align:left;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--fg);min-height:118px;cursor:pointer;font:inherit;min-width:0;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .hb:active{border-color:var(--line-hi);box-shadow:var(--glow)}
 .hb.wide{grid-column:1 / -1;min-height:0}
+/* Leads & inbox */
+.ib-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ib-nums div{display:grid}.ib-nums b{font-size:24px;font-weight:700;line-height:1.1}.ib-nums span{font-size:11.5px;color:var(--muted)}
+.ib-row{display:grid;gap:3px;padding:12px 14px;border-top:1px solid var(--line);color:var(--fg);text-decoration:none;min-width:0}
+.card-h + .ib-row{border-top:0}
+.ib-top{display:flex;align-items:center;gap:8px;min-width:0}
+.ib-top b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib-when{font-size:12px;color:var(--muted);white-space:nowrap}
+.ib-meta{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;min-width:0}
+.ib-subj{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib-sub{font-size:13px;color:var(--muted);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.ib-mail:not(.unread) b{font-weight:500;color:var(--muted)}.ib-mail.unread .ib-subj{font-weight:600}
+.ib-dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.ib-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted);white-space:nowrap;text-transform:capitalize}
+.ib-pill.new{color:var(--accent)}.ib-pill.ok{color:var(--ok,#38f2a6);text-transform:none}.ib-pill.bad{color:var(--bad);text-transform:none;max-width:60%;overflow:hidden;text-overflow:ellipsis}
+.ib-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.ib-acts .btn,.ib-add{text-decoration:none;justify-self:start;margin-top:6px;min-height:36px;display:inline-flex;align-items:center}
+.ib-day{padding:10px 14px 2px;font-size:12px;font-weight:600;color:var(--muted)}
 .hb-h{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
 .hb-h .go{margin-left:auto;color:var(--muted);letter-spacing:0}
 .hb-big{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.1}
@@ -519,7 +537,42 @@ function updateCore(){
   renderHubBlocks();
 }
 /* ---- hub: Crew, Weather, News, Cameras, Smart devices (each opens its own page) ---- */
-const HUB_SUB = ["aiflow", "weather", "news", "cameras", "devices"];
+const HUB_SUB = ["aiflow", "inbox", "weather", "news", "cameras", "devices"];
+const IB_COL = {lead: "var(--accent)", gmail: "#ea4335", outlook: "#2f8cff"}, IB_NAME = {lead: "Website", gmail: "Gmail", outlook: "Outlook"};
+const ibWhen = (iso, hasTime = true) => { const d = new Date(iso), t = new Date(); const day = d.toDateString() === t.toDateString() ? "Today"
+  : d.toDateString() === new Date(Date.now() + 864e5).toDateString() ? "Tomorrow" : d.toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
+  return hasTime ? `${day}, ${d.toLocaleTimeString([], {hour: "numeric", minute: "2-digit"})}` : day; };
+const ibNew = ib => (ib.leads || []).filter(l => (l.status || "new") === "new" && Date.now() - new Date(l.created_at) < 14 * 864e5);
+const safeUrl = u => /^https:\/\//.test(u || "") ? u : "#";
+function inboxBlock(){
+  const ib = S.inbox || {}, c = ib.connected || {};
+  if (!Object.values(c).some(Boolean)) return `<button class="hb wide" data-go="inbox"><div class="hb-h">Leads &amp; inbox${ARROW}</div><div class="hb-sub">${ib.error ? esc(ib.error) : "Connect website leads, Gmail and Outlook on your PC's dashboard."}</div></button>`;
+  const nl = ibNew(ib), d = (ib.dates || [])[0], next = (ib.events || []).find(e => new Date(e.end) > new Date() && !e.allday);
+  return `<button class="hb wide" data-go="inbox"><div class="hb-h">Leads &amp; inbox${ARROW}</div>
+    <div class="ib-nums"><div><b style="${nl.length ? "color:var(--accent)" : ""}">${c.site ? nl.length : "–"}</b><span>new leads</span></div><div><b>${c.gmail || c.outlook ? ib.unread || 0 : "–"}</b><span>unread</span></div><div><b>${(ib.dates || []).length}</b><span>to confirm</span></div></div>
+    ${d ? `<div class="hb-line"><span class="hb-tag">${IB_NAME[d.kind]}</span>${esc(d.who)} · <b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? " · free" : d.free === false ? " · clashes" : ""}</div>` : ""}
+    ${next ? `<div class="hb-sub">Next: ${esc(next.title)} · ${esc(ibWhen(next.start))}</div>` : ""}</button>`;
+}
+function inboxPage(back){
+  const ib = S.inbox || {}, c = ib.connected || {};
+  if (!Object.values(c).some(Boolean)) return back("Leads & inbox") + `<div class="card" style="padding:16px"><p style="margin:0">Connect your website leads, Gmail and Outlook on your PC's dashboard (Leads &amp; inbox page). They show here after each sync.</p></div>`;
+  const E = ib.errors || {}, err = k => E[k] ? `<p class="note" style="color:var(--bad)">${esc(E[k])}</p>` : "";
+  const dates = (ib.dates || []).length ? `<div class="card"><div class="card-h"><h2>Dates to confirm</h2><span class="n">${ib.dates.length}</span></div>${ib.dates.map(d => `<div class="ib-row">
+      <div class="ib-top"><b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? `<span class="ib-pill ok">✓ Free</span>` : d.free === false ? `<span class="ib-pill bad">Clashes${d.conflict ? ": " + esc(d.conflict) : ""}</span>` : ""}</div>
+      <div class="ib-meta"><i class="ib-dot" style="background:${IB_COL[d.kind]}"></i>${esc(d.who)} · ${esc(d.subject)}</div><div class="ib-sub">“${esc(d.snippet)}”</div>
+      <a class="btn sm primary ib-add" href="${esc(safeUrl(d.add))}" target="_blank" rel="noopener">＋ Add to Outlook</a></div>`).join("")}</div>` : "";
+  const leads = c.site ? `<div class="card"><div class="card-h"><h2>Website leads</h2><span class="n">${(ib.leads || []).length}</span></div>${err("leads")}${(ib.leads || []).map(l => `<div class="ib-row">
+      <div class="ib-top"><b>${esc(l.name || l.email || "Someone")}</b><span class="ib-pill ${(l.status || "new") === "new" ? "new" : ""}">${esc(l.status || "new")}</span><span class="ib-when">${esc(ago(l.created_at))}</span></div>
+      ${l.business ? `<div class="ib-meta">${esc([l.business, l.business_type].filter(Boolean).join(" · "))}</div>` : ""}${l.message ? `<div class="ib-sub">${esc(l.message)}</div>` : ""}
+      <div class="ib-acts">${l.email ? `<a class="btn sm" href="mailto:${esc(l.email)}?subject=${encodeURIComponent("Your website inquiry")}">✉ Reply</a>` : ""}${l.phone ? `<a class="btn sm" href="tel:${esc(l.phone)}">☎ Call</a>` : ""}</div></div>`).join("") || `<div class="empty">No leads yet.</div>`}</div>` : "";
+  const mail = c.gmail || c.outlook ? `<div class="card"><div class="card-h"><h2>Inbox</h2><span class="n">${ib.unread || 0} unread</span></div>${err("gmail")}${err("outlook")}${(ib.mail || []).map(m => `<a class="ib-row ib-mail ${m.unread ? "unread" : ""}" href="${esc(safeUrl(m.link))}" target="_blank" rel="noopener">
+      <div class="ib-top"><i class="ib-dot" style="background:${IB_COL[m.acct]}"></i><b>${esc(m.from_name)}</b><span class="ib-when">${esc(ago(m.date))}</span></div>
+      <div class="ib-subj">${esc(m.subject)}</div><div class="ib-sub">${esc(m.snippet)}</div></a>`).join("") || `<div class="empty">No emails from people lately.</div>`}</div>` : "";
+  let last = "";
+  const cal = c.outlook || c.ics ? `<div class="card"><div class="card-h"><h2>Calendar</h2></div>${err("calendar")}${(ib.events || []).map(e => { const day = ibWhen(e.start, false), h = day !== last ? `<div class="ib-day">${esc(day)}</div>` : ""; last = day;
+      return h + `<div class="dev-row"><span class="nm">${esc(e.title)}</span><span class="st">${e.allday ? "All day" : esc(new Date(e.start).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"}))}</span></div>`; }).join("") || `<div class="empty">Nothing scheduled.</div>`}</div>` : "";
+  return back("Leads & inbox") + dates + leads + mail + cal + `<p class="note">As of your PC's last sync, ${esc(ago(ib.updated || S.updated))}. Add to Outlook opens Outlook with the event filled in; you press Save.</p>`;
+}
 const WX_ICON = c => c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" : c <= 67 ? "🌧️" : c <= 77 ? "🌨️" : c <= 82 ? "🌦️" : c <= 86 ? "🌨️" : "⛈️";
 const ARROW = `<span class="go">Open ›</span>`;
 function flowRows(){
@@ -540,6 +593,7 @@ function renderHubBlocks(){
     <button class="hb wide" data-go="aiflow"><div class="hb-h">Crew${ARROW}</div>
       <div class="hb-sub">${busy ? `${busy} working now` : "Team standing by"} · ${(S.queue || []).length} queued · ${doneToday} done today${pending ? ` · <b style="color:var(--warn)">${pending} need you</b>` : ""}</div>
       <div class="flow-mates">${rows.map(r => `<div class="flow-mate ${r.on ? "on" : ""}" style="--c:var(${r.a.color})"><span class="d"></span><span class="nm">${esc(r.a.name)}</span><span class="st">${esc(r.st)}</span></div>`).join("")}</div></button>
+    ${inboxBlock()}
     <button class="hb" data-go="weather"><div class="hb-h">Weather</div>${wx ? `<div class="hb-big">${WX_ICON(wx.now.code ?? 0)} ${wx.now.temp}°</div>
       <div class="hb-sub">${esc(wx.now.desc)} · H ${wx.today.hi}° L ${wx.today.lo}°</div>` : `<div class="hb-sub">Not synced yet</div>`}</button>
     <button class="hb" data-go="news"><div class="hb-h">News</div>${top.length ? top.map(it => `<div class="hb-line"><span class="hb-tag">${esc(it.sec)}</span>${esc(it.title)}</div>`).join("") : `<div class="hb-sub">Not synced yet</div>`}</button>
@@ -551,6 +605,7 @@ function hubPage(p){
   const back = (title) => `<div class="subhead"><button class="btn sm" data-go="home">‹ Core</button><h2>${title}</h2></div>`;
   const home = S.home || {}, asOf = `<p class="note">As of your PC's last sync, ${esc(ago(S.updated))}.</p>`;
   if (p === "aiflow") return back("Crew") + `<div class="crew" id="crew"></div>`;
+  if (p === "inbox") return inboxPage(back);
   if (p === "weather"){
     const w = S.weather; if (!w) return back("Weather") + `<div class="card empty">The weather arrives with your PC's next sync.</div>`;
     const day = d => new Date(d + "T12:00").toLocaleDateString([], {weekday: "long"});

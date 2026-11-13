@@ -30,3 +30,5 @@ tasks/usage.json
 tasks/usage.tmp
 tasks/claude_limits.json
 tasks/claude_limits.tmp
+tasks/connections.json
+tasks/connections.tmp

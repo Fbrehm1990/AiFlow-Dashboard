@@ -182,6 +182,20 @@ The browser then renders a 1080p H.264/AAC MP4 with WebCodecs ([Mediabunny](http
 generated royalty-free music, effects and an end card. **Save to Foreman AI** writes the file to `outputs/videos/`.
 Styles can be learned from a reference video you like.
 
+### 7. Leads & inbox (`dashboard/inbox.py`)
+
+One page (and an Overview block) for the business's incoming work: **website leads** from the client-site
+business's Supabase `leads` table (read as the site owner, so row-level security still applies), **Gmail** over
+read-only IMAP, **Outlook mail and calendar** through Microsoft Graph with a device-code sign-in, or the calendar
+alone through its published ICS link (with recurring-event expansion).
+
+A small date parser spots meeting times people mention ("can we meet Tuesday at 3?", "Nov 20 at 10:30am",
+"12/1 @ 2"), resolves them against the message's own date, ignores quoted replies and newsletters, and checks each
+against the calendar for clashes. **Add to Outlook** opens Outlook's new-event form already filled in; the owner
+presses Save, so nothing lands on the calendar unseen. Everything is read-only, and passwords, tokens and the
+calendar link are encrypted with Windows DPAPI in a gitignored file and never sent to the browser. The phone app
+gets the same block through the phone sync.
+
 ---
 
 ## Architecture
