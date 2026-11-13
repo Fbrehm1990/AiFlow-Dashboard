@@ -1,4 +1,4 @@
-"""Local dashboard for the AI Workflow. Run: python dashboard/server.py  (opens http://127.0.0.1:8765)
+"""Local dashboard for Foreman AI. Run: python dashboard/server.py  (opens http://127.0.0.1:8765)
 
 Stdlib only. Binds to 127.0.0.1 and rejects foreign Host headers and cross-site writes.
 """
@@ -702,7 +702,7 @@ if __name__ == "__main__":
         print(f"Dashboard already running at {url}")
         open_ui(url)
         sys.exit(0)
-    print(f"AiFLOW dashboard: {url}  (Ctrl+C to stop)")
+    print(f"Foreman AI dashboard: {url}  (Ctrl+C to stop)")
     if "--no-browser" not in sys.argv:
         open_ui(url)
     try:

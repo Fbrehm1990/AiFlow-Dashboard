@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Research specialist of the AI Workflow team. Deep, cited research on leads, markets, competitors, pricing and tools; also morning briefs and docs/data tasks. Use for [research], [brief] and [docs] tasks.
+description: Research specialist of the Foreman AI team. Deep, cited research on leads, markets, competitors, pricing and tools; also morning briefs and docs/data tasks. Use for [research], [brief] and [docs] tasks.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
 model: inherit
 ---
