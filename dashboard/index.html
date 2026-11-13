@@ -729,10 +729,14 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
 .nav-group{display:flex;flex-direction:column;gap:2px}
 .nav-group[hidden]{display:none}
 /* Leads & inbox */
-.hb-inbox{grid-column:span 2}
+svg.bi{width:22px;height:22px;flex:none}
+svg.bi-flag{width:27px;height:18px;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.hb-brand .hb-big{display:flex;align-items:baseline;gap:8px}
+.hb-brand .hb-big small{font-size:13px;font-weight:500;color:var(--muted);font-family:inherit}
+.hb-brand .hb-line b{font-weight:600}
 .ib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
 @media (max-width:1200px){.ib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:760px){.ib-grid{grid-template-columns:1fr}.hb-inbox{grid-column:auto}}
+@media (max-width:760px){.ib-grid{grid-template-columns:1fr}}
 .ib-list{max-height:560px;overflow:auto;overscroll-behavior:contain}
 .ib-item{display:grid;gap:3px;padding:11px 16px;border-top:1px solid var(--border);color:inherit;text-decoration:none;min-width:0}
 .ib-list > .ib-item:first-child,.ib-day + .ib-item{border-top:0}
@@ -792,6 +796,9 @@ a.ib-item:hover{background:var(--surface-2)}
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="b-gmail" viewBox="0 0 48 48"><g stroke="none"><path fill="#4285f4" d="M6 40h7V22L3 14.5V37c0 1.7 1.3 3 3 3z"/><path fill="#34a853" d="M35 40h7c1.7 0 3-1.3 3-3V14.5L35 22z"/><path fill="#fbbc04" d="M35 9v13l10-7.5V11c0-3.7-4.2-5.8-7.2-3.6z"/><path fill="#ea4335" d="M13 22V9l11 8.3L35 9v13l-11 8.3z"/><path fill="#c5221f" d="M3 11v3.5L13 22V9l-2.8-2.1C7.2 4.7 3 6.9 3 11z"/></g></symbol>
+  <symbol id="b-outlook" viewBox="0 0 48 48"><g stroke="none"><rect x="17" y="7" width="27" height="34" rx="3" fill="#28a8ea"/><path fill="#0364b8" d="M17 24h27v14a3 3 0 0 1-3 3H20a3 3 0 0 1-3-3z"/><rect x="4" y="12" width="24" height="24" rx="3" fill="#0078d4"/><ellipse cx="16" cy="24" rx="6" ry="7.2" fill="none" stroke="#fff" stroke-width="3"/></g></symbol>
+  <symbol id="b-flag" viewBox="0 0 48 32"><g stroke="none"><rect width="48" height="32" rx="3" fill="#fff"/><g fill="#b22234"><rect width="48" height="2.46" y="0"/><rect width="48" height="2.46" y="4.92"/><rect width="48" height="2.46" y="9.85"/><rect width="48" height="2.46" y="14.77"/><rect width="48" height="2.46" y="19.69"/><rect width="48" height="2.46" y="24.62"/><rect width="48" height="2.46" y="29.54"/></g><rect width="20" height="17.2" fill="#3c3b6e"/><g fill="#fff"><circle cx="3.5" cy="3" r=".9"/><circle cx="8.3" cy="3" r=".9"/><circle cx="13.1" cy="3" r=".9"/><circle cx="17" cy="3" r=".9"/><circle cx="5.9" cy="6.5" r=".9"/><circle cx="10.7" cy="6.5" r=".9"/><circle cx="15.3" cy="6.5" r=".9"/><circle cx="3.5" cy="10" r=".9"/><circle cx="8.3" cy="10" r=".9"/><circle cx="13.1" cy="10" r=".9"/><circle cx="17" cy="10" r=".9"/><circle cx="5.9" cy="13.5" r=".9"/><circle cx="10.7" cy="13.5" r=".9"/><circle cx="15.3" cy="13.5" r=".9"/></g></g></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
   <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1.3"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
@@ -911,7 +918,9 @@ a.ib-item:hover{background:var(--surface-2)}
       <section class="hubrow" aria-label="Hub">
         <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>Crew</div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-usage" href="#/usage" id="hbUsage"><div class="hb-h"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="spacer"></span><span class="u-live">LIVE</span></div><div class="hb-b">Loading…</div></a>
-        <a class="hb hb-inbox" href="#/inbox" id="hbInbox"><div class="hb-h"><svg class="i"><use href="#i-mail"/></svg>Leads &amp; inbox</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-brand" href="#/inbox" data-ibgo="ibLeadsCard" id="hbLeads"><div class="hb-h"><svg class="bi bi-flag"><use href="#b-flag"/></svg>Website leads</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-brand" href="#/inbox" data-ibgo="ibMailCard" id="hbGmail"><div class="hb-h"><svg class="bi"><use href="#b-gmail"/></svg>Gmail</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-brand" href="#/inbox" data-ibgo="ibCalCard" id="hbOutlook"><div class="hb-h"><svg class="bi"><use href="#b-outlook"/></svg>Outlook</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
@@ -2485,23 +2494,42 @@ function ibBadge(u){
   const n = ibNewLeads(u).length, b = $("#bInbox"); if (!b) return;
   b.textContent = n || ""; b.classList.toggle("alert", n > 0);
 }
+// Three Overview boxes: Website leads, Gmail, Outlook (mail + calendar). Each opens its part of the Leads & inbox page.
 async function renderInboxTile(){
-  const u = await inboxNow(), el = $("#hbInbox .hb-b"); if (!el) return;
-  if (!u){ el.innerHTML = `<div class="hb-sub">Unavailable${IB.err ? ": " + esc(IB.err) : ""}</div>`; return; }
+  const u = await inboxNow(), box = id => $(`#${id} .hb-b`);
+  if (!box("hbLeads")) return;
+  if (!u){ ["hbLeads", "hbGmail", "hbOutlook"].forEach(id => box(id).innerHTML = `<div class="hb-sub">Unavailable${IB.err ? ": " + esc(IB.err) : ""}</div>`); return; }
   ibBadge(u);
-  const c = u.connected;
-  if (!c.site && !c.gmail && !c.outlook && !c.ics){ el.innerHTML = `<div class="hb-sub">Connect your website leads, Gmail and Outlook to see them here.</div><div class="hb-foot">Set up →</div>`; return; }
-  const unread = u.mail.filter(m => m.unread && !m.bulk).length, next = u.events.find(e => new Date(e.end) > new Date() && !e.allday);
-  const nl = ibNewLeads(u), dt = u.dates[0];
-  el.innerHTML = `<div class="u-tile">
-      <div class="u-mini"><div class="hb-big" style="${nl.length ? "color:var(--accent)" : ""}">${c.site ? nl.length : "–"}</div><div class="hb-sub">new website lead${nl.length === 1 ? "" : "s"}</div></div>
-      <div class="u-mini"><div class="hb-big">${c.gmail || c.outlook ? unread : "–"}</div><div class="hb-sub">unread emails</div></div>
-      <div class="u-mini"><div class="hb-big">${u.dates.length}</div><div class="hb-sub">date${u.dates.length === 1 ? "" : "s"} to confirm</div></div>
-    </div>
-    ${dt ? `<div class="hb-line"><span class="hb-tag">${esc(IB_NAME[dt.kind])}</span>${esc(dt.who)} mentioned <b>${esc(ibWhen(dt.start, dt.has_time))}</b>${dt.free === true ? " · you're free" : dt.free === false ? " · clashes" : ""}</div>`
-      : nl[0] ? `<div class="hb-line"><span class="hb-tag">Lead</span>${esc(nl[0].name || nl[0].email || "")}${nl[0].business ? " · " + esc(nl[0].business) : ""}</div>` : ""}
-    <div class="hb-foot">${next ? "Next: " + esc(next.title) + " · " + esc(ibWhen(next.start)) : c.outlook || c.ics ? "Nothing on your calendar soon" : "Calendar not connected"}</div>`;
+  const c = u.connected, E = u.errors || {}, setup = what => `<div class="hb-sub">Not connected yet. Connect ${what} on the Leads &amp; inbox page.</div><div class="hb-foot">Set up →</div>`;
+  const people = acct => u.mail.filter(m => m.acct === acct && !m.bulk), unread = acct => people(acct).filter(m => m.unread).length;
+  const dateLine = kinds => { const d = u.dates.find(x => kinds.includes(x.kind)); return d ? `<div class="hb-line"><span class="hb-tag">Date</span>${esc(d.who)}: <b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? " · free" : d.free === false ? " · clashes" : ""}</div>` : ""; };
+
+  // Website leads
+  const nl = ibNewLeads(u), last = u.leads[0];
+  box("hbLeads").innerHTML = !c.site ? setup("your website leads") : E.leads ? `<div class="hb-sub u-err">${esc(E.leads)}</div>` : `
+    <div class="hb-big" style="${nl.length ? "color:var(--accent)" : ""}">${nl.length}<small>new</small></div>
+    ${last ? `<div class="hb-line"><b>${esc(last.name || last.email || "Someone")}</b>${last.business ? " · " + esc(last.business) : ""}</div>` : `<div class="hb-sub">No leads yet</div>`}
+    ${dateLine(["lead"])}
+    <div class="hb-foot">${last ? "Latest " + esc(ago(last.created_at)) + " · " : ""}patrioticwebsites.com</div>`;
+
+  // Gmail
+  const g = people("gmail");
+  box("hbGmail").innerHTML = !c.gmail ? setup("Gmail") : E.gmail ? `<div class="hb-sub u-err">${esc(E.gmail)}</div>` : `
+    <div class="hb-big">${unread("gmail")}<small>unread</small></div>
+    ${g.slice(0, 2).map(m => `<div class="hb-line"><b>${esc(m.from_name)}</b> · ${esc(m.subject)}</div>`).join("") || `<div class="hb-sub">No emails from people lately</div>`}
+    <div class="hb-foot">${esc(u.accounts?.gmail || "")}</div>`;
+
+  // Outlook: mail when signed in, plus the calendar
+  const o = people("outlook"), now = new Date(), next = u.events.find(e => new Date(e.end) > now && !e.allday);
+  const todayN = u.events.filter(e => new Date(e.start).toDateString() === now.toDateString()).length, calOn = c.outlook || c.ics;
+  box("hbOutlook").innerHTML = !calOn && !c.outlook ? setup("Outlook") : (E.outlook || E.calendar) && !next ? `<div class="hb-sub u-err">${esc(E.outlook || E.calendar)}</div>` : `
+    ${c.outlook ? `<div class="hb-big">${unread("outlook")}<small>unread</small></div>` : `<div class="hb-big">${todayN}<small>today</small></div>`}
+    ${next ? `<div class="hb-line">Next: <b>${esc(next.title)}</b> · ${esc(ibWhen(next.start))}</div>` : `<div class="hb-sub">Nothing on your calendar soon</div>`}
+    ${dateLine(["gmail", "outlook"]) || (c.outlook && o[0] ? `<div class="hb-line"><b>${esc(o[0].from_name)}</b> · ${esc(o[0].subject)}</div>` : "")}
+    <div class="hb-foot">${u.dates.length ? u.dates.length + " date" + (u.dates.length === 1 ? "" : "s") + " to confirm" : c.outlook ? "Mail + calendar" : "Calendar"}</div>`;
 }
+// Clicking a box opens Leads & inbox at that box's section.
+document.addEventListener("click", e => { const a = e.target.closest("[data-ibgo]"); if (a) IB.scrollTo = a.dataset.ibgo; });
 async function renderInbox(first){
   const live = $("#ibLive");
   if (first && !IB.data) live.innerHTML = `<section class="card"><div class="card-b hint">Checking your leads, email and calendar…</div></section>`;
@@ -2526,7 +2554,7 @@ async function renderInbox(first){
         </div></div>`).join("")}</div>`
       : `<div class="card-b hint">When a lead or an email mentions a day and time ("can we meet Tuesday at 3?"), it shows up here with whether you're free and a button that opens Outlook with the event filled in. You press Save.</div>`}</section>`;
 
-  const leads = `<section class="card"><div class="card-h"><h2>Website leads</h2><span class="count">${c.site ? u.leads.length : ""}</span><span class="spacer"></span><span class="hint">patrioticwebsites.com</span></div>${err("leads")}
+  const leads = `<section class="card" id="ibLeadsCard"><div class="card-h"><svg class="bi bi-flag"><use href="#b-flag"/></svg><h2>Website leads</h2><span class="count">${c.site ? u.leads.length : ""}</span><span class="spacer"></span><span class="hint">patrioticwebsites.com</span></div>${err("leads")}
     ${!c.site ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !u.leads.length ? `<div class="card-b hint">No leads yet.</div>`
       : `<div class="ib-list">${u.leads.map(l => `<div class="ib-item">
           <div class="ib-top"><b>${esc(l.name || l.email || "Someone")}</b><span class="ib-pill ${(l.status || "new") === "new" ? "new" : ""}">${esc(l.status || "new")}</span><span class="ib-when">${esc(ago(l.created_at))}</span></div>
@@ -2537,7 +2565,7 @@ async function renderInbox(first){
         </div>`).join("")}</div>`}</section>`;
 
   const mailOn = c.gmail || c.outlook, people = u.mail.filter(m => !m.bulk), bulk = u.mail.length - people.length;
-  const mail = `<section class="card"><div class="card-h"><h2>Inbox</h2><span class="count">${mailOn ? people.filter(m => m.unread).length + " unread" : ""}</span><span class="spacer"></span>
+  const mail = `<section class="card" id="ibMailCard"><div class="card-h">${c.gmail ? `<svg class="bi"><use href="#b-gmail"/></svg>` : ""}${c.outlook ? `<svg class="bi"><use href="#b-outlook"/></svg>` : ""}<h2>Inbox</h2><span class="count">${mailOn ? people.filter(m => m.unread).length + " unread" : ""}</span><span class="spacer"></span>
       <span class="hint">${[c.gmail && "Gmail", c.outlook && "Outlook"].filter(Boolean).join(" + ")}</span></div>${err("gmail")}${err("outlook")}
     ${!mailOn ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !people.length ? `<div class="card-b hint">No emails from people in the last two weeks.</div>`
       : `<div class="ib-list">${people.slice(0, 30).map(m => `<a class="ib-item ib-mail ${m.unread ? "unread" : ""}" href="${esc(ibUrl(m.link))}" target="_blank" rel="noopener">
@@ -2546,7 +2574,7 @@ async function renderInbox(first){
         ${bulk ? `<div class="card-b hint" style="padding-top:8px">${bulk} newsletter${bulk === 1 ? "" : "s"} and notification${bulk === 1 ? "" : "s"} hidden.</div>` : ""}`}</section>`;
 
   let lastDay = "";
-  const cal = `<section class="card"><div class="card-h"><h2>Calendar</h2><span class="count">next 2 weeks</span><span class="spacer"></span><span class="hint">Outlook</span></div>${err("calendar")}
+  const cal = `<section class="card" id="ibCalCard"><div class="card-h"><svg class="bi"><use href="#b-outlook"/></svg><h2>Calendar</h2><span class="count">next 2 weeks</span><span class="spacer"></span><span class="hint">Outlook</span></div>${err("calendar")}
     ${!calOn ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !u.events.length ? `<div class="card-b hint">Nothing scheduled.</div>`
       : `<div class="ib-list">${u.events.map(e => { const day = ibWhen(e.start, false), head = day !== lastDay ? `<div class="ib-day">${esc(day)}</div>` : ""; lastDay = day;
           return head + `<a class="ib-item ib-ev" href="${esc(ibUrl(e.link))}" target="_blank" rel="noopener"><span class="ib-time">${e.allday ? "All day" : esc(new Date(e.start).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"}))}</span>
@@ -2554,6 +2582,9 @@ async function renderInbox(first){
 
   live.innerHTML = dates + `<div class="ib-grid">${leads}${mail}${cal}</div>`;
   if (!IB.setupShown || first) renderInboxSetup(u);
+  if (IB.scrollTo){ const t = $("#" + IB.scrollTo), c2 = u.connected; IB.scrollTo = null;
+    const ready = {ibLeadsCard: c2.site, ibMailCard: c2.gmail || c2.outlook, ibCalCard: c2.outlook || c2.ics}[t?.id];
+    (ready ? t : $("#ibSetup"))?.scrollIntoView({block: "start"}); }
 }
 function renderInboxSetup(u){
   IB.setupShown = true;
