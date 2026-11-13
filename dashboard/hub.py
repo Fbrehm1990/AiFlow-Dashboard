@@ -148,7 +148,7 @@ def news():
     sections = []
     for name, url in NEWS_FEEDS.items():
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (AI Workflow hub)"})
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Foreman AI hub)"})
             with urllib.request.urlopen(req, timeout=10) as r:
                 root = ET.fromstring(r.read())
             items = []

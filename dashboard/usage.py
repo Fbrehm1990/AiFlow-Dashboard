@@ -389,7 +389,7 @@ API_TTL = 300  # the cost data lags ~5 min anyway; the docs ask for at most one 
 def _anthropic_get(path, params, key):
     q = urllib.parse.urlencode(params, doseq=True)
     req = urllib.request.Request(f"https://api.anthropic.com{path}?{q}", headers={
-        "x-api-key": key, "anthropic-version": "2023-06-01", "User-Agent": "AiFlow-Dashboard/1.0"})
+        "x-api-key": key, "anthropic-version": "2023-06-01", "User-Agent": "Foreman-AI/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
             return json.loads(r.read())

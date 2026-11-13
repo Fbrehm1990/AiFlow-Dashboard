@@ -1,6 +1,6 @@
 ---
 name: manager
-description: Operations lead of the AI Workflow team. Plans the team's work toward the owner's goals, assigns tasks to the Researcher, Web builder and Marketer, reviews their output, and writes the daily plan and evening report. Use for [plan] tasks and the scheduled planning and review runs.
+description: Operations lead of the Foreman AI team. Plans the team's work toward the owner's goals, assigns tasks to the Researcher, Web builder and Marketer, reviews their output, and writes the daily plan and evening report. Use for [plan] tasks and the scheduled planning and review runs.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: inherit
 ---

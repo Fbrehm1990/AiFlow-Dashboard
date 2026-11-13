@@ -1,4 +1,6 @@
-# AiFLOW Dashboard
+# Foreman AI
+
+**Your AI team, on the job.** Tell it the job; an AI crew researches it, builds it or writes it, then reports back.
 
 **A personal AI operations center: an autonomous four-agent team, a voice assistant, and a smart-home hub,
 run from one local dashboard and a phone app.**
@@ -13,7 +15,7 @@ run from one local dashboard and a phone app.**
   <a href="#screenshots">All screenshots</a></sub>
 </p>
 
-AiFlow runs a small business's busywork without supervision. You drop a task in plain English, a Manager agent
+Foreman AI runs a small business's busywork without supervision. You drop a task in plain English, a Manager agent
 decides who handles it, and Researcher, Web builder and Marketer agents do the work. They hand results to each
 other and wait for your approval before anything goes public or costs money. The same dashboard hosts
 **Jarvis**, a spoken assistant you can talk to hands-free. Jarvis briefs you on the team, the weather and the
@@ -34,7 +36,7 @@ Python server and plain HTML and JavaScript. It has **no API keys, no build step
 
 ## Contents
 0. [Screenshots](#screenshots)
-1. [A day with AiFlow](#a-day-with-aiflow)
+1. [A day with Foreman AI](#a-day-with-foreman-ai)
 2. [Features](#features)
 3. [Architecture](#architecture)
 4. [How the pieces work](#how-the-pieces-work)
@@ -57,7 +59,7 @@ Captured from the live system with a headless browser. Real business names, emai
 
 | | |
 |---|---|
-| ![Overview](docs/media/screens/01-overview.png) **Overview:** neural core, Jarvis, AiFlow and hub blocks | ![AiFlow](docs/media/screens/02-aiflow.png) **AiFlow:** one box per agent, hand-off trails, feedback |
+| ![Overview](docs/media/screens/01-overview.png) **Overview:** neural core, Jarvis, Crew and hub blocks | ![Crew](docs/media/screens/02-aiflow.png) **Crew:** one box per agent, hand-off trails, feedback |
 | ![Project view](docs/media/screens/03-project-view.png) **Project view:** every step of a project across agents | ![In progress](docs/media/screens/05-in-progress.png) **In progress:** step bars and the live "what Claude is doing" feed |
 | ![Approvals](docs/media/screens/07-approvals.png) **Approvals:** the owner decides on every email, post, ad and deploy | ![Done](docs/media/screens/06-done.png) **Done:** results with links to every deliverable |
 | ![Queued](docs/media/screens/04-queued.png) **Queued:** add tasks in plain English; the team decides who does them | ![Team & goals](docs/media/screens/08-team-goals.png) **Team & goals:** agents, goals, demo sites, schedules |
@@ -68,12 +70,12 @@ Captured from the live system with a headless browser. Real business names, emai
 
 | | | | |
 |---|---|---|---|
-| ![Core](docs/media/screens/20-phone-core.png) Core | ![Hub](docs/media/screens/20b-phone-hub.png) Hub blocks | ![AiFlow](docs/media/screens/21-phone-aiflow.png) AiFlow | ![Weather](docs/media/screens/22-phone-weather.png) Weather |
+| ![Core](docs/media/screens/20-phone-core.png) Core | ![Hub](docs/media/screens/20b-phone-hub.png) Hub blocks | ![Crew](docs/media/screens/21-phone-aiflow.png) Crew | ![Weather](docs/media/screens/22-phone-weather.png) Weather |
 | ![News](docs/media/screens/23-phone-news.png) News | ![Queue](docs/media/screens/24-phone-queue.png) Queue | ![Approve](docs/media/screens/25-phone-approvals.png) Approve | ![Jarvis](docs/media/screens/26-phone-jarvis.png) Jarvis |
 
 ---
 
-## A day with AiFlow
+## A day with Foreman AI
 
 | Time | What happens | Who |
 |---|---|---|
@@ -81,7 +83,7 @@ Captured from the live system with a headless browser. Real business names, emai
 | **Morning** | You open the dashboard and press **Brief me**. Jarvis reads out the weather, what the team finished overnight, what's waiting for approval, and what's blocked. | Jarvis |
 | **8:33** | The **Manager plans the day**. It reviews yesterday's deliverables (✅ or ⚠), plans toward the goals in `tasks/goals.md`, and assigns new work, for example "find 10 local businesses without websites". | Manager (scheduled) |
 | **Any time** | You add a task by typing it or saying it to Jarvis. The **event-driven dispatcher** starts a headless run within seconds; nothing waits for a fixed schedule. | You → Dispatcher |
-| **During the day** | The pipeline flows. The Researcher qualifies leads, the Web builder makes a **local demo site** for each lead, and the Marketer drafts outreach emails and social posts that show the demo. Each step is visible live on the AiFlow page. | Team |
+| **During the day** | The pipeline flows. The Researcher qualifies leads, the Web builder makes a **local demo site** for each lead, and the Marketer drafts outreach emails and social posts that show the demo. Each step is visible live on the Crew page. | Team |
 | **When you disagree** | You click **✎ Feedback** on any step. It becomes a high-priority `Revise:` task for the same agent, who assesses it, fixes the deliverable in place and notes what changed. | You → Agent |
 | **Approvals** | Posts, ad campaigns (with proposed spend), email sequences and site launches wait on the **Approvals** page. You approve or reject them from the PC or your phone. | You |
 | **Hands-free** | "Jarvis, set the thermostat to 70." "Show me the driveway camera." "What's the news?" "Turn off all the lights." | Jarvis + Home Assistant |
@@ -126,8 +128,8 @@ A dark, glass-panel interface built as one HTML file with no framework.
   - one slow full rotation about every 90 seconds
 
   It reacts to the system's state: it pulses faster while the team is working, while Jarvis is listening, thinking or speaking.
-- **AiFlow.** One Overview block summarizes the team (who's working, queue size, done today, approvals pending). Clicking it opens
-  the AiFlow page: one box per agent with **Active / Done** tabs, the hand-off trail for each task, and inline
+- **Crew.** One Overview block summarizes the team (who's working, queue size, done today, approvals pending). Clicking it opens
+  the Crew page: one box per agent with **Active / Done** tabs, the hand-off trail for each task, and inline
   feedback. Clicking any task opens a **project view** that traces every step of that project across agents to the
   current point, with buttons to open results and demo sites.
 - **Hub blocks.** Weather, News, Cameras and Smart devices, each opening its own page (see below).

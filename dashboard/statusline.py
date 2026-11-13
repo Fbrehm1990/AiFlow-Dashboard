@@ -1,4 +1,4 @@
-"""Claude Code status line that also records your plan limits for the AiFlow dashboard.
+"""Claude Code status line that also records your plan limits for the Foreman AI dashboard.
 
 Claude Code runs this after each response and pipes it a JSON snapshot that includes
 rate_limits.five_hour / rate_limits.seven_day (used_percentage, resets_at) on Pro/Max plans.

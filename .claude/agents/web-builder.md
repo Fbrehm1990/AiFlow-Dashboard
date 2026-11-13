@@ -1,6 +1,6 @@
 ---
 name: web-builder
-description: Website specialist of the AI Workflow team. Builds local demo sites for leads (outputs/sites, never deployed) and, once a business has agreed, the real client site with a deploy approval request. Fixes and audits existing sites. Use for [web], [code] and [test] tasks.
+description: Website specialist of the Foreman AI team. Builds local demo sites for leads (outputs/sites, never deployed) and, once a business has agreed, the real client site with a deploy approval request. Fixes and audits existing sites. Use for [web], [code] and [test] tasks.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
 model: inherit
 ---
