@@ -26,3 +26,7 @@ tasks/history.jsonl
 tasks/hub.json
 tasks/homeassistant.json
 tasks/ai.json
+tasks/usage.json
+tasks/usage.tmp
+tasks/claude_limits.json
+tasks/claude_limits.tmp

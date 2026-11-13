@@ -28,7 +28,7 @@ HISTORY = ROOT / "tasks" / "history.jsonl"
 STATUS = ROOT / "tasks" / "status.json"
 READABLE = [ROOT / "outputs", ROOT / "logs", ROOT / "tasks"]
 OPENABLE_EXT = {".md", ".txt", ".csv", ".docx", ".xlsx", ".pptx", ".pdf", ".html", ".png", ".jpg", ".jpeg", ".patch", ".json"}
-TYPES = ["auto", "research", "web", "marketing", "code", "brief", "docs", "plan"]  # "auto": the team routes it
+TYPES = ["auto", "research", "web", "marketing", "code", "test", "brief", "docs", "plan"]  # "auto": the team routes it
 PRIORITIES = ["high", "normal", "low"]
 
 # Mirrors the schedules in the Claude app (sidebar → Scheduled). Edit here if you change them there.
@@ -333,12 +333,15 @@ def _ask_other(provider, text, address, ctx, body):
     # The one action line (TASK / FEEDBACK) is carried out and removed before the reply is spoken.
     spoken, did = [], None
     for ln in reply.splitlines():
-        m = re.match(r"^\s*\**(TASK|FEEDBACK)\**\s*:\s*(.+?)\s*(?:\|\s*(.*))?$", ln)
+        m = re.match(r"^\s*\**(TASK|FEEDBACK|RESEARCH)\**\s*:\s*(.+?)\s*(?:\|\s*(.*))?$", ln)
         if m and not did:
             kind, title, extra = m.group(1), one_line(m.group(2))[:300], (m.group(3) or "").strip()[:2000]
             try:
                 if kind == "TASK":
                     add_task({"type": "auto", "priority": "normal", "title": title, "summary": "added by voice", "details": extra})
+                elif kind == "RESEARCH":
+                    add_task({"type": "research", "priority": "high", "title": "Answer: " + title, "summary": "asked Jarvis",
+                              "details": "Answer task: start with a Short answer section that Jarvis can read aloud."})
                 else:
                     give_feedback({"title": title, "feedback": extra or title})
                 kick_dispatch()
@@ -564,6 +567,9 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/ai":
                 import models
                 return self._send(200, models.status())
+            if u.path == "/api/usage":
+                import usage
+                return self._send(200, usage.status())
             if u.path == "/api/runs":
                 return self._send(200, feed.runs())
             if u.path == "/api/feed":
@@ -611,6 +617,15 @@ class Handler(BaseHTTPRequestHandler):
             elif route == "/api/ai":
                 import models
                 return self._send(200, models.update(body))
+            elif route == "/api/usage":
+                import usage
+                return self._send(200, usage.update(body))
+            elif route == "/api/usage/statusline":
+                import usage
+                usage.install_statusline()
+                return self._send(200, usage.status())
+            elif route == "/api/open-edge":
+                open_ui(f"http://127.0.0.1:{PORT}/")
             elif route == "/api/ai/test":
                 import models
                 p = body.get("provider")
@@ -649,6 +664,24 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, {"error": str(e)})
 
 
+EDGE = [Path(os.environ.get(v, "")) / "Microsoft" / "Edge" / "Application" / "msedge.exe"
+        for v in ("ProgramFiles(x86)", "ProgramFiles", "LocalAppData")]
+
+
+def open_ui(url):
+    """Open the dashboard in Microsoft Edge when it's installed: Edge has free, natural-sounding neural voices
+    (e.g. Microsoft Ryan), so Jarvis sounds far smoother there. Falls back to the default browser."""
+    import subprocess
+    edge = next((p for p in EDGE if p.is_absolute() and p.is_file()), None)
+    if edge:
+        try:
+            subprocess.Popen([str(edge), url], close_fds=True)
+            return
+        except OSError:
+            pass
+    webbrowser.open(url)
+
+
 def seed_task_files():
     """First start on a fresh clone: create the personal task files from the committed examples."""
     for p in (INBOX, DONE, RECURRING, GOALS):
@@ -667,11 +700,11 @@ if __name__ == "__main__":
         srv = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     except OSError:
         print(f"Dashboard already running at {url}")
-        webbrowser.open(url)
+        open_ui(url)
         sys.exit(0)
     print(f"AiFLOW dashboard: {url}  (Ctrl+C to stop)")
     if "--no-browser" not in sys.argv:
-        webbrowser.open(url)
+        open_ui(url)
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

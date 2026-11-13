@@ -19,7 +19,7 @@
   --accent:#46e3ff; --accent-2:#8f7bff; --accent-ink:#04111c; --accent-soft:rgba(70,227,255,.10);
   --danger:#ff5d7a; --danger-soft:rgba(255,93,122,.12); --ok:#38f2a6; --ok-soft:rgba(56,242,166,.12); --warn:#ffc65c; --warn-soft:rgba(255,198,92,.12);
   --research:#5ea8ff; --code:#b08cff; --brief:#ffc65c; --docs:#38f2a6; --other:#8792b0;
-  --web:#ff7ad9; --marketing:#ff9a4d; --plan:#c9d4f5; --auto:#8792b0;
+  --web:#ff7ad9; --test:#7af0ff; --marketing:#ff9a4d; --plan:#c9d4f5; --auto:#8792b0;
   --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
   --glow:0 0 0 1px rgba(70,227,255,.35), 0 0 18px rgba(70,227,255,.18);
@@ -546,6 +546,12 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 .convo-log .by{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
 @media (max-width:860px){.ai-pill .lbl{display:none}}
 
+/* research answers */
+.answer{border:1px solid var(--border-hi);border-radius:12px;background:var(--surface);padding:10px 12px;text-align:left;display:grid;gap:6px;box-shadow:0 0 18px var(--accent-soft)}
+.answer .q{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.answer .a{font-size:14px;line-height:1.5}
+.answer .row2{display:flex;gap:6px;flex-wrap:wrap}
+
 /* hub */
 .hubrow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-bottom:16px}
 @media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -613,6 +619,54 @@ tr.click:hover td,.row.tap:active{background:rgba(70,227,255,.05)}
 body{zoom:1.14}
 :root{--text:#ffffff;--muted:#b3bdd9}
 .hint,.item .d,.d{color:var(--muted)}
+
+/* ---------- AI usage ---------- */
+.hubrow{grid-template-columns:repeat(4,minmax(0,1fr))}
+.hb-usage{grid-column:span 2}
+@media (max-width:1180px){.hubrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.hubrow{grid-template-columns:1fr}.hb-usage{grid-column:auto}}
+.hb-usage .u-tile{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.hb-usage .u-mini{flex:1;min-width:120px}
+.u-live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ok)}
+.u-live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);animation:uPulse 2s infinite}
+@keyframes uPulse{50%{opacity:.35}}
+.u-hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.u-hero > div{padding:18px 20px;border-left:1px solid var(--border)}
+.u-hero > div:first-child{border-left:0}
+@media (max-width:900px){.u-hero{grid-template-columns:1fr}.u-hero > div{border-left:0;border-top:1px solid var(--border)}.u-hero > div:first-child{border-top:0}}
+.u-k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.u-big{font-family:var(--display);font-size:40px;font-weight:600;line-height:1.1;margin:4px 0 6px;font-variant-numeric:tabular-nums}
+.u-parts{list-style:none;margin:0;padding:0;font-size:13px}
+.u-parts li{display:flex;justify-content:space-between;gap:10px;padding:2px 0;color:var(--muted)}
+.u-parts li b{color:var(--text);font-weight:560;font-variant-numeric:tabular-nums}
+.u-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:16px}
+@media (max-width:900px){.u-meters{grid-template-columns:1fr}}
+.u-meter .u-mh{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:6px}
+.u-meter .u-mh b{font-family:var(--display);font-size:22px}
+.u-track{height:10px;border-radius:999px;background:rgba(110,160,255,.10);overflow:hidden}
+.u-track i{display:block;height:100%;border-radius:999px;transition:width .6s ease}
+.u-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.u-tools > div{padding:14px 16px;border-left:1px solid var(--border)}
+.u-tools > div:first-child{border-left:0}
+@media (max-width:900px){.u-tools{grid-template-columns:1fr}.u-tools > div{border-left:0;border-top:1px solid var(--border)}}
+.u-tool-h{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px}
+.u-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.u-rows{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:13px}
+.u-rows span{color:var(--muted)}.u-rows b{text-align:right;font-weight:560;font-variant-numeric:tabular-nums}
+.u-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding:16px 16px 4px}
+.u-col{flex:1;display:flex;flex-direction:column-reverse;min-width:0;height:100%;cursor:default}
+.u-col i{display:block;width:100%;border-radius:3px 3px 0 0}
+.u-days{display:flex;gap:6px;padding:0 16px 12px}
+.u-days span{flex:1;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.u-legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.u-legend span{display:inline-flex;align-items:center;gap:6px}
+.u-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:900px){.u-form{grid-template-columns:1fr}}
+.u-form h3{font-size:13px;margin:0 0 4px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.u-form .vrow{display:flex;gap:8px}
+.u-form input[type=password]{width:100%;border:1px solid var(--border);background:rgba(6,10,20,.7);color:var(--text);border-radius:8px;padding:8px 10px;outline:none}
+.u-note{font-size:12.5px;color:var(--muted);line-height:1.55;margin:8px 0 0}
+.u-warn{color:var(--warn)}.u-err{color:var(--danger)}
 </style>
 </head>
 <body>
@@ -629,6 +683,7 @@ body{zoom:1.14}
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1.3"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2"/><path d="M7.5 8.5h6M7.5 12h6M7.5 15.5h4"/></symbol>
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M3 7.5h12.5v9H3z"/><path d="M15.5 10.5l5-3v9l-5-3"/><circle cx="7" cy="12" r="1.6"/></symbol>
@@ -652,6 +707,7 @@ body{zoom:1.14}
       <a href="#/aiflow" data-route="aiflow"><svg class="i"><use href="#i-team"/></svg>AiFlow<span class="badge" id="bFlow"></span></a>
       <a href="#/team" data-route="team"><svg class="i"><use href="#i-approve"/></svg>Team &amp; goals</a>
       <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
+      <a href="#/usage" data-route="usage"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="badge" id="bUsage"></span></a>
       <div class="nav-label">Tasks</div>
       <a href="#/queued" data-route="queued"><svg class="i"><use href="#i-queue"/></svg>Queued<span class="badge" id="bQueued"></span></a>
       <a href="#/running" data-route="running"><svg class="i"><use href="#i-run"/></svg>In progress<span class="badge" id="bRunning"></span></a>
@@ -731,6 +787,7 @@ body{zoom:1.14}
             <div class="convo-log" id="convoLog"></div>
           </div>
           <div class="brief-text" id="briefText" aria-live="polite"></div>
+          <div id="answers" aria-live="polite"></div>
         </div>
       </section>
       </div>
@@ -738,6 +795,7 @@ body{zoom:1.14}
       <!-- Hub: everyday blocks; each opens its own page -->
       <section class="hubrow" aria-label="Hub">
         <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>AiFlow</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-usage" href="#/usage" id="hbUsage"><div class="hb-h"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="spacer"></span><span class="u-live">LIVE</span></div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
@@ -794,6 +852,9 @@ body{zoom:1.14}
     <div id="newsPage" class="hidden col hubpage"></div>
     <div id="camerasPage" class="hidden col hubpage"></div>
     <div id="devicesPage" class="hidden col hubpage"></div>
+
+    <!-- AI usage: tokens, plan limits and what you owe -->
+    <div id="usagePage" class="hidden col"><div class="col" id="uLive"></div><div id="uSettings"></div></div>
 
     <!-- AiFlow: the team, one box per member -->
     <div id="aiflowPage" class="hidden col">
@@ -927,16 +988,17 @@ const TYPES = {
   web:{label:"Website", hint:"Web builder · builds a site in CLIENT WEBSITES; going live needs your approval → outputs/web"},
   marketing:{label:"Marketing", hint:"Marketer · posts, TikTok scripts, Google Ads, outreach drafts; publishing needs your approval → outputs/marketing"},
   code:{label:"Code", hint:"Web builder · works on an ai/ branch and leaves a draft PR or patch; never merges → outputs/code"},
+  test:{label:"Testing", hint:"Web builder · tests a site, app or repo and reports what passes and fails; never changes it → outputs/tests"},
   brief:{label:"Brief", hint:"Researcher · short, cited news or status brief → outputs/briefs"},
   docs:{label:"Docs & data", hint:"Researcher · documents, spreadsheets and data cleanup; originals are never changed → outputs/docs"},
   plan:{label:"Plan", hint:"Manager · plans something and assigns the work to the team → outputs/plans"},
   auto:{label:"Team decides", hint:"The Manager routes it to the right agent, or splits it across the team"},
 };
-const KIND_TYPE = {research:"research", web:"web", marketing:"marketing", plans:"plan", code:"code", briefs:"brief", docs:"docs", digests:"plan"};
+const KIND_TYPE = {research:"research", web:"web", marketing:"marketing", plans:"plan", code:"code", tests:"test", briefs:"brief", docs:"docs", digests:"plan"};
 const AGENTS = [
   {name:"Manager", key:"manager", role:"Operations lead", does:"Plans toward your goals, assigns work, reviews quality, reports daily", types:["plan","digest","auto"], color:"--plan", assign:"plan"},
   {name:"Researcher", key:"researcher", role:"Research & leads", does:"Leads, markets, competitors, pricing, briefs and data work", types:["research","brief","docs"], color:"--research", assign:"research"},
-  {name:"Web builder", key:"web-builder", role:"Websites", does:"Demo and client sites, fixes and audits, Netlify-ready builds", types:["web","code"], color:"--web", assign:"web"},
+  {name:"Web builder", key:"web-builder", role:"Websites, code & testing", does:"Demo and client sites, code changes on branches, and testing with pass/fail reports", types:["web","code","test"], color:"--web", assign:"web"},
   {name:"Marketer", key:"marketer", role:"Social, ads & email", does:"Facebook/Instagram, TikTok, Google Ads, and all email drafting: outreach, replies, follow-ups, proposals", types:["marketing"], color:"--marketing", assign:"marketing"},
 ];
 const agentOf = type => AGENTS.find(a => a.types.includes(type)) || AGENTS[1];
@@ -1258,6 +1320,7 @@ const PAGES = {
   news:      {title:"News", desc:"Headlines from NPR, BBC and Ars Technica, refreshed every 15 minutes."},
   cameras:   {title:"Cameras", desc:"Your security cameras, live."},
   devices:   {title:"Smart devices", desc:"Lights, plugs, locks and more, controlled by you or by Jarvis."},
+  usage:     {title:"AI usage", desc:"Tokens, plan limits and what you owe across Claude Code, Codex and the Anthropic API. Updates live."},
 };
 const HUB_PAGES = ["weather", "news", "cameras", "devices"];
 const TASK_PAGES = ["queued", "running", "done", "blocked"];
@@ -1276,6 +1339,8 @@ function go(){
   $("#teamPage").classList.toggle("hidden", route !== "team");
   $("#aiflowPage").classList.toggle("hidden", route !== "aiflow");
   $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
+  $("#usagePage").classList.toggle("hidden", route !== "usage");
+  if (route === "usage") renderUsage(changed);
   HUB_PAGES.forEach(p => $("#" + p + "Page").classList.toggle("hidden", route !== p));
   if (HUB_PAGES.includes(route)) renderHubPage(route);
   document.querySelectorAll("#pageBody [data-only]").forEach(el => el.classList.toggle("hidden", el.dataset.only !== route));
@@ -1808,7 +1873,15 @@ function fillVoiceSettings(){
   $("#vVoice").innerHTML = vs.map(v => `<option value="${esc(v.name)}" ${cur && v.name === cur.name ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")
     || `<option>No voices available in this browser</option>`;
   $("#vRate").value = VS.rate; $("#vPitch").value = VS.pitch; $("#vAddress").value = VS.address;
+  // Only basic voices here (not Edge): offer Edge, whose free neural voices sound far smoother.
+  const natural = vs.some(v => /natural|online|neural|enhanced|premium/i.test(v.name));
+  let tip = $("#edgeTip");
+  if (!natural && !tip.isConnected){ $("#voiceSet").insertAdjacentHTML("afterbegin", `<div class="hint" id="edgeTip" style="border:1px solid var(--border-hi);border-radius:10px;padding:8px 10px;margin-bottom:6px">
+      This browser only has basic, robotic voices. Microsoft Edge has free natural ones (like Ryan, a British voice).
+      <button class="btn sm primary" type="button" id="openEdge" style="margin-left:6px">Open AiFLOW in Edge</button></div>`); }
+  else if (natural && tip.isConnected) tip.remove();
 }
+document.addEventListener("click", e => { if (e.target.closest("#openEdge")) api("/api/open-edge", {}).then(() => toast("Opening in Edge. Then choose Jarvis preset.")).catch(err => toast(err.message, true)); });
 if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = fillVoiceSettings;
 $("#voiceBtn").addEventListener("click", async () => {
   fillVoiceSettings(); $("#voiceSet").classList.toggle("hidden");
@@ -2037,7 +2110,7 @@ async function stopTalk(silent, words){
 }
 $("#talkBtn").addEventListener("click", () => convo.on ? (speechSynthesis.cancel(), stopTalk(true)) : startTalk());
 
-function renderOverview(){ if (!S) return; renderCore(); renderFlow(); renderHub(); }
+function renderOverview(){ if (!S) return; renderCore(); renderFlow(); renderHub(); renderUsageTile(); }
 
 /* AiFlow block: one line per team member; the full boxes live on the AiFlow page */
 function renderFlow(){
@@ -2055,6 +2128,148 @@ function renderFlow(){
     <div class="hb-foot">Open the team →</div>`;
   $("#bFlow").textContent = busy || "";
 }
+
+/* ================= AI usage: tokens, plan limits, what you owe ================= */
+const USAGE = {data: null, at: 0, err: null, settingsShown: false};
+const fmtTok = n => { n = n || 0; return n >= 1e9 ? (n / 1e9).toFixed(1) + "B" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e5 ? 0 : 1) + "K" : String(n); };
+const fmtUsd = x => "$" + (x || 0).toLocaleString([], {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const ago = iso => { if (!iso) return "never"; const s = (Date.now() - new Date(iso)) / 1000; return s < 60 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " d ago"; };
+const untilReset = sec => { if (!sec) return ""; const s = sec - Date.now() / 1000; if (s <= 0) return "resetting now"; const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h >= 48 ? `resets in ${Math.round(h / 24)} days` : h ? `resets in ${h}h ${m}m` : `resets in ${m}m`; };
+const U_CLAUDE = "#ff9a6b", U_CODEX = "#38f2a6", U_API = "#8f7bff";
+async function usageNow(force){
+  if (force || !USAGE.data || Date.now() - USAGE.at > 4000){
+    try { USAGE.data = await api("/api/usage"); USAGE.at = Date.now(); USAGE.err = null; } catch (e) { USAGE.err = e.message; }
+  }
+  return USAGE.data;
+}
+function uMeter(label, pct, sub, color){
+  pct = Math.max(0, Math.min(100, pct || 0));
+  const c = pct >= 90 ? "var(--danger)" : pct >= 70 ? "var(--warn)" : color;
+  return `<div class="u-meter"><div class="u-mh"><span>${esc(label)}</span><b style="color:${c}">${pct.toFixed(0)}%</b></div>
+    <div class="u-track" role="progressbar" aria-label="${esc(label)}" aria-valuenow="${pct.toFixed(0)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%;background:${c}"></i></div>
+    <div class="hint" style="margin-top:6px">${sub}</div></div>`;
+}
+async function renderUsageTile(){
+  const u = await usageNow(), el = $("#hbUsage .hb-b"); if (!el) return;
+  if (!u){ el.innerHTML = `<div class="hb-sub">Usage unavailable${USAGE.err ? ": " + esc(USAGE.err) : ""}</div>`; return; }
+  const lim = u.claude.limits || {}, five = lim.five_hour, week = lim.seven_day, cx = u.codex.limit;
+  const pcts = [five && `Claude 5h <b>${five.pct.toFixed(0)}%</b>`, week && `week <b>${week.pct.toFixed(0)}%</b>`, cx && `Codex <b>${cx.pct.toFixed(0)}%</b>`].filter(Boolean);
+  el.innerHTML = `<div class="u-tile">
+      <div class="u-mini"><div class="hb-big">${fmtUsd(u.owed.total)}</div><div class="hb-sub">owed this month</div></div>
+      <div class="u-mini"><div class="hb-big">${fmtTok(u.tokens.today)}</div><div class="hb-sub">tokens today · ${fmtTok(u.tokens.last_hour)} last hour</div></div>
+    </div>
+    <div class="hb-sub">${pcts.length ? pcts.join(" · ") + " of plan used" : "Connect your Claude plan to see % used"}</div>
+    <div class="hb-foot">${fmtTok(u.tokens.cycle)} tokens this cycle · Claude API value ${fmtUsd(u.claude.api_value)}</div>`;
+  const hot = [five, week, cx].some(w => w && w.pct >= 80);
+  $("#bUsage").textContent = hot ? "!" : ""; $("#bUsage").classList.toggle("alert", hot);
+}
+async function renderUsage(first){
+  const live = $("#uLive");
+  if (first && !USAGE.data) live.innerHTML = `<section class="card"><div class="card-b hint">Reading your usage…</div></section>`;
+  const u = await usageNow(true);
+  if (!u){ live.innerHTML = `<section class="card"><div class="card-b u-err">Couldn't load usage${USAGE.err ? ": " + esc(USAGE.err) : ""}.</div></section>`; return; }
+  const c = u.claude, x = u.codex, a = u.api, lim = c.limits || {};
+  const daysLeft = c.days_left === 1 ? "1 day" : c.days_left + " days";
+
+  const hero = `<section class="card"><div class="card-h"><h2>Right now</h2><span class="spacer"></span><span class="u-live">LIVE · updated ${new Date(u.updated).toLocaleTimeString([], {hour: "numeric", minute: "2-digit", second: "2-digit"})}</span></div>
+    <div class="u-hero">
+      <div><div class="u-k">Owed this month</div><div class="u-big">${fmtUsd(u.owed.total)}</div>
+        <ul class="u-parts">${u.owed.parts.map(p => `<li><span>${esc(p.name)}${p.kind === "api" ? " · usage" : " · plan"}</span><b>${fmtUsd(p.amount)}</b></li>`).join("")}</ul>
+        ${a.connected ? "" : `<div class="u-note">Anthropic API spend isn't included yet. Add an Admin key below.</div>`}</div>
+      <div><div class="u-k">Tokens this cycle</div><div class="u-big">${fmtTok(u.tokens.cycle)}</div>
+        <ul class="u-parts"><li><span>Today</span><b>${fmtTok(u.tokens.today)}</b></li><li><span>Last hour</span><b>${fmtTok(u.tokens.last_hour)}</b></li><li><span>Last 7 days</span><b>${fmtTok(u.tokens.week)}</b></li></ul></div>
+      <div><div class="u-k">Claude Code at API rates</div><div class="u-big" style="color:${U_CLAUDE}">${fmtUsd(c.api_value)}</div>
+        <ul class="u-parts"><li><span>Today</span><b>${fmtUsd(c.api_value_today)}</b></li><li><span>Your plan costs</span><b>${fmtUsd(c.fee)}</b></li><li><span>Cycle ends</span><b>in ${daysLeft}</b></li></ul></div>
+    </div></section>`;
+
+  const sl = c.statusline || {};
+  const claudeMeters = (lim.five_hour || lim.seven_day)
+    ? (lim.five_hour ? uMeter("Claude · 5-hour window", lim.five_hour.pct, `${untilReset(lim.five_hour.resets_at)} · as of ${ago(lim.as_of)}`, U_CLAUDE) : "")
+      + (lim.seven_day ? uMeter("Claude · weekly", lim.seven_day.pct, `${untilReset(lim.seven_day.resets_at)} · as of ${ago(lim.as_of)}`, U_CLAUDE) : "")
+    : `<div class="u-meter"><div class="u-mh"><span>Claude plan</span></div>
+        ${sl.installed ? `<div class="hint">Connected. Your % shows up after Claude Code's next reply.</div>`
+          : `<div class="hint" style="margin-bottom:8px">Claude Code reports how much of your ${esc(c.plan)} limit you've used. Connect it once and it updates every time Claude replies.</div>
+             <button class="btn sm primary" id="uConnectSL">Connect Claude plan</button>${sl.error ? `<div class="u-err hint">${esc(sl.error)}</div>` : ""}`}</div>`;
+  const codexMeter = !x.on ? "" : x.limit
+    ? uMeter(`Codex · ${x.limit.window_minutes >= 40000 ? "monthly" : x.limit.window_minutes >= 10000 ? "weekly" : "window"} (${esc(x.plan)})`, x.limit.pct, `${untilReset(x.limit.resets_at)} · as of your last Codex turn, ${ago(x.limit.as_of)}`, U_CODEX)
+    : `<div class="u-meter"><div class="u-mh"><span>Codex</span></div><div class="hint">No Codex sessions found yet.</div></div>`;
+  const meters = `<section class="card"><div class="card-h"><h2>Plan limits</h2><span class="spacer"></span><span class="hint">How much of each plan's allowance you've used</span></div>
+    <div class="u-meters">${claudeMeters}${codexMeter}</div></section>`;
+
+  const models = c.models.slice(0, 3).map(m => `${esc(m.name)} ${Math.round(100 * m.tokens / (c.cycle || 1))}%`).join(" · ");
+  const tools = `<section class="card"><div class="card-h"><h2>By tool</h2></div><div class="u-tools">
+      <div><div class="u-tool-h"><span class="u-dot" style="background:${U_CLAUDE}"></span>Claude Code<span class="spacer"></span><span class="hint">${esc(c.plan)}</span></div>
+        <div class="u-rows"><span>Today</span><b>${fmtTok(c.today)}</b><span>Last hour</span><b>${fmtTok(c.last_hour)}</b><span>7 days</span><b>${fmtTok(c.week)}</b><span>This cycle</span><b>${fmtTok(c.cycle)}</b><span>Last active</span><b>${ago(c.last_at)}</b></div>
+        ${models ? `<div class="hint" style="margin-top:8px">${models}</div>` : ""}</div>
+      <div><div class="u-tool-h"><span class="u-dot" style="background:${U_CODEX}"></span>Codex<span class="spacer"></span><span class="hint">${x.on ? esc(x.plan) : "hidden"}</span></div>
+        ${x.on ? `<div class="u-rows"><span>Today</span><b>${fmtTok(x.today)}</b><span>Last hour</span><b>${fmtTok(x.last_hour)}</b><span>7 days</span><b>${fmtTok(x.week)}</b><span>This cycle</span><b>${fmtTok(x.cycle)}</b><span>Last active</span><b>${ago(x.last_at)}</b></div>
+        ${x.model ? `<div class="hint" style="margin-top:8px">${esc(x.model)}</div>` : ""}
+        ${x.skipped_archives ? `<div class="hint u-warn" style="margin-top:6px">${x.skipped_archives} older archived session${x.skipped_archives > 1 ? "s" : ""} not counted. Run <code>pip install zstandard</code> to include ${x.skipped_archives > 1 ? "them" : "it"}.</div>` : ""}` : `<div class="hint">Turned off in settings.</div>`}</div>
+      <div><div class="u-tool-h"><span class="u-dot" style="background:${U_API}"></span>Anthropic API<span class="spacer"></span><span class="hint">pay as you go</span></div>
+        ${!a.connected ? `<div class="hint">Not connected. This is where API keys bill, like YT_series and your website's dashboard AI. Add an Admin key below to see real spend.</div>`
+          : a.error ? `<div class="hint u-err">${esc(a.error)}</div>`
+          : `<div class="u-rows"><span>Spent this month</span><b>${fmtUsd(a.cost)}</b><span>Tokens this month</span><b>${fmtTok(a.tokens)}</b><span>Checked</span><b>${ago(a.as_of)}</b></div>
+             <div class="hint" style="margin-top:8px">From Anthropic's billing. Refreshes every 5 minutes; new usage shows up within about 5 minutes.</div>`}</div>
+    </div></section>`;
+
+  const mx = Math.max(1, ...u.daily.map(d => d.claude + d.codex));
+  const chart = `<section class="card"><div class="card-h"><h2>Last 14 days</h2><span class="spacer"></span>
+      <div class="u-legend"><span><i class="u-dot" style="background:${U_CLAUDE}"></i>Claude Code</span>${x.on ? `<span><i class="u-dot" style="background:${U_CODEX}"></i>Codex</span>` : ""}</div></div>
+    <div class="u-chart">${u.daily.map(d => { const day = new Date(d.date + "T12:00").toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
+        return `<div class="u-col" title="${esc(day)}: Claude Code ${fmtTok(d.claude)} · Codex ${fmtTok(d.codex)}">
+          <i style="height:${100 * d.claude / mx}%;background:${U_CLAUDE};${d.codex ? "border-radius:0" : ""}"></i>
+          <i style="height:${100 * d.codex / mx}%;background:${U_CODEX}"></i></div>`; }).join("")}</div>
+    <div class="u-days">${u.daily.map((d, i) => `<span>${i === 13 ? "today" : i % 2 ? "" : new Date(d.date + "T12:00").toLocaleDateString([], {month: "numeric", day: "numeric"})}</span>`).join("")}</div></section>`;
+
+  live.innerHTML = hero + meters + tools + chart;
+  if (!USAGE.settingsShown || first) renderUsageSettings(u);
+}
+function renderUsageSettings(u){
+  USAGE.settingsShown = true;
+  const c = u.claude, x = u.codex, a = u.api;
+  $("#uSettings").innerHTML = `<section class="card"><div class="card-h"><h2>Accounts &amp; plans</h2><span class="spacer"></span><span class="hint">Saved on this PC only (tasks/usage.json)</span></div>
+    <form class="card-b u-form" id="uForm" autocomplete="off">
+      <div><h3>Claude plan</h3>
+        <label class="f" for="uCName">Plan</label><input type="text" id="uCName" value="${esc(c.plan)}" maxlength="40">
+        <div class="vrow"><div style="flex:1"><label class="f" for="uCFee">Monthly fee ($)</label><input type="text" inputmode="decimal" id="uCFee" value="${c.fee}"></div>
+          <div style="flex:1"><label class="f" for="uCDay">Renews on day</label><input type="text" inputmode="numeric" id="uCDay" value="${c.billing_day}"></div></div>
+        <p class="u-note">Plan %: ${c.statusline?.installed ? `<b style="color:var(--ok)">connected</b> through Claude Code's status line.` : `not connected. <button type="button" class="btn sm" id="uConnectSL2">Connect</button>`}
+          This adds a status line to <code>~/.claude/settings.json</code> (a backup is saved next to it). If you already had one, it keeps showing.</p></div>
+      <div><h3>Codex / ChatGPT plan</h3>
+        <label class="f" for="uXName">Plan</label><input type="text" id="uXName" value="${esc(x.plan)}" maxlength="40">
+        <div class="vrow"><div style="flex:1"><label class="f" for="uXFee">Monthly fee ($)</label><input type="text" inputmode="decimal" id="uXFee" value="${x.fee}"></div>
+          <div style="flex:1"><label class="f" for="uXDay">Renews on day</label><input type="text" inputmode="numeric" id="uXDay" value="${x.billing_day}"></div></div>
+        <label class="hint" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="uXOn" ${x.on ? "checked" : ""}> Track Codex</label></div>
+      <div style="grid-column:1/-1"><h3>Anthropic API (real spend)</h3>
+        <label class="f" for="uKey">Admin API key ${a.connected ? `<span style="color:var(--ok)">· connected</span>` : ""}</label>
+        <div class="vrow"><input type="password" id="uKey" placeholder="${a.connected ? "•••••••• saved. Paste a new key to replace it" : "sk-ant-admin01-…"}" autocomplete="off" spellcheck="false">
+          ${a.connected ? `<button type="button" class="btn" id="uKeyRemove">Disconnect</button>` : ""}</div>
+        <p class="u-note">Create one in the Claude Console under <b>Settings → Admin keys</b> (console.anthropic.com). A personal Console account has to set up an organization first, on the Organization settings page. An Admin key can read billing and manage your API org, so it stays in this PC's tasks folder and is never shown again here.</p></div>
+      <div style="grid-column:1/-1;display:flex;gap:8px"><button class="btn primary" type="submit">Save</button><span class="hint" id="uMsg" style="align-self:center"></span></div>
+    </form></section>`;
+}
+async function saveUsage(extra){
+  const body = Object.assign({
+    claude_plan: {name: $("#uCName").value, monthly_fee: $("#uCFee").value, billing_day: $("#uCDay").value},
+    codex_plan: {name: $("#uXName").value, monthly_fee: $("#uXFee").value, billing_day: $("#uXDay").value, on: $("#uXOn").checked},
+  }, extra || {});
+  const key = $("#uKey").value.trim(); if (key && !("admin_key" in body)) body.admin_key = key;
+  $("#uMsg").textContent = key ? "Checking the key with Anthropic…" : "Saving…";
+  try { USAGE.data = await api("/api/usage", body); USAGE.at = Date.now(); toast("Saved"); renderUsageSettings(USAGE.data); renderUsage(false); }
+  catch (e) { $("#uMsg").textContent = ""; toast(e.message, true); }
+}
+document.addEventListener("submit", e => { if (e.target.id === "uForm"){ e.preventDefault(); saveUsage(); } });
+document.addEventListener("click", async e => {
+  const t = e.target.closest("#uConnectSL, #uConnectSL2, #uKeyRemove"); if (!t) return;
+  e.preventDefault();
+  if (t.id === "uKeyRemove") return saveUsage({admin_key: ""});
+  t.disabled = true;
+  try { USAGE.data = await api("/api/usage/statusline", {}); USAGE.at = Date.now(); toast("Claude plan connected. % appears after Claude Code's next reply."); renderUsageSettings(USAGE.data); renderUsage(false); }
+  catch (err) { toast(err.message, true); t.disabled = false; }
+});
+// Live: the usage page refreshes every 5 s, the Overview tile every 15 s (only while the tab is visible).
+setInterval(() => { if (document.hidden) return; if (route === "usage") renderUsage(false); }, 5000);
+setInterval(() => { if (!document.hidden && route === "") renderUsageTile(); }, 15000);
 
 /* ================= hub: weather, news, cameras, smart devices ================= */
 const HUB = {news: null, newsAt: 0, fc: null, fcAt: 0};
@@ -2405,11 +2620,39 @@ async function load(){
     S = await api("/api/state");
     $("#banner").classList.add("hidden");
     render();
+    checkAnswers();
   }catch(e){
     $("#banner").textContent = "Can't reach the dashboard server. Start it with start-dashboard.bat in the ai-workflow folder.";
     $("#banner").classList.remove("hidden");
   }
 }
+
+/* ---------- research answers: questions Jarvis handed to the Researcher, reported back when done ---------- */
+const ANS_KEY = "aiwf-answers-seen";
+let ansSeen = null;
+try { ansSeen = JSON.parse(localStorage.getItem(ANS_KEY) || "null"); } catch {}
+async function shortAnswer(path){
+  try {
+    const md = (await api("/api/file?path=" + encodeURIComponent(path))).content || "";
+    const m = md.match(/##\s*Short answer\s*\n([\s\S]*?)(\n#{1,3}\s|$)/i);
+    return (m ? m[1] : md.replace(/^#.*$/gm, "")).replace(/\[(.*?)\]\([^)]*\)/g, "$1").replace(/[*_`>#]/g, "").replace(/\s+/g, " ").trim().slice(0, 700);
+  } catch { return ""; }
+}
+async function checkAnswers(){
+  const answers = S.done.filter(d => d.status === "done" && /^Answer:/i.test(d.title) && d.output);
+  const key = d => d.date + " " + d.time + " " + d.title;
+  if (ansSeen === null){ ansSeen = answers.map(key); try { localStorage.setItem(ANS_KEY, JSON.stringify(ansSeen)); } catch {} return; }   // first visit: nothing to announce
+  for (const d of answers.filter(d => !ansSeen.includes(key(d)))){
+    ansSeen.push(key(d)); try { localStorage.setItem(ANS_KEY, JSON.stringify(ansSeen.slice(-200))); } catch {}
+    const path = d.output.split(/\s/)[0], text = await shortAnswer(path), q = d.title.replace(/^Answer:\s*/i, "");
+    $("#answers").insertAdjacentHTML("afterbegin", `<div class="answer"><div class="q">Answer ready · ${esc(q)}</div><div class="a">${esc(text || "The Researcher's report is ready.")}</div>
+      <div class="row2"><button class="btn sm" data-say="${esc(text)}">🔊 Hear it</button><button class="btn sm" data-view="${esc(path)}">Full report with sources</button>
+      <button class="btn sm ghost" data-dismissans>Dismiss</button></div></div>`);
+    toast("Your research answer is ready");
+    if (text && !brain.speaking && !brain.listening) speak(`${VS.address}, your research on ${q} is ready. ${text}`);
+  }
+}
+document.addEventListener("click", e => { const x = e.target.closest("[data-dismissans]"); if (x) x.closest(".answer").remove(); });
 
 /* ---------- events ---------- */
 $("#taskForm").addEventListener("click", e => { if (e.target.closest("#clearAssign")){ currentType = "auto"; renderTypeSeg(); } });
