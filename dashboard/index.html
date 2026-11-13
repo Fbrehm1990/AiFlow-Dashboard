@@ -718,6 +718,16 @@ body{zoom:1.14}
 input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!important}
 .btn.primary,.btn.primary:hover{background:var(--accent);filter:none}
 .nav a.active{background:var(--accent-soft);border-color:transparent}
+/* collapsible sidebar sections */
+.nav button.nav-label{padding:16px 10px 6px;border:0;border-radius:6px;color:var(--muted);font-size:12px;font-weight:600;gap:6px}
+.nav button.nav-label:hover{background:none;color:var(--text)}
+.nav-label .chev{width:14px;height:14px;margin-left:auto;transition:transform .2s ease;opacity:.7}
+.nav-label[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.nav-label .ndot{width:7px;height:7px;border-radius:50%;background:var(--danger);display:none}
+.nav-label[aria-expanded="false"].has-alert .ndot{display:inline-block}
+.nav-label[aria-expanded="false"].has-active{color:var(--text)}
+.nav-group{display:flex;flex-direction:column;gap:2px}
+.nav-group[hidden]{display:none}
 .seg-run{background:var(--accent)}
 .ev.say .ic{background:var(--accent)}
 .hbars .track span,.vbars .b span{background:var(--accent)}
@@ -2752,6 +2762,41 @@ async function checkAnswers(){
   }
 }
 document.addEventListener("click", e => { const x = e.target.closest("[data-dismissans]"); if (x) x.closest(".answer").remove(); });
+
+/* ---------- sidebar: each section (Hub, Workflow, Tasks, Tools) can be hidden; remembered per browser ---------- */
+(function(){
+  const KEY = "foreman-nav-hidden";
+  let hidden = [];
+  try { hidden = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(hidden)); } catch {} };
+  const heads = [];
+  document.querySelectorAll(".nav > .nav-label").forEach(label => {
+    const name = label.textContent.trim();
+    const group = document.createElement("div");
+    group.className = "nav-group"; group.id = "navg-" + name.toLowerCase().replace(/\W+/g, "-");
+    while (label.nextElementSibling && !label.nextElementSibling.classList.contains("nav-label")) group.appendChild(label.nextElementSibling);
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "nav-label"; btn.setAttribute("aria-controls", group.id);
+    btn.innerHTML = `<span>${esc(name)}</span><span class="ndot" aria-hidden="true"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+    const set = open => { group.hidden = !open; btn.setAttribute("aria-expanded", String(open)); btn.title = (open ? "Hide " : "Show ") + name; };
+    set(!hidden.includes(name));
+    btn.addEventListener("click", () => {
+      const open = group.hidden; set(open);
+      hidden = open ? hidden.filter(n => n !== name) : [...hidden, name]; save(); mark();
+    });
+    label.replaceWith(btn); btn.after(group);
+    heads.push({btn, group});
+  });
+  // A hidden section still tells you when something inside needs attention (red badge) or is the page you're on.
+  function mark(){
+    for (const {btn, group} of heads){
+      btn.classList.toggle("has-alert", !!group.querySelector(".badge.alert"));
+      btn.classList.toggle("has-active", !!group.querySelector("a.active"));
+    }
+  }
+  new MutationObserver(mark).observe(document.querySelector(".nav"), {subtree: true, attributes: true, attributeFilter: ["class"], childList: true, characterData: true});
+  mark();
+})();
 
 /* ---------- events ---------- */
 $("#taskForm").addEventListener("click", e => { if (e.target.closest("#clearAssign")){ currentType = "auto"; renderTypeSeg(); } });
