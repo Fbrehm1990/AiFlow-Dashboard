@@ -2206,7 +2206,7 @@ async function renderUsage(first){
         ${x.model ? `<div class="hint" style="margin-top:8px">${esc(x.model)}</div>` : ""}
         ${x.skipped_archives ? `<div class="hint u-warn" style="margin-top:6px">${x.skipped_archives} older archived session${x.skipped_archives > 1 ? "s" : ""} not counted. Run <code>pip install zstandard</code> to include ${x.skipped_archives > 1 ? "them" : "it"}.</div>` : ""}` : `<div class="hint">Turned off in settings.</div>`}</div>
       <div><div class="u-tool-h"><span class="u-dot" style="background:${U_API}"></span>Anthropic API<span class="spacer"></span><span class="hint">pay as you go</span></div>
-        ${!a.connected ? `<div class="hint">Not connected. This is where API keys bill, like YT_series and your website's dashboard AI. Add an Admin key below to see real spend.</div>`
+        ${!a.connected ? `<div class="hint">Not connected. This is where your API keys bill. Add an Admin key below to see real spend.</div>`
           : a.error ? `<div class="hint u-err">${esc(a.error)}</div>`
           : `<div class="u-rows"><span>Spent this month</span><b>${fmtUsd(a.cost)}</b><span>Tokens this month</span><b>${fmtTok(a.tokens)}</b><span>Checked</span><b>${ago(a.as_of)}</b></div>
              <div class="hint" style="margin-top:8px">From Anthropic's billing. Refreshes every 5 minutes; new usage shows up within about 5 minutes.</div>`}</div>

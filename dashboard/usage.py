@@ -402,7 +402,7 @@ def _anthropic_get(path, params, key):
 
 
 def api_month(key):
-    """Month-to-date $ and tokens billed to the Anthropic API org (all API keys, e.g. YT_series, site chat)."""
+    """Month-to-date $ and tokens billed to the Anthropic API org (all API keys)."""
     now = time.time()
     hit = _API_CACHE.get("month")
     if hit and now - hit["fetched"] < API_TTL:
