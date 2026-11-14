@@ -207,8 +207,45 @@ a{color:var(--accent)}
 
 [hidden]{display:none!important}
 /* ===== Core tab (mirrors the PC overview) ===== */
+/* robots (same faces as the PC dashboard) */
+.teamstrip{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.bot{appearance:none;font:inherit;color:var(--fg);text-align:left;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px 12px;min-width:0;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.bot.busy{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--c) 22%,transparent)}
+.bot:active{border-color:var(--c)}
+.bot .bt{display:flex;flex-direction:column;min-width:0;flex:1}
+.bot .bn{font-weight:650;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bot .bc{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bot .bs{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.bot .face{width:44px;height:44px}
+.mate .hd .face{width:46px;height:46px}
+/* animated faces (SVG; colour comes from --c) */
+.face{width:56px;height:56px;flex:none;overflow:visible}
+.face .ln{stroke:var(--c);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.face .fl{fill:var(--c)}
+.face .skin{fill:color-mix(in srgb,var(--c) 16%,#0c1324);stroke:var(--c);stroke-width:2.2}
+.face .eye ellipse{fill:#fff}
+.face .pupil{fill:#0c1324}
+.face .eye{transform-box:fill-box;transform-origin:center;animation:eyeblink 4.6s infinite}
+.face .eye.r{animation-delay:.12s}
+.face .head{transform-box:fill-box;transform-origin:center bottom;animation:bob 3.2s ease-in-out infinite}
+.face .antball{animation:glow 2.2s ease-in-out infinite}
+.face .cheek{opacity:.35}
+.face .mouth{fill:none;stroke:var(--c);stroke-width:2.4;stroke-linecap:round}
+.face .mouth.o{fill:#0c1324;stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center}
+.face.work .mouth.smile{opacity:0}
+.face.work .mouth.o{opacity:1;animation:talk .55s ease-in-out infinite alternate}
+.face.work .head{animation:bob .9s ease-in-out infinite}
+.face.work .pupil{animation:scan 1.8s ease-in-out infinite}
+.face.work .antball{animation:glow .6s ease-in-out infinite}
+.face.work .eye{animation-duration:2.6s}
+@keyframes eyeblink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+@keyframes bob{50%{transform:translateY(-2px)}}
+@keyframes scan{0%,100%{transform:translateX(-1.3px)}50%{transform:translateX(1.3px)}}
+@keyframes talk{to{transform:scale(1.3,.7)}}
+@keyframes glow{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.face *{animation:none!important}}
 .core{display:flex;flex-direction:column;align-items:center;text-align:center;padding:4px 16px 18px;gap:8px}
-.core canvas{width:100%;height:240px;display:block}
+.core canvas{width:100%;height:200px;display:block}
 .core-label{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
 .core-label .dot{margin-top:0;width:9px;height:9px}
 .core h2{font-size:21px;letter-spacing:.02em}
@@ -522,6 +559,25 @@ const AGENTS = [
   {name: "Web builder", role: "Websites, code & testing", types: ["web", "code", "test"], color: "--web"},
   {name: "Marketer", role: "Social, ads & email", types: ["marketing"], color: "--marketing"},
 ];
+const FACE_GEAR = {
+  "Manager":     `<g class="ln"><rect x="17" y="24" width="13" height="11" rx="4"/><rect x="34" y="24" width="13" height="11" rx="4"/><path d="M30 28.5h4"/></g>`,
+  "Researcher":  `<path class="fl" d="M12 21 Q32 2 52 21 Z"/><rect class="fl" x="8" y="19" width="48" height="4" rx="2"/>`,
+  "Web builder": `<path class="ln" d="M11 34 V27 A21 21 0 0 1 53 27 V34"/><rect class="fl" x="7" y="29" width="6" height="10" rx="2.5"/><rect class="fl" x="51" y="29" width="6" height="10" rx="2.5"/><path class="ln" d="M53 38 Q52 46 44 46"/>`,
+  "Marketer":    `<path class="fl" d="M22 57 L32 52.5 L22 48 Z M42 57 L32 52.5 L42 48 Z"/><circle class="fl" cx="32" cy="52.5" r="1.8"/>`
+};
+function faceSVG(a, busy){
+  return `<svg class="face ${busy ? "work" : "idle"}" viewBox="0 0 64 64" aria-hidden="true">
+    <line class="ln" x1="32" y1="9" x2="32" y2="15"/><circle class="fl antball" cx="32" cy="7" r="3"/>
+    <g class="head">
+      <rect class="skin" x="10" y="15" width="44" height="40" rx="14"/>
+      <ellipse class="fl cheek" cx="19" cy="39" rx="3.4" ry="2"/><ellipse class="fl cheek" cx="45" cy="39" rx="3.4" ry="2"/>
+      <g class="eye l"><ellipse cx="24" cy="30" rx="4.2" ry="5"/><circle class="pupil" cx="24.5" cy="31" r="2.4"/></g>
+      <g class="eye r"><ellipse cx="40" cy="30" rx="4.2" ry="5"/><circle class="pupil" cx="40.5" cy="31" r="2.4"/></g>
+      ${FACE_GEAR[a.name] || ""}
+      <path class="mouth smile" d="M26 42 Q32 47 38 42"/>
+      <ellipse class="mouth o" cx="32" cy="43" rx="2.6" ry="3"/>
+    </g></svg>`;
+}
 const agentOf = t => AGENTS.find(a => a.types.includes(t)) || AGENTS[1];
 const crewTab = {}; let fbOpen = false;
 const originOf = title => (S.history || []).slice().reverse().find(h => h.title === title);
@@ -544,6 +600,7 @@ function coreShell(){
       <div class="core-acts"><button class="btn primary" data-go="jarvis">Talk to Jarvis</button><button class="btn" id="briefBtn">Brief me</button></div>
       <div class="brief" id="briefText"></div>
     </div>
+    <div class="teamstrip" id="teamStrip"></div>
     <div id="phonePending"></div>
     <div class="mn" id="mailNotes" aria-live="polite" aria-label="New email"></div>
     <div class="hubgrid" id="hubgrid"></div>
@@ -563,7 +620,7 @@ function updateCore(){
   renderHubBlocks();
 }
 /* ---- hub: Crew, Weather, News, Cameras, Smart devices (each opens its own page) ---- */
-const HUB_SUB = ["crew", "inbox", "weather", "news", "cameras", "devices"];
+const HUB_SUB = ["crew", "inbox", "weather", "news", "cameras", "devices", "video"];
 const IB_COL = {lead: "var(--accent)", gmail: "#ea4335", outlook: "#2f8cff"}, IB_NAME = {lead: "Website", gmail: "Gmail", outlook: "Outlook"};
 const ibWhen = (iso, hasTime = true) => { const d = new Date(iso), t = new Date(); const day = d.toDateString() === t.toDateString() ? "Today"
   : d.toDateString() === new Date(Date.now() + 864e5).toDateString() ? "Tomorrow" : d.toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
@@ -658,7 +715,17 @@ function flowRows(){
     return {a, on: !!now, st: now ? now.title : waiting ? `${waiting} waiting` : "Standing by"};
   });
 }
+function renderTeamStrip(){
+  const el = document.getElementById("teamStrip"); if (!el) return;
+  el.innerHTML = flowRows().map(r => {
+    const waiting = (S.queue || []).filter(t => r.a.types.includes(t.type) && t.state !== "running").length;
+    const tag = r.on ? "Working" : waiting ? `${waiting} queued` : "Standing by";
+    return `<button type="button" class="bot ${r.on ? "busy" : ""}" style="--c:var(${r.a.color})" data-go="crew" aria-label="${esc(r.a.name)}: ${esc(tag)}">
+      ${faceSVG(r.a, r.on)}<span class="bt"><span class="bn">${esc(r.a.name)}</span><span class="bc">${esc(tag)}</span><span class="bs">${esc(r.on ? r.st : waiting ? "Starting shortly" : "Nothing in progress")}</span></span></button>`;
+  }).join("");
+}
 function renderHubBlocks(){
+  renderTeamStrip();
   mailNotify(); renderMailNotes();
   const rows = flowRows(), busy = rows.filter(r => r.on).length, today = new Date().toLocaleDateString("en-CA");
   const doneToday = (S.done || []).filter(d => d.date === today).length, pending = (S.approvals || []).filter(a => a.status === "pending").length;
@@ -678,13 +745,29 @@ function renderHubBlocks(){
     <button class="hb" data-go="news"><div class="hb-h">News</div>${top.length ? top.map(it => `<div class="hb-line"><span class="hb-tag">${esc(it.sec)}</span>${esc(it.title)}</div>`).join("") : `<div class="hb-sub">Not synced yet</div>`}</button>
     <button class="hb" data-go="cameras"><div class="hb-h">Cameras</div><div class="hb-sub">${home.connected && !home.error ? `${cams.length} camera${cams.length === 1 ? "" : "s"}` : "Not connected yet"}</div></button>
     <button class="hb" data-go="devices"><div class="hb-h">Smart devices</div>${th ? `<div class="hb-big">${th.current_temperature ?? "–"}°</div><div class="hb-sub">Inside · set ${th.temperature ?? th.target_temp_low ?? "–"}°</div>` : ""}
-      <div class="hb-sub">${home.connected && !home.error ? `${on} on · ${devs.length} devices` : "Not connected yet"}</div></button>`;
+      <div class="hb-sub">${home.connected && !home.error ? `${on} on · ${devs.length} devices` : "Not connected yet"}</div></button>
+    ${videoBlock()}`;
+}
+const fmtMB = b => b >= 1e9 ? (b / 1e9).toFixed(1) + " GB" : Math.max(1, Math.round(b / 1e6)) + " MB";
+function videoBlock(){
+  const v = S.videos || {}, last = (v.items || [])[0];
+  return `<button class="hb wide" data-go="video"><div class="hb-h">Video Studio${ARROW}</div>
+    <div class="hb-sub">Gaming montages, movie edits, business promos and highlights, edited by Claude.</div>
+    ${last ? `<div class="hb-line"><span class="hb-tag">Latest</span>${esc(last.name)} · ${esc(ago(last.modified))}</div>` : ""}</button>`;
+}
+function videoPage(back){
+  const v = S.videos || {}, items = v.items || [];
+  return back("Video Studio") + `<div class="card" style="padding:16px"><p style="margin:0 0 6px">Video Studio edits on your PC: open the dashboard there and choose <b>Video Studio</b>. Finished videos are saved in <code>outputs/videos</code> on your PC and listed here after each sync.</p></div>
+    <div class="card"><div class="card-h"><h2>Your videos</h2><span class="n">${v.count || 0}</span></div>
+    ${items.length ? items.map(x => `<div class="dev-row"><span class="nm">${esc(x.name)}</span><span class="st">${esc(fmtMB(x.bytes))} · ${esc(ago(x.modified))}</span></div>`).join("") : `<div class="empty">No finished videos yet.</div>`}</div>
+    <p class="note">As of your PC's last sync, ${esc(ago(S.updated))}.</p>`;
 }
 function hubPage(p){
   const back = (title) => `<div class="subhead"><button class="btn sm" data-go="home">‹ Core</button><h2>${title}</h2></div>`;
   const home = S.home || {}, asOf = `<p class="note">As of your PC's last sync, ${esc(ago(S.updated))}.</p>`;
   if (p === "crew") return back("Crew") + `<div class="crew" id="crew"></div>`;
   if (p === "inbox") return inboxPage(back);
+  if (p === "video") return videoPage(back);
   if (p === "weather"){
     const w = S.weather; if (!w) return back("Weather") + `<div class="card empty">The weather arrives with your PC's next sync.</div>`;
     const day = d => new Date(d + "T12:00").toLocaleDateString([], {weekday: "long"});
@@ -732,7 +815,7 @@ function renderCrew(){
       .map(h => ({title: h.title, type: h.type, sub: `Assigned to ${agentOf(h.type).name}`}))].slice(0, 15);
     const tb = crewTab[a.name] || "active", list = tb === "active" ? active : done, busy = active.some(x => x.on);
     return `<article class="mate ${busy ? "busy" : ""}" style="--c:var(${a.color})" data-agent="${esc(a.name)}">
-      <div class="hd"><span class="emblem">${a.name.split(" ").map(w => w[0]).join("")}</span><div style="min-width:0"><h3>${esc(a.name)}</h3><div class="role">0${i + 1} · ${esc(a.role)}</div></div>
+      <div class="hd">${faceSVG(a, busy)}<div style="min-width:0"><h3>${esc(a.name)}</h3><div class="role">0${i + 1} · ${esc(a.role)}</div></div>
         <span class="state"><span class="dot ${busy ? "working" : ""}"></span>${busy ? "Working" : active.length ? "Up next" : "Standing by"}</span></div>
       <div class="tabs2"><button data-crewtab="active" aria-selected="${tb === "active"}">Active · ${active.length}</button><button data-crewtab="done" aria-selected="${tb === "done"}">Done · ${done.length}</button></div>
       <ul class="tasks">${list.length ? list.slice(0, 6).map(x => `<li data-proj="${esc(projectOf(x.title))}" data-title="${esc(x.title)}" data-type="${esc(x.type)}">
@@ -810,59 +893,105 @@ function recapParts(){
   return parts;
 }
 
-/* ---- the neural brain (lighter build of the PC's) ---- */
-const brainState = {activity: .2, speaking: false, kick: 0};
+/* ---- the core: orbital reactor (same as the PC's) ---- */
+const brainState = {activity: .2, speaking: false, kick: 0}, brain = brainState;
 function initBrain(){
   const cv = document.getElementById("brain"); if (!cv) return;
-  const ctx = cv.getContext("2d"), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const P = []; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const c0 = v => Math.max(0, v), se = (v, n) => c0(1 - Math.abs(v) ** n) ** (1 / n);
-  const top = z => .08 + .72 * se((z + .08) / 1.0, 2.6);
-  const bottom = z => { const t = Math.exp(-((z / .44) ** 6)), o = (1 - t) / (1 + Math.exp((z + .45) * 12)); return -(.04 + .44 * t + .22 * o); };
-  const fold = (x, y, z) => 1 + .045 * Math.sin(12*x + 5*y) * Math.sin(10*z + 3*y) + .028 * Math.sin(19*y + 7*z + 2*x);
-  function cer(shell){
-    let z, T, B, rx, ry;
-    for (;;){ z = rnd() * 2 - 1; T = top(z); B = bottom(z); rx = .82 * se(z, 3) ** .6; ry = (T - B) / 2 * se(z, 3.5) ** .5; if (rnd() < (rx + ry) / 1.5) break; }
-    const ph = rnd() * 6.283; let k = fold(Math.cos(ph), Math.sin(ph), z); if (!shell) k *= .45 + rnd() * .45;
-    let x = rx * Math.cos(ph) * k; const y = (T + B) / 2 + ry * Math.sin(ph) * k; x += Math.sign(x || 1) * .04;
-    return [x, y, z * .92];
+  const ctx = cv.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ORBITS = [
+    {rx: .92, ry: .34, tilt: -.35, speed: .16, nodes: 3, rgb: "70,227,255"},
+    {rx: .92, ry: .34, tilt:  .85, speed: -.11, nodes: 2, rgb: "143,123,255"},
+    {rx: .70, ry: .26, tilt: 1.75, speed: .22, nodes: 4, rgb: "70,227,255"}
+  ];
+  let W = 0, H = 0, dpr = 1, level = 0;
+  const t0 = performance.now();
+  function size(){
+    const r = cv.getBoundingClientRect();
+    dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height;
+    cv.width = W * dpr; cv.height = H * dpr;
   }
-  for (let i = 0; i < 820; i++) P.push(cer(true));
-  for (let i = 0; i < 130; i++) P.push(cer(false));
-  for (let i = 0; i < 150; i++){ const u = rnd() * 2 - 1, th = rnd() * 6.283, s = Math.sqrt(1 - u*u), r = 1 + .06 * Math.sin(36 * u); P.push([s * Math.cos(th) * .54 * r, -.47 + u * .24 * r, -.55 + s * Math.sin(th) * .36 * r]); }
-  for (let i = 0; i < 50; i++){ const t = rnd(), a = rnd() * 6.283; P.push([Math.cos(a) * .085, -.36 - t * .66, -.16 + t * .08 + Math.sin(a) * .075]); }
-  const E = [], adj = P.map(() => []);
-  for (let i = 0; i < P.length; i++){
-    const d = []; for (let j = 0; j < P.length; j++) if (j !== i){ const a = P[i][0]-P[j][0], b = P[i][1]-P[j][1], c = P[i][2]-P[j][2]; d.push([a*a + b*b + c*c, j]); }
-    d.sort((a, b) => a[0] - b[0]); for (const [dd, j] of d.slice(0, 3)) if (j > i && dd < .045){ adj[i].push(E.length); adj[j].push(E.length); E.push([i, j]); }
-  }
-  const hot = []; for (let i = 0; hot.length < 7 && i < 3000; i++){ const k = (rnd() * 820) | 0; if (P[k][1] > -.05 && !hot.some(h => (P[h.i][0]-P[k][0])**2 + (P[h.i][1]-P[k][1])**2 + (P[h.i][2]-P[k][2])**2 < .12)) hot.push({i: k, ph: rnd() * 6.283, sp: .5 + rnd() * .8}); }
-  const pulses = []; let W = 0, H = 0, dpr = 1, glow = 0; const t0 = performance.now();
-  const size = () => { const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; };
   new ResizeObserver(size).observe(cv); size();
-  const proj = (p, ca, sa) => { const x = p[0]*ca + p[2]*sa, z = -p[0]*sa + p[2]*ca, y = p[1]*Math.cos(.1) - z*Math.sin(.1), z2 = p[1]*Math.sin(.1) + z*Math.cos(.1), f = 3.4 / (3.4 + z2), sc = Math.min(W * .4, H * .46); return [W/2 + x*sc*f, H/2 - (y + .1)*sc*f, z2, f]; };
+  const hex = (r, rot) => Array.from({length: 6}, (_, i) => [Math.cos(rot + i * Math.PI / 3) * r, Math.sin(rot + i * Math.PI / 3) * r]);
+  function polyPath(pts, cx, cy){
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => i ? ctx.lineTo(cx + x, cy + y) : ctx.moveTo(cx + x, cy + y));
+    ctx.closePath();
+  }
   function frame(now){
     if (!cv.isConnected) return;                                       // tab changed: stop
     if (!document.hidden && W){
-      const sec = (now - t0) / 1000, ang = -Math.PI/2 + (reduce ? 0 : sec * .07);
-      brainState.kick *= .9; glow += ((brainState.speaking ? .9 : brainState.activity * .55) + brainState.kick * .6 - glow) * .05;
-      const ca = Math.cos(ang), sa = Math.sin(ang), Q = P.map(p => proj(p, ca, sa));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-      const g = ctx.createRadialGradient(W/2, H/2, 8, W/2, H/2, Math.min(W, H) * .6); g.addColorStop(0, `rgba(90,170,255,${.14 + glow * .12})`); g.addColorStop(1, "rgba(40,90,200,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      ctx.lineWidth = .55;
-      for (const [i, j] of E){ const a = Q[i], b = Q[j]; ctx.strokeStyle = `rgba(200,232,255,${.10 + (1 - (a[2] + b[2]) / 2) * .16 + glow * .06})`; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
-      if (!reduce && Math.random() < (.25 + brainState.activity * 1.2 + (brainState.speaking ? 2 : 0) + brainState.kick * 3) * .35){ const e = (Math.random() * E.length) | 0; pulses.push({a: E[e][0], b: E[e][1], e, t: 0, v: .035 + Math.random() * .045, hops: 0}); }
-      ctx.lineCap = "round";
-      for (let k = pulses.length - 1; k >= 0; k--){
-        const p = pulses[k]; p.t += p.v; const a = Q[p.a], b = Q[p.b], t1 = Math.min(1, p.t), t2 = Math.max(0, p.t - .45);
-        ctx.strokeStyle = "rgba(255,190,250,.95)"; ctx.shadowColor = "#e9a6ff"; ctx.shadowBlur = 10; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(a[0] + (b[0]-a[0])*t2, a[1] + (b[1]-a[1])*t2); ctx.lineTo(a[0] + (b[0]-a[0])*t1, a[1] + (b[1]-a[1])*t1); ctx.stroke();
-        if (p.t >= 1){ pulses.splice(k, 1); const nx = adj[p.b].filter(e => e !== p.e); if (p.hops < 6 && nx.length && Math.random() < .7){ const e = nx[(Math.random() * nx.length) | 0]; pulses.push({a: p.b, b: E[e][0] === p.b ? E[e][1] : E[e][0], e, t: 0, v: p.v, hops: p.hops + 1}); } }
+      const sec = (now - t0) / 1000;
+      const target = brain.speaking ? 1 : brain.activity * .6;
+      level += ((target + brain.kick * .6) - level) * .05;
+      brain.kick *= .9;
+      const spin = reduce ? 0 : 1 + level * 1.6;
+      const cx = W / 2, cy = H / 2, R = Math.min(W, H) * .4;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      // soft backdrop glow
+      const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.3);
+      bg.addColorStop(0, `rgba(70,227,255,${.07 + level * .08})`);
+      bg.addColorStop(1, "rgba(70,227,255,0)");
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+      // outer tick ring
+      const ticks = 72;
+      for (let i = 0; i < ticks; i++){
+        const a = i / ticks * Math.PI * 2 + sec * .04 * spin;
+        const major = i % 6 === 0;
+        const r0 = R * 1.12, r1 = R * (major ? 1.2 : 1.16);
+        ctx.strokeStyle = `rgba(143,123,255,${major ? .55 : .22})`;
+        ctx.lineWidth = major ? 1.4 : 1;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0);
+        ctx.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+        ctx.stroke();
       }
-      ctx.shadowBlur = 0; ctx.lineWidth = .55; if (pulses.length > 200) pulses.splice(0, pulses.length - 200);
-      for (const h of hot){ const q = Q[h.i], pu = .55 + .45 * Math.sin(sec * h.sp * 1.6 + h.ph), r = (8 + 8 * pu + glow * 5) * q[3], al = (.35 + .5 * pu) * (1.15 - q[2] * .4);
-        const hg = ctx.createRadialGradient(q[0], q[1], 0, q[0], q[1], r); hg.addColorStop(0, `rgba(255,240,255,${al})`); hg.addColorStop(.35, `rgba(225,150,255,${al * .65})`); hg.addColorStop(1, "rgba(160,90,255,0)");
-        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.283); ctx.fill(); }
+
+      // orbits: a faint track, a comet trail and a node for each member
+      for (const o of ORBITS){
+        const ct = Math.cos(o.tilt), st = Math.sin(o.tilt);
+        const at = ang => {
+          const x = Math.cos(ang) * o.rx * R, y = Math.sin(ang) * o.ry * R;
+          return [cx + x * ct - y * st, cy + x * st + y * ct];
+        };
+        ctx.beginPath();
+        for (let s = 0; s <= 96; s++){
+          const [x, y] = at(s / 96 * Math.PI * 2);
+          s ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(${o.rgb},.18)`; ctx.lineWidth = 1; ctx.stroke();
+
+        const head = sec * o.speed * spin;
+        for (let n = 0; n < o.nodes; n++){
+          const base = head + n * Math.PI * 2 / o.nodes;
+          for (let k = 1; k <= 14; k++){
+            const [x1, y1] = at(base - (k - 1) * .035), [x2, y2] = at(base - k * .035);
+            ctx.strokeStyle = `rgba(${o.rgb},${.5 * (1 - k / 15)})`;
+            ctx.lineWidth = 2.2 * (1 - k / 15) + .4;
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+          }
+          const [hx, hy] = at(base);
+          ctx.fillStyle = `rgba(${o.rgb},.95)`;
+          ctx.beginPath(); ctx.arc(hx, hy, 3.4, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,.9)";
+          ctx.beginPath(); ctx.arc(hx, hy, 1.4, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      // hexagonal core: outer hexagon, counter-rotating inner hexagon, glowing centre
+      const hr = R * .26, rot = sec * .18 * spin;
+      polyPath(hex(hr, rot), cx, cy);
+      ctx.fillStyle = `rgba(70,227,255,${.05 + level * .12})`; ctx.fill();
+      ctx.strokeStyle = `rgba(70,227,255,${.55 + level * .35})`; ctx.lineWidth = 1.6; ctx.stroke();
+      polyPath(hex(hr * .58, -rot * 1.7 + .5), cx, cy);
+      ctx.strokeStyle = "rgba(143,123,255,.7)"; ctx.lineWidth = 1.2; ctx.stroke();
+      const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, hr * .35);
+      cg.addColorStop(0, `rgba(255,255,255,${.6 + level * .35})`);
+      cg.addColorStop(1, "rgba(70,227,255,0)");
+      ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, hr * .35, 0, Math.PI * 2); ctx.fill();
     }
     requestAnimationFrame(frame);
   }
