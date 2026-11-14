@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Foreman AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -248,6 +249,28 @@ a{color:var(--accent)}
 .hb:active{border-color:var(--line-hi);box-shadow:var(--glow)}
 .hb.wide{grid-column:1 / -1;min-height:0}
 /* Leads & inbox */
+a.hb{text-decoration:none}
+.hb-logo{align-items:center;justify-content:center;min-height:96px}
+.hb-logo svg{width:52px;height:52px}
+.mc{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:13px;font-variant-numeric:tabular-nums}
+.mc span{display:block;position:relative;line-height:20px;padding:2px 0 4px;border-radius:8px}
+.mc .mc-wd{color:var(--muted);font-size:11px;padding-bottom:0}
+.mc .mc-past{color:var(--muted);opacity:.55}
+.mc .mc-today{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.mc .mc-ev::after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#2f8cff}
+.mc .mc-today.mc-ev::after{background:var(--accent-ink)}
+.mc-month{margin-left:auto;color:var(--muted);letter-spacing:.08em}
+.mn{display:grid;gap:8px;margin-bottom:12px}.mn:empty{display:none}
+.mn-card{position:relative;border:1px solid var(--line-hi);border-left:3px solid var(--mn);border-radius:14px;background:var(--card)}
+.mn-open{display:grid;gap:3px;padding:12px 44px 12px 14px;color:var(--fg);text-decoration:none;min-width:0}
+.mn-top{display:flex;align-items:center;gap:8px;min-width:0}.mn-top svg{width:18px;height:18px;flex:none}
+.mn-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-when{margin-left:auto;color:var(--muted);font-size:12px;flex:none}
+.mn-subj{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-sub{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mn-x{position:absolute;top:4px;right:4px;width:40px;height:40px;border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer}
+.mn-foot{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);padding:0 4px}
+.mn-foot button{border:0;background:none;color:var(--accent);font:inherit;padding:8px 0;cursor:pointer}
 .ib-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ib-nums div{display:grid}.ib-nums b{font-size:24px;font-weight:700;line-height:1.1}.ib-nums span{font-size:11.5px;color:var(--muted)}
 .ib-row{display:grid;gap:3px;padding:12px 14px;border-top:1px solid var(--line);color:var(--fg);text-decoration:none;min-width:0}
@@ -311,6 +334,8 @@ header.top h1{font-size:20px}
 
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="b-gmail" viewBox="0 0 48 48"><g stroke="none"><path fill="#4285f4" d="M6 40h7V22L3 14.5V37c0 1.7 1.3 3 3 3z"/><path fill="#34a853" d="M35 40h7c1.7 0 3-1.3 3-3V14.5L35 22z"/><path fill="#fbbc04" d="M35 9v13l10-7.5V11c0-3.7-4.2-5.8-7.2-3.6z"/><path fill="#ea4335" d="M13 22V9l11 8.3L35 9v13l-11 8.3z"/><path fill="#c5221f" d="M3 11v3.5L13 22V9l-2.8-2.1C7.2 4.7 3 6.9 3 11z"/></g></symbol>
+<symbol id="b-outlook" viewBox="0 0 48 48"><g stroke="none"><rect x="17" y="7" width="27" height="34" rx="3" fill="#28a8ea"/><path fill="#0364b8" d="M17 24h27v14a3 3 0 0 1-3 3H20a3 3 0 0 1-3-3z"/><rect x="4" y="12" width="24" height="24" rx="3" fill="#0078d4"/><ellipse cx="16" cy="24" rx="6" ry="7.2" fill="none" stroke="#fff" stroke-width="3"/></g></symbol></svg>
 <div class="wrap">
   <header class="top">
     <span class="mark">✓</span>
@@ -520,6 +545,7 @@ function coreShell(){
       <div class="brief" id="briefText"></div>
     </div>
     <div id="phonePending"></div>
+    <div class="mn" id="mailNotes" aria-live="polite" aria-label="New email"></div>
     <div class="hubgrid" id="hubgrid"></div>
   </div>`;
 }
@@ -546,16 +572,69 @@ const ibNew = ib => (ib.leads || []).filter(l => (l.status || "new") === "new" &
 const safeUrl = u => /^https:\/\//.test(u || "") ? u : "#";
 function inboxBlock(){
   const ib = S.inbox || {}, c = ib.connected || {};
-  if (!Object.values(c).some(Boolean)) return `<button class="hb wide" data-go="inbox"><div class="hb-h">Leads &amp; inbox${ARROW}</div><div class="hb-sub">${ib.error ? esc(ib.error) : "Connect website leads, Gmail and Outlook on your PC's dashboard."}</div></button>`;
-  const nl = ibNew(ib), d = (ib.dates || [])[0], next = (ib.events || []).find(e => new Date(e.end) > new Date() && !e.allday);
-  return `<button class="hb wide" data-go="inbox"><div class="hb-h">Leads &amp; inbox${ARROW}</div>
-    <div class="ib-nums"><div><b style="${nl.length ? "color:var(--accent)" : ""}">${c.site ? nl.length : "–"}</b><span>new leads</span></div><div><b>${c.gmail || c.outlook ? ib.unread || 0 : "–"}</b><span>unread</span></div><div><b>${(ib.dates || []).length}</b><span>to confirm</span></div></div>
-    ${d ? `<div class="hb-line"><span class="hb-tag">${IB_NAME[d.kind]}</span>${esc(d.who)} · <b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? " · free" : d.free === false ? " · clashes" : ""}</div>` : ""}
-    ${next ? `<div class="hb-sub">Next: ${esc(next.title)} · ${esc(ibWhen(next.start))}</div>` : ""}</button>`;
+  if (!c.site && !(ib.dates || []).length) return `<button class="hb wide" data-go="inbox"><div class="hb-h">Website leads${ARROW}</div><div class="hb-sub">${ib.error ? esc(ib.error) : "Connect your website leads on your PC's dashboard (Leads &amp; inbox page)."}</div></button>`;
+  const nl = ibNew(ib), d = (ib.dates || [])[0];
+  return `<button class="hb wide" data-go="inbox"><div class="hb-h">Website leads${ARROW}</div>
+    <div class="ib-nums"><div><b style="${nl.length ? "color:var(--accent)" : ""}">${c.site ? nl.length : "–"}</b><span>new leads</span></div><div><b>${(ib.dates || []).length}</b><span>dates to confirm</span></div></div>
+    ${d ? `<div class="hb-line"><span class="hb-tag">${IB_NAME[d.kind]}</span>${esc(d.who)} · <b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? " · free" : d.free === false ? " · clashes" : ""}</div>` : ""}</button>`;
 }
+const gmailHome = ib => "https://mail.google.com/mail/u/?authuser=" + encodeURIComponent(ib?.accounts?.gmail || "");
+function mailBlocks(){
+  const ib = S.inbox || {};
+  return `<a class="hb hb-logo" href="${esc(ib.accounts?.gmail ? gmailHome(ib) : "https://mail.google.com/")}" target="_blank" rel="noopener" aria-label="Open Gmail"><svg><use href="#b-gmail"/></svg></a>
+    <a class="hb hb-logo" href="https://outlook.live.com/mail/" target="_blank" rel="noopener" aria-label="Open Outlook"><svg><use href="#b-outlook"/></svg></a>`;
+}
+// Mini month: today highlighted, a dot on days with events. Tapping opens the Outlook calendar.
+function calBlock(){
+  const ib = S.inbox || {}, c = ib.connected || {}, now = new Date(), y = now.getFullYear(), mo = now.getMonth();
+  const busy = new Set((ib.events || []).map(e => new Date(e.start).toDateString()));
+  let cells = ["S", "M", "T", "W", "T", "F", "S"].map(d => `<span class="mc-wd">${d}</span>`).join("") + "<span></span>".repeat(new Date(y, mo, 1).getDay());
+  for (let d = 1, n = new Date(y, mo + 1, 0).getDate(); d <= n; d++){
+    const cls = [d === now.getDate() && "mc-today", d < now.getDate() && "mc-past", busy.has(new Date(y, mo, d).toDateString()) && "mc-ev"].filter(Boolean).join(" ");
+    cells += `<span${cls ? ` class="${cls}"` : ""}>${d}</span>`;
+  }
+  const next = (ib.events || []).find(e => new Date(e.end) > now);
+  const line = !(c.outlook || c.ics) ? "Connect your calendar on your PC's dashboard to see events"
+    : next ? `Next: <b style="color:var(--fg)">${esc(next.title)}</b> · ${esc(next.allday ? ibWhen(next.start, false) : ibWhen(next.start))}` : "Nothing coming up";
+  return `<a class="hb wide" href="https://outlook.live.com/calendar/" target="_blank" rel="noopener"><div class="hb-h">Calendar<span class="mc-month">${esc(now.toLocaleDateString([], {month: "long"}))}</span></div>
+    <div class="mc">${cells}</div><div class="hb-sub">${line}</div></a>`;
+}
+// New-mail cards: emails from people that arrived since you last looked (they come with each PC sync).
+const MN = {since: null, seen: [], shown: []};
+try { Object.assign(MN, JSON.parse(localStorage.getItem("fm-phone-mail") || "{}")); } catch {}
+const mnKey = m => [m.acct, m.link, m.date, m.subject].join("|");
+function mnSave(){ try { localStorage.setItem("fm-phone-mail", JSON.stringify({since: MN.since, seen: MN.seen.slice(-200), shown: MN.shown.slice(0, 20)})); } catch {} }
+function mailNotify(){
+  const mail = ((S.inbox || {}).mail || []).filter(m => m.date), seen = new Set(MN.seen);
+  if (!MN.since){ MN.since = new Date().toISOString(); MN.seen = mail.map(mnKey); mnSave(); return; }
+  const recent = Date.now() - 2 * 864e5;
+  mail.filter(m => m.unread && !seen.has(mnKey(m)) && new Date(m.date) > recent).reverse()
+    .forEach(m => MN.shown.unshift({k: mnKey(m), acct: m.acct, from: m.from_name, subject: m.subject, snippet: m.snippet, date: m.date, link: m.link}));
+  mail.forEach(m => seen.add(mnKey(m))); MN.seen = [...seen];
+  const read = new Set(mail.filter(m => !m.unread).map(mnKey));
+  MN.shown = MN.shown.filter(n => !read.has(n.k));
+  mnSave();
+}
+function renderMailNotes(){
+  const box = document.getElementById("mailNotes"); if (!box) return;
+  if (!MN.shown.length){ box.innerHTML = ""; return; }
+  const list = MN.shown.slice(0, 3), more = MN.shown.length - list.length;
+  box.innerHTML = list.map(n => `<div class="mn-card" style="--mn:${IB_COL[n.acct]}">
+      <a class="mn-open" href="${esc(safeUrl(n.link))}" target="_blank" rel="noopener" data-mnk="${esc(n.k)}">
+        <div class="mn-top"><svg><use href="#b-${n.acct}"/></svg><b>${esc(n.from)}</b><span class="mn-when">${esc(ago(n.date))}</span></div>
+        <div class="mn-subj">${esc(n.subject)}</div>${n.snippet ? `<div class="mn-sub">${esc(n.snippet)}</div>` : ""}</a>
+      <button class="mn-x" data-mnx="${esc(n.k)}" aria-label="Dismiss">×</button></div>`).join("")
+    + `<div class="mn-foot"><span>${more > 0 ? `+${more} more` : ""}</span>${MN.shown.length > 1 ? `<button id="mnClear">Clear all</button>` : ""}</div>`;
+}
+function mnDrop(k){ MN.shown = MN.shown.filter(n => n.k !== k); mnSave(); renderMailNotes(); }
+document.addEventListener("click", e => {
+  const o = e.target.closest("[data-mnk]"); if (o){ setTimeout(() => mnDrop(o.dataset.mnk)); return; }
+  const x = e.target.closest("[data-mnx]"); if (x){ e.stopPropagation(); return mnDrop(x.dataset.mnx); }
+  if (e.target.closest("#mnClear")){ e.stopPropagation(); MN.shown = []; mnSave(); renderMailNotes(); }
+}, true);
 function inboxPage(back){
   const ib = S.inbox || {}, c = ib.connected || {};
-  if (!Object.values(c).some(Boolean)) return back("Leads & inbox") + `<div class="card" style="padding:16px"><p style="margin:0">Connect your website leads, Gmail and Outlook on your PC's dashboard (Leads &amp; inbox page). They show here after each sync.</p></div>`;
+  if (!Object.values(c).some(Boolean)) return back("Leads & calendar") + `<div class="card" style="padding:16px"><p style="margin:0">Connect your website leads, Gmail and Outlook on your PC's dashboard (Leads &amp; inbox page). They show here after each sync.</p></div>`;
   const E = ib.errors || {}, err = k => E[k] ? `<p class="note" style="color:var(--bad)">${esc(E[k])}</p>` : "";
   const dates = (ib.dates || []).length ? `<div class="card"><div class="card-h"><h2>Dates to confirm</h2><span class="n">${ib.dates.length}</span></div>${ib.dates.map(d => `<div class="ib-row">
       <div class="ib-top"><b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? `<span class="ib-pill ok">✓ Free</span>` : d.free === false ? `<span class="ib-pill bad">Clashes${d.conflict ? ": " + esc(d.conflict) : ""}</span>` : ""}</div>
@@ -565,13 +644,10 @@ function inboxPage(back){
       <div class="ib-top"><b>${esc(l.name || l.email || "Someone")}</b><span class="ib-pill ${(l.status || "new") === "new" ? "new" : ""}">${esc(l.status || "new")}</span><span class="ib-when">${esc(ago(l.created_at))}</span></div>
       ${l.business ? `<div class="ib-meta">${esc([l.business, l.business_type].filter(Boolean).join(" · "))}</div>` : ""}${l.message ? `<div class="ib-sub">${esc(l.message)}</div>` : ""}
       <div class="ib-acts">${l.email ? `<a class="btn sm" href="mailto:${esc(l.email)}?subject=${encodeURIComponent("Your website inquiry")}">✉ Reply</a>` : ""}${l.phone ? `<a class="btn sm" href="tel:${esc(l.phone)}">☎ Call</a>` : ""}</div></div>`).join("") || `<div class="empty">No leads yet.</div>`}</div>` : "";
-  const mail = c.gmail || c.outlook ? `<div class="card"><div class="card-h"><h2>Inbox</h2><span class="n">${ib.unread || 0} unread</span></div>${err("gmail")}${err("outlook")}${(ib.mail || []).map(m => `<a class="ib-row ib-mail ${m.unread ? "unread" : ""}" href="${esc(safeUrl(m.link))}" target="_blank" rel="noopener">
-      <div class="ib-top"><i class="ib-dot" style="background:${IB_COL[m.acct]}"></i><b>${esc(m.from_name)}</b><span class="ib-when">${esc(ago(m.date))}</span></div>
-      <div class="ib-subj">${esc(m.subject)}</div><div class="ib-sub">${esc(m.snippet)}</div></a>`).join("") || `<div class="empty">No emails from people lately.</div>`}</div>` : "";
   let last = "";
   const cal = c.outlook || c.ics ? `<div class="card"><div class="card-h"><h2>Calendar</h2></div>${err("calendar")}${(ib.events || []).map(e => { const day = ibWhen(e.start, false), h = day !== last ? `<div class="ib-day">${esc(day)}</div>` : ""; last = day;
       return h + `<div class="dev-row"><span class="nm">${esc(e.title)}</span><span class="st">${e.allday ? "All day" : esc(new Date(e.start).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"}))}</span></div>`; }).join("") || `<div class="empty">Nothing scheduled.</div>`}</div>` : "";
-  return back("Leads & inbox") + dates + leads + mail + cal + `<p class="note">As of your PC's last sync, ${esc(ago(ib.updated || S.updated))}. Add to Outlook opens Outlook with the event filled in; you press Save.</p>`;
+  return back("Leads & calendar") + dates + leads + cal + `<p class="note">As of your PC's last sync, ${esc(ago(ib.updated || S.updated))}. Add to Outlook opens Outlook with the event filled in; you press Save.</p>`;
 }
 const WX_ICON = c => c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" : c <= 67 ? "🌧️" : c <= 77 ? "🌨️" : c <= 82 ? "🌦️" : c <= 86 ? "🌨️" : "⛈️";
 const ARROW = `<span class="go">Open ›</span>`;
@@ -583,6 +659,7 @@ function flowRows(){
   });
 }
 function renderHubBlocks(){
+  mailNotify(); renderMailNotes();
   const rows = flowRows(), busy = rows.filter(r => r.on).length, today = new Date().toLocaleDateString("en-CA");
   const doneToday = (S.done || []).filter(d => d.date === today).length, pending = (S.approvals || []).filter(a => a.status === "pending").length;
   const wx = S.weather, news = S.news, home = S.home || {};
@@ -594,6 +671,8 @@ function renderHubBlocks(){
       <div class="hb-sub">${busy ? `${busy} working now` : "Team standing by"} · ${(S.queue || []).length} queued · ${doneToday} done today${pending ? ` · <b style="color:var(--warn)">${pending} need you</b>` : ""}</div>
       <div class="flow-mates">${rows.map(r => `<div class="flow-mate ${r.on ? "on" : ""}" style="--c:var(${r.a.color})"><span class="d"></span><span class="nm">${esc(r.a.name)}</span><span class="st">${esc(r.st)}</span></div>`).join("")}</div></button>
     ${inboxBlock()}
+    ${mailBlocks()}
+    ${calBlock()}
     <button class="hb" data-go="weather"><div class="hb-h">Weather</div>${wx ? `<div class="hb-big">${WX_ICON(wx.now.code ?? 0)} ${wx.now.temp}°</div>
       <div class="hb-sub">${esc(wx.now.desc)} · H ${wx.today.hi}° L ${wx.today.lo}°</div>` : `<div class="hb-sub">Not synced yet</div>`}</button>
     <button class="hb" data-go="news"><div class="hb-h">News</div>${top.length ? top.map(it => `<div class="hb-line"><span class="hb-tag">${esc(it.sec)}</span>${esc(it.title)}</div>`).join("") : `<div class="hb-sub">Not synced yet</div>`}</button>
