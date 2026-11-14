@@ -131,7 +131,7 @@ def build():
         ib = inbox.status()
         c = ib["connected"]
         state["inbox"] = {
-            "connected": c, "updated": ib["updated"], "errors": ib["errors"],
+            "connected": c, "updated": ib["updated"], "errors": ib["errors"], "accounts": {"gmail": ib["accounts"].get("gmail")},
             "leads": [{k: ld[k] for k in ("name", "email", "phone", "business", "business_type", "status", "source", "created_at", "timeline")
                        if k in ld} | {"message": (ld.get("message") or ld.get("need") or "")[:300]} for ld in ib["leads"][:15]],
             "unread": sum(1 for m in ib["mail"] if m["unread"] and not m["bulk"]),
