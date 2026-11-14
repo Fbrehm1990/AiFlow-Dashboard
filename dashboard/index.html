@@ -734,6 +734,23 @@ svg.bi-flag{width:27px;height:18px;border-radius:3px;box-shadow:0 0 0 1px rgba(2
 .hb-brand .hb-big{display:flex;align-items:baseline;gap:8px}
 .hb-brand .hb-big small{font-size:13px;font-weight:500;color:var(--muted);font-family:inherit}
 .hb-brand .hb-line b{font-weight:600}
+.mn{position:fixed;bottom:18px;right:18px;width:340px;max-width:calc(100% - 28px);display:grid;gap:8px;z-index:65}
+.mn:empty{display:none}
+.mn-card{position:relative;background:rgba(8,14,28,.97);border:1px solid var(--border-hi);border-left:3px solid var(--mn);border-radius:12px}
+.mn-card.mn-new{animation:mnIn .25s ease-out}
+.mn-open{display:grid;gap:3px;padding:10px 34px 10px 12px;color:inherit;text-decoration:none;min-width:0}
+.mn-open:hover{background:var(--accent-soft);border-radius:11px}
+.mn-top{display:flex;align-items:center;gap:7px;min-width:0}.mn-top svg.bi{width:16px;height:16px}
+.mn-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-when{margin-left:auto;color:var(--muted);font-size:12px;flex:none}
+.mn-subj{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-sub{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mn-x{position:absolute;top:6px;right:6px;width:24px;height:24px;border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;border-radius:6px}
+.mn-x:hover{color:var(--text);background:var(--surface-2)}
+.mn-foot{display:flex;gap:12px;justify-content:flex-end;align-items:center;font-size:12px;color:var(--muted)}
+.mn-foot:empty{display:none}
+.mn-link{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;padding:2px 0}
+@keyframes mnIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
 .ib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
 @media (max-width:1200px){.ib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){.ib-grid{grid-template-columns:1fr}}
@@ -2478,10 +2495,11 @@ setInterval(() => { if (!document.hidden && route === "") renderUsageTile(); }, 
 const IB = {data: null, at: 0, err: null, loading: null, setupShown: false, device: null};
 const IB_COL = {lead: "var(--accent)", gmail: "#ea4335", outlook: "#2f8cff"};
 const IB_NAME = {lead: "Website", gmail: "Gmail", outlook: "Outlook"};
-const ibUrl = u => /^https:\/\//.test(u || "") ? u : "#";        // links from mail and calendars open only as web pages
+const ibUrl = u => /^https:\/\//.test(u || "") ? u : "#";
+const ibGmailHome = u => "https://mail.google.com/mail/u/?authuser=" + encodeURIComponent(u?.accounts?.gmail || "");        // links from mail and calendars open only as web pages
 async function inboxNow(force){
   if (force || !IB.data || Date.now() - IB.at > 120000){
-    IB.loading ??= api("/api/inbox" + (force ? "?refresh=1" : "")).then(d => { IB.data = d; IB.at = Date.now(); IB.err = null; })
+    IB.loading ??= api("/api/inbox" + (force ? "?refresh=1" : "")).then(d => { IB.data = d; IB.at = Date.now(); IB.err = null; mailNotify(d); })
       .catch(e => { IB.err = e.message; }).finally(() => { IB.loading = null; });
     await IB.loading;
   }
@@ -2501,6 +2519,9 @@ async function renderInboxTile(){
   if (!box("hbLeads")) return;
   if (!u){ ["hbLeads", "hbGmail", "hbOutlook"].forEach(id => box(id).innerHTML = `<div class="hb-sub">Unavailable${IB.err ? ": " + esc(IB.err) : ""}</div>`); return; }
   ibBadge(u);
+  const ext = (id, url) => { const a = $("#" + id); if (url){ a.href = url; a.target = "_blank"; a.rel = "noopener"; } else { a.href = "#/inbox"; a.removeAttribute("target"); } };
+  ext("hbGmail", u.connected.gmail ? ibGmailHome(u) : null);
+  ext("hbOutlook", u.connected.outlook ? "https://outlook.live.com/mail/" : u.connected.ics ? "https://outlook.live.com/calendar/" : null);
   const c = u.connected, E = u.errors || {}, setup = what => `<div class="hb-sub">Not connected yet. Connect ${what} on the Leads &amp; inbox page.</div><div class="hb-foot">Set up →</div>`;
   const people = acct => u.mail.filter(m => m.acct === acct && !m.bulk), unread = acct => people(acct).filter(m => m.unread).length;
   const dateLine = kinds => { const d = u.dates.find(x => kinds.includes(x.kind)); return d ? `<div class="hb-line"><span class="hb-tag">Date</span>${esc(d.who)}: <b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? " · free" : d.free === false ? " · clashes" : ""}</div>` : ""; };
@@ -2530,7 +2551,7 @@ async function renderInboxTile(){
     <div class="hb-foot">${u.dates.length ? u.dates.length + " date" + (u.dates.length === 1 ? "" : "s") + " to confirm" : c.outlook ? "Mail + calendar" : "Calendar"}</div>`;
 }
 // Clicking a box opens Leads & inbox at that box's section.
-document.addEventListener("click", e => { const a = e.target.closest("[data-ibgo]"); if (a) IB.scrollTo = a.dataset.ibgo; });
+document.addEventListener("click", e => { const a = e.target.closest("[data-ibgo]"); if (a && a.getAttribute("href").startsWith("#")) IB.scrollTo = a.dataset.ibgo; });
 async function renderInbox(first){
   const live = $("#ibLive");
   if (first && !IB.data) live.innerHTML = `<section class="card"><div class="card-b hint">Checking your leads, email and calendar…</div></section>`;
@@ -2565,14 +2586,12 @@ async function renderInbox(first){
           <div class="ib-acts">${l.email ? `<a class="btn sm" href="mailto:${esc(l.email)}?subject=${encodeURIComponent("Your website inquiry")}">✉ Reply</a>` : ""}${l.phone ? `<a class="btn sm" href="tel:${esc(l.phone)}">☎ ${esc(l.phone)}</a>` : ""}</div>
         </div>`).join("")}</div>`}</section>`;
 
-  const mailOn = c.gmail || c.outlook, people = u.mail.filter(m => !m.bulk), bulk = u.mail.length - people.length;
-  const mail = `<section class="card" id="ibMailCard"><div class="card-h">${c.gmail ? `<svg class="bi"><use href="#b-gmail"/></svg>` : ""}${c.outlook ? `<svg class="bi"><use href="#b-outlook"/></svg>` : ""}<h2>Inbox</h2><span class="count">${mailOn ? people.filter(m => m.unread).length + " unread" : ""}</span><span class="spacer"></span>
+  const mailOn = c.gmail || c.outlook;
+  const mail = `<section class="card" id="ibMailCard"><div class="card-h">${c.gmail ? `<svg class="bi"><use href="#b-gmail"/></svg>` : ""}${c.outlook ? `<svg class="bi"><use href="#b-outlook"/></svg>` : ""}<h2>Email</h2><span class="spacer"></span>
       <span class="hint">${[c.gmail && "Gmail", c.outlook && "Outlook"].filter(Boolean).join(" + ")}</span></div>${err("gmail")}${err("outlook")}
-    ${!mailOn ? `<div class="card-b hint">Not connected yet. Set it up below.</div>` : !people.length ? `<div class="card-b hint">No emails from people in the last two weeks.</div>`
-      : `<div class="ib-list">${people.slice(0, 30).map(m => `<a class="ib-item ib-mail ${m.unread ? "unread" : ""}" href="${esc(ibUrl(m.link))}" target="_blank" rel="noopener">
-          <div class="ib-top"><i class="ib-dot" style="background:${IB_COL[m.acct]}" title="${IB_NAME[m.acct]}"></i><b>${esc(m.from_name)}</b><span class="ib-when">${esc(ago(m.date))}</span></div>
-          <div class="ib-subj">${esc(m.subject)}</div><div class="ib-sub">${esc(m.snippet)}</div></a>`).join("")}</div>
-        ${bulk ? `<div class="card-b hint" style="padding-top:8px">${bulk} newsletter${bulk === 1 ? "" : "s"} and notification${bulk === 1 ? "" : "s"} hidden.</div>` : ""}`}</section>`;
+    ${!mailOn ? `<div class="card-b hint">Not connected yet. Set it up below.</div>`
+      : `<div class="card-b hint">New emails from people pop up in the bottom-right corner. Click one to open it in your account.</div>
+        <div class="card-b ib-acts" style="padding-top:0">${c.gmail ? `<a class="btn sm" href="${esc(ibGmailHome(u))}" target="_blank" rel="noopener">Open Gmail ↗</a>` : ""}${c.outlook ? `<a class="btn sm" href="https://outlook.live.com/mail/" target="_blank" rel="noopener">Open Outlook ↗</a>` : ""}</div>`}</section>`;
 
   let lastDay = "";
   const cal = `<section class="card" id="ibCalCard"><div class="card-h"><svg class="bi"><use href="#b-outlook"/></svg><h2>Calendar</h2><span class="count">next 2 weeks</span><span class="spacer"></span><span class="hint">Outlook</span></div>${err("calendar")}
@@ -2658,7 +2677,66 @@ document.addEventListener("click", async e => {
   try { await ibAfter(await api("/api/inbox/disconnect", {which: dis.dataset.ibdis}), "Disconnected"); } catch (err) { toast(err.message, true); }
 });
 // New leads and email arrive on their own: the page refreshes every 2 minutes (the server caches for the same time).
-setInterval(() => { if (document.hidden) return; if (route === "inbox") renderInbox(false); else if (route === "") renderInboxTile(); else inboxNow().then(ibBadge); }, 120000);
+setInterval(async () => { const u = await inboxNow(); if (document.hidden) return; if (route === "inbox") renderInbox(false); else if (route === "") renderInboxTile(); else ibBadge(u); }, 60000);
+
+// ---------------------------------------------------------------- New-mail notifications
+// A card pops up (bottom right) for each email from a person that arrives while the dashboard is open, plus a desktop
+// alert if allowed. Clicking opens that email on gmail.com or outlook.com. Cards go away when clicked, dismissed,
+// or when the email has been read in the account. Newsletters and notifications are skipped.
+const MN = {since: null, seen: new Set(), shown: [], drawn: "", fresh: new Set()};
+try { const s = JSON.parse(localStorage.getItem("fm-mail-notes") || "{}"); MN.since = s.since || null; MN.seen = new Set(s.seen || []); MN.shown = s.shown || []; } catch {}
+const mnKey = m => [m.acct, m.link, m.date, m.subject].join("|");
+function mnSave(){ try { localStorage.setItem("fm-mail-notes", JSON.stringify({since: MN.since, seen: [...MN.seen].slice(-400), shown: MN.shown.slice(0, 30)})); } catch {} }
+function mnDrop(k){ MN.shown = MN.shown.filter(n => n.k !== k); mnSave(); renderMailNotes(); }
+function mailNotify(u){
+  if (!u?.mail) return;
+  const people = u.mail.filter(m => !m.bulk && m.date);
+  if (!MN.since){                                   // first time: start counting from now, so old mail doesn't flood in
+    MN.since = new Date().toISOString(); people.forEach(m => MN.seen.add(mnKey(m))); mnSave(); return;
+  }
+  const recent = Date.now() - 2 * 864e5;
+  const fresh = people.filter(m => m.unread && !MN.seen.has(mnKey(m)) && new Date(m.date) > recent).reverse();
+  fresh.forEach(m => {
+    const n = {k: mnKey(m), acct: m.acct, from: m.from_name, subject: m.subject, snippet: m.snippet, date: m.date, link: m.link};
+    MN.seen.add(n.k); MN.shown.unshift(n); MN.fresh.add(n.k); mnDesktop(n);
+  });
+  people.forEach(m => MN.seen.add(mnKey(m)));       // read or old mail never pops up later
+  const read = new Set(people.filter(m => !m.unread).map(mnKey));
+  MN.shown = MN.shown.filter(n => !read.has(n.k));  // read it in Gmail/Outlook? the card goes away
+  mnSave(); renderMailNotes();
+}
+function mnDesktop(n){
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  try {
+    const d = new Notification(`${n.from} · ${IB_NAME[n.acct]}`, {body: n.subject, tag: n.k});
+    d.onclick = () => { window.open(ibUrl(n.link), "_blank", "noopener"); d.close(); mnDrop(n.k); };
+  } catch {}
+}
+function renderMailNotes(){
+  let box = document.getElementById("mailNotes");    // not $(): it returns a stand-in when missing
+  if (!box){ box = document.createElement("div"); box.id = "mailNotes"; box.className = "mn"; box.setAttribute("aria-live", "polite"); box.setAttribute("aria-label", "New email"); document.body.append(box); }
+  const list = MN.shown.slice(0, 4), more = MN.shown.length - list.length;
+  const ask = "Notification" in window && Notification.permission === "default";
+  const sig = JSON.stringify([list.map(n => n.k + n.date), more, ask]);
+  if (sig === MN.drawn) return box.querySelectorAll(".mn-when").forEach((w, i) => w.textContent = ago(list[i].date));   // nothing new: just refresh "x min ago"
+  MN.drawn = sig;
+  if (!MN.shown.length){ box.innerHTML = ""; return; }
+  const html = list.map(n => `<div class="mn-card${MN.fresh.has(n.k) ? " mn-new" : ""}" style="--mn:${IB_COL[n.acct]}">
+      <a class="mn-open" href="${esc(ibUrl(n.link))}" target="_blank" rel="noopener" data-mnk="${esc(n.k)}" title="Open in ${IB_NAME[n.acct]}">
+        <div class="mn-top"><svg class="bi"><use href="#b-${n.acct}"/></svg><b>${esc(n.from)}</b><span class="mn-when">${esc(ago(n.date))}</span></div>
+        <div class="mn-subj">${esc(n.subject)}</div>${n.snippet ? `<div class="mn-sub">${esc(n.snippet)}</div>` : ""}</a>
+      <button class="mn-x" data-mnx="${esc(n.k)}" aria-label="Dismiss" title="Dismiss">×</button></div>`).join("");
+  MN.fresh.clear();
+  box.innerHTML = html + `<div class="mn-foot">${more > 0 ? `<span>+${more} more</span>` : ""}${ask ? `<button class="mn-link" id="mnDesk">Also alert me on the desktop</button>` : ""}${MN.shown.length > 1 ? `<button class="mn-link" id="mnClear">Clear all</button>` : ""}</div>`;
+}
+document.addEventListener("click", e => {
+  const open = e.target.closest("[data-mnk]"); if (open){ setTimeout(() => mnDrop(open.dataset.mnk)); return; }
+  const x = e.target.closest("[data-mnx]"); if (x) return mnDrop(x.dataset.mnx);
+  if (e.target.closest("#mnClear")){ MN.shown = []; mnSave(); return renderMailNotes(); }
+  if (e.target.closest("#mnDesk")) Notification.requestPermission().then(renderMailNotes);
+});
+renderMailNotes();
+inboxNow();
 inboxNow().then(ibBadge);
 
 /* ================= hub: weather, news, cameras, smart devices ================= */
