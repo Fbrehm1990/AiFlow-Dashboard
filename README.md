@@ -10,8 +10,8 @@ run from one local dashboard and a phone app.**
 </p>
 
 <p align="center">
-  <img src="docs/media/aiflow-tour.gif" alt="Tour of the dashboard while the AI team works" width="760"><br>
-  <sub>Recorded during a real unattended run. <a href="docs/media/aiflow-tour.mp4">Watch the full-quality video (MP4, 41 s)</a> ·
+  <img src="docs/media/foreman-tour.gif" alt="Tour of the dashboard while the AI team works" width="760"><br>
+  <sub>Recorded during a real unattended run. <a href="docs/media/foreman-tour.mp4">Watch the full-quality video (MP4, 41 s)</a> ·
   <a href="#screenshots">All screenshots</a></sub>
 </p>
 
@@ -59,7 +59,7 @@ Captured from the live system with a headless browser. Real business names, emai
 
 | | |
 |---|---|
-| ![Overview](docs/media/screens/01-overview.png) **Overview:** neural core, Jarvis, Crew and hub blocks | ![Crew](docs/media/screens/02-aiflow.png) **Crew:** one box per agent, hand-off trails, feedback |
+| ![Overview](docs/media/screens/01-overview.png) **Overview:** neural core, Jarvis, Crew and hub blocks | ![Crew](docs/media/screens/02-crew.png) **Crew:** one box per agent, hand-off trails, feedback |
 | ![Project view](docs/media/screens/03-project-view.png) **Project view:** every step of a project across agents | ![In progress](docs/media/screens/05-in-progress.png) **In progress:** step bars and the live "what Claude is doing" feed |
 | ![Approvals](docs/media/screens/07-approvals.png) **Approvals:** the owner decides on every email, post, ad and deploy | ![Done](docs/media/screens/06-done.png) **Done:** results with links to every deliverable |
 | ![Queued](docs/media/screens/04-queued.png) **Queued:** add tasks in plain English; the team decides who does them | ![Team & goals](docs/media/screens/08-team-goals.png) **Team & goals:** agents, goals, demo sites, schedules |
@@ -70,7 +70,7 @@ Captured from the live system with a headless browser. Real business names, emai
 
 | | | | |
 |---|---|---|---|
-| ![Core](docs/media/screens/20-phone-core.png) Core | ![Hub](docs/media/screens/20b-phone-hub.png) Hub blocks | ![Crew](docs/media/screens/21-phone-aiflow.png) Crew | ![Weather](docs/media/screens/22-phone-weather.png) Weather |
+| ![Core](docs/media/screens/20-phone-core.png) Core | ![Hub](docs/media/screens/20b-phone-hub.png) Hub blocks | ![Crew](docs/media/screens/21-phone-crew.png) Crew | ![Weather](docs/media/screens/22-phone-weather.png) Weather |
 | ![News](docs/media/screens/23-phone-news.png) News | ![Queue](docs/media/screens/24-phone-queue.png) Queue | ![Approve](docs/media/screens/25-phone-approvals.png) Approve | ![Jarvis](docs/media/screens/26-phone-jarvis.png) Jarvis |
 
 ---
@@ -161,7 +161,7 @@ Voice control examples Jarvis understands: *"dim the porch light to 40 percent"*
 *"set the thermostat to 72"*, *"switch the heat to cool"*, *"are any lights on?"*, *"is the garage door open?"*,
 *"show me the cameras"*. For *"open the garage"* Jarvis asks *"Should I open the Garage Door?"* and acts only on a spoken yes.
 
-### 5. Phone app (`phone/ai-workflow-phone.html`)
+### 5. Phone app (`phone/foreman-phone.html`)
 
 A private **claude.ai artifact** that mirrors the PC and can be added to the home screen. It has five tabs:
 - **Core:** neural core, Brief me, crew cards with feedback, timeline and project reader
@@ -434,7 +434,7 @@ This system acts without supervision, so the guardrails are layered and explicit
 6. **Voice.** Open the dashboard in Edge or Chrome, click the ⚙ next to **Talk**, choose the *Jarvis preset* and set your
    home location.
 7. **Phone app (optional).**
-   1. Ask Claude to publish `phone/ai-workflow-phone.html` as an artifact with an owner-only database:
+   1. Ask Claude to publish `phone/foreman-phone.html` as an artifact with an owner-only database:
       `capabilities: {db: {rules: [{path: "", read: "owner", write: "owner"}]}, sample: {}}`.
    2. Put its link in the phone sync schedule.
    3. Add the link to your phone's home screen.
@@ -495,7 +495,7 @@ dashboard/
   phone_sync.py                 phone state out; tasks, feedback and decisions in
   prompts/                      queue run prompt; Jarvis persona
   icon.ico                      desktop shortcut icon
-phone/ai-workflow-phone.html    the phone app (claude.ai artifact)
+phone/foreman-phone.html    the phone app (claude.ai artifact)
 tasks/*.example.md              templates for inbox, history, brief topics, goals
 outputs/ logs/                  created by runs (git-ignored)
 start-dashboard.bat             Windows launcher

@@ -153,7 +153,7 @@ def runs():
         fp = c["meta"].get("first_prompt", "")
         m = re.search(r'<scheduled-task name="([^"]+)"', fp)
         if not m:  # headless CLI runs started by dashboard/dispatch.py
-            m = re.search(r'<ai-workflow-run name="([^"]+)"', fp)
+            m = re.search(r'<(?:foreman|ai-workflow)-run name="([^"]+)"', fp)
             if m:
                 m = re.match(r"(.*)", "ai-" + m.group(1))
         if not m:

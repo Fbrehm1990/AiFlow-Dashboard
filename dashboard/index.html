@@ -814,7 +814,7 @@ a.ib-item:hover{background:var(--surface-2)}
       <a href="#/cameras" data-route="cameras"><svg class="i"><use href="#i-cam"/></svg>Cameras</a>
       <a href="#/devices" data-route="devices"><svg class="i"><use href="#i-plug"/></svg>Smart devices</a>
       <div class="nav-label">Workflow</div>
-      <a href="#/aiflow" data-route="aiflow"><svg class="i"><use href="#i-team"/></svg>Crew<span class="badge" id="bFlow"></span></a>
+      <a href="#/crew" data-route="crew"><svg class="i"><use href="#i-team"/></svg>Crew<span class="badge" id="bFlow"></span></a>
       <a href="#/inbox" data-route="inbox"><svg class="i"><use href="#i-mail"/></svg>Leads &amp; inbox<span class="badge" id="bInbox"></span></a>
       <a href="#/team" data-route="team"><svg class="i"><use href="#i-approve"/></svg>Team &amp; goals</a>
       <a href="#/approvals" data-route="approvals"><svg class="i"><use href="#i-approve"/></svg>Approvals<span class="badge" id="bApprovals"></span></a>
@@ -909,7 +909,7 @@ a.ib-item:hover{background:var(--surface-2)}
 
       <!-- Hub: everyday blocks; each opens its own page -->
       <section class="hubrow" aria-label="Hub">
-        <a class="hb hb-flow" href="#/aiflow" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>Crew</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-flow" href="#/crew" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>Crew</div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-usage" href="#/usage" id="hbUsage"><div class="hb-h"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="spacer"></span><span class="u-live">LIVE</span></div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-inbox" href="#/inbox" id="hbInbox"><div class="hb-h"><svg class="i"><use href="#i-mail"/></svg>Leads &amp; inbox</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
@@ -978,7 +978,7 @@ a.ib-item:hover{background:var(--surface-2)}
     <div id="usagePage" class="hidden col"><div class="col" id="uLive"></div><div id="uSettings"></div></div>
 
     <!-- Crew: the team, one box per member -->
-    <div id="aiflowPage" class="hidden col">
+    <div id="crewPage" class="hidden col">
       <section class="crew" id="crew" aria-label="Team"></section>
     </div>
 
@@ -1243,7 +1243,7 @@ function render(){
   renderPage();
   renderTeamPages();
   if (route === "") renderOverview();
-  if (route === "aiflow") renderCrew();
+  if (route === "crew") renderCrew();
   if (route === "resources") renderAnalytics();
 }
 
@@ -1434,7 +1434,7 @@ const PAGES = {
   done:      {title:"Done", desc:"Finished tasks and their results."},
   blocked:   {title:"Blocked", desc:"Tasks a run couldn't finish, and why. Retry with more information, or dismiss."},
   resources: {title:"Resources", desc:"Outputs, history, run logs, recurring jobs and analytics."},
-  aiflow:    {title:"Crew", desc:"Your AI team. Open a task to see where its project stands, or give a member feedback."},
+  crew:      {title:"Crew", desc:"Your AI team. Open a task to see where its project stands, or give a member feedback."},
   team:      {title:"Team & goals", desc:"Your AI team: who's doing what, and the goals they work toward."},
   approvals: {title:"Approvals", desc:"Anything public or paid waits here for your decision."},
   weather:   {title:"Weather", desc:"Now, the next 24 hours, and the week ahead."},
@@ -1451,7 +1451,8 @@ const ORDER = {high:0, normal:1, low:2};
 let route = null, editing = null, retrying = null, doneRange = "today", showDismissed = false;
 
 function go(){
-  const r = (location.hash.match(/^#\/(\w+)/) || [])[1] || "";
+  let r = (location.hash.match(/^#\/(\w+)/) || [])[1] || "";
+  if (r === "aiflow") r = "crew";   // old bookmarks
   const next = r in PAGES ? r : "";
   const changed = next !== route;
   route = next; editing = null; retrying = null;
@@ -1460,7 +1461,7 @@ function go(){
   $("#page").classList.toggle("hidden", !TASK_PAGES.includes(route));
   $("#resources").classList.toggle("hidden", route !== "resources");
   $("#teamPage").classList.toggle("hidden", route !== "team");
-  $("#aiflowPage").classList.toggle("hidden", route !== "aiflow");
+  $("#crewPage").classList.toggle("hidden", route !== "crew");
   $("#approvalsPage").classList.toggle("hidden", route !== "approvals");
   $("#usagePage").classList.toggle("hidden", route !== "usage");
   $("#videoPage").classList.toggle("hidden", route !== "video");
@@ -1477,7 +1478,7 @@ function go(){
   $("#resBtn").classList.toggle("active", route === "resources");
   $("#pageTitle").textContent = PAGES[route].title; $("#pageDesc").textContent = PAGES[route].desc;
   document.title = route ? `${PAGES[route].title} · Foreman AI` : "Foreman AI";
-  if (S){ renderPage(); renderTeamPages(); if (route === "") renderOverview(); if (route === "aiflow") renderCrew(); if (route === "resources") renderAnalytics(); }
+  if (S){ renderPage(); renderTeamPages(); if (route === "") renderOverview(); if (route === "crew") renderCrew(); if (route === "resources") renderAnalytics(); }
   if (changed) window.scrollTo({top:0});
 }
 
@@ -1853,7 +1854,7 @@ function renderTeamStrip(){
 $("#teamStrip").addEventListener("click", e => {
   const b = e.target.closest("[data-goto]"); if (!b) return;
   const name = b.dataset.goto;
-  location.hash = "#/aiflow";
+  location.hash = "#/crew";
   setTimeout(() => {
     const c = [...document.querySelectorAll("#crew [data-agent]")].find(x => x.dataset.agent === name);
     c?.scrollIntoView({behavior: "smooth", block: "start"});
