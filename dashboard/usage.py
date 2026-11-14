@@ -369,13 +369,13 @@ def install_statusline():
         c["statusline_chain"] = old        # statusline.py runs the previous one after recording limits
         _save(c)
     if CLAUDE_SETTINGS.exists():
-        backup = CLAUDE_SETTINGS.with_name("settings.json.before-aiflow")
+        backup = CLAUDE_SETTINGS.with_name("settings.json.before-foreman")
         if not backup.exists():
             backup.write_text(CLAUDE_SETTINGS.read_text(encoding="utf-8"), encoding="utf-8")
     fwd = lambda x: str(x).replace("\\", "/")     # works in both cmd.exe and Git Bash
     s["statusLine"] = {"type": "command", "command": f'"{fwd(py)}" "{fwd(STATUSLINE)}"'}
     CLAUDE_SETTINGS.parent.mkdir(parents=True, exist_ok=True)
-    tmp = CLAUDE_SETTINGS.with_suffix(".aiflow.tmp")
+    tmp = CLAUDE_SETTINGS.with_suffix(".foreman.tmp")
     tmp.write_text(json.dumps(s, indent=2), encoding="utf-8")
     os.replace(tmp, CLAUDE_SETTINGS)
     return statusline_state()

@@ -385,7 +385,7 @@ function render(){
                                   : `<div class="card empty">Connecting to your workflow…</div>`; return; }
   if (!S){ v.innerHTML = `<div class="card"><div class="status"><span class="dot"></span><div><h2>Waiting for your PC</h2>
       <p>Your PC sends its status here every 30 minutes while the Claude app is open. You can already add tasks with the + button; they'll be picked up on the next sync.</p></div></div></div>${pendingCard()}`; return; }
-  if (HUB_SUB.includes(tab)){ if (!(tab === "aiflow" && fbOpen)) v.innerHTML = hubPage(tab); if (tab === "aiflow" && !fbOpen) renderCrew(); return; }
+  if (HUB_SUB.includes(tab)){ if (!(tab === "crew" && fbOpen)) v.innerHTML = hubPage(tab); if (tab === "crew" && !fbOpen) renderCrew(); return; }
   if (tab === "home" || !["queue", "approvals", "results"].includes(tab)){
     tab = "home";
     if (!$("#core")){ v.innerHTML = coreShell(); initBrain(); }      // the brain keeps running across refreshes
@@ -537,7 +537,7 @@ function updateCore(){
   renderHubBlocks();
 }
 /* ---- hub: Crew, Weather, News, Cameras, Smart devices (each opens its own page) ---- */
-const HUB_SUB = ["aiflow", "inbox", "weather", "news", "cameras", "devices"];
+const HUB_SUB = ["crew", "inbox", "weather", "news", "cameras", "devices"];
 const IB_COL = {lead: "var(--accent)", gmail: "#ea4335", outlook: "#2f8cff"}, IB_NAME = {lead: "Website", gmail: "Gmail", outlook: "Outlook"};
 const ibWhen = (iso, hasTime = true) => { const d = new Date(iso), t = new Date(); const day = d.toDateString() === t.toDateString() ? "Today"
   : d.toDateString() === new Date(Date.now() + 864e5).toDateString() ? "Tomorrow" : d.toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
@@ -590,7 +590,7 @@ function renderHubBlocks(){
   const devs = (home.devices || []).filter(d => d.domain !== "camera"), cams = (home.devices || []).filter(d => d.domain === "camera");
   const th = devs.find(d => d.domain === "climate"), on = devs.filter(d => d.state === "on" && ["light", "switch", "fan"].includes(d.domain)).length;
   $("#hubgrid").innerHTML = `
-    <button class="hb wide" data-go="aiflow"><div class="hb-h">Crew${ARROW}</div>
+    <button class="hb wide" data-go="crew"><div class="hb-h">Crew${ARROW}</div>
       <div class="hb-sub">${busy ? `${busy} working now` : "Team standing by"} · ${(S.queue || []).length} queued · ${doneToday} done today${pending ? ` · <b style="color:var(--warn)">${pending} need you</b>` : ""}</div>
       <div class="flow-mates">${rows.map(r => `<div class="flow-mate ${r.on ? "on" : ""}" style="--c:var(${r.a.color})"><span class="d"></span><span class="nm">${esc(r.a.name)}</span><span class="st">${esc(r.st)}</span></div>`).join("")}</div></button>
     ${inboxBlock()}
@@ -604,7 +604,7 @@ function renderHubBlocks(){
 function hubPage(p){
   const back = (title) => `<div class="subhead"><button class="btn sm" data-go="home">‹ Core</button><h2>${title}</h2></div>`;
   const home = S.home || {}, asOf = `<p class="note">As of your PC's last sync, ${esc(ago(S.updated))}.</p>`;
-  if (p === "aiflow") return back("Crew") + `<div class="crew" id="crew"></div>`;
+  if (p === "crew") return back("Crew") + `<div class="crew" id="crew"></div>`;
   if (p === "inbox") return inboxPage(back);
   if (p === "weather"){
     const w = S.weather; if (!w) return back("Weather") + `<div class="card empty">The weather arrives with your PC's next sync.</div>`;
