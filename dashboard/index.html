@@ -731,6 +731,20 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent-soft)!
 /* Leads & inbox */
 svg.bi{width:22px;height:22px;flex:none}
 svg.bi-flag{width:27px;height:18px;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.hb-logo{align-items:center;justify-content:center}
+.hb-logo svg{width:64px;height:64px;transition:transform .15s}
+.hb-logo:hover svg{transform:scale(1.08)}
+.hb-cal{gap:4px}
+.mc-month{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:500;text-transform:uppercase}
+.mc{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;text-align:center;font-size:11px;font-variant-numeric:tabular-nums}
+.mc span{display:block;position:relative;line-height:15px;padding:1px 0 3px;border-radius:5px}
+.mc .mc-wd{color:var(--muted);font-size:10px}
+.mc .mc-past{color:var(--muted);opacity:.55}
+.mc .mc-today{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.mc .mc-ev::after{content:"";position:absolute;left:50%;bottom:1px;width:3px;height:3px;margin-left:-1.5px;border-radius:50%;background:#2f8cff}
+.mc .mc-today.mc-ev::after{background:var(--accent-ink)}
+.mc-next{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.mc-next b{color:var(--text);font-weight:600}
 .hb-brand .hb-big{display:flex;align-items:baseline;gap:8px}
 .hb-brand .hb-big small{font-size:13px;font-weight:500;color:var(--muted);font-family:inherit}
 .hb-brand .hb-line b{font-weight:600}
@@ -818,6 +832,7 @@ a.ib-item:hover{background:var(--surface-2)}
   <symbol id="b-flag" viewBox="0 0 48 32"><g stroke="none"><rect width="48" height="32" rx="3" fill="#fff"/><g fill="#b22234"><rect width="48" height="2.46" y="0"/><rect width="48" height="2.46" y="4.92"/><rect width="48" height="2.46" y="9.85"/><rect width="48" height="2.46" y="14.77"/><rect width="48" height="2.46" y="19.69"/><rect width="48" height="2.46" y="24.62"/><rect width="48" height="2.46" y="29.54"/></g><rect width="20" height="17.2" fill="#3c3b6e"/><g fill="#fff"><circle cx="3.5" cy="3" r=".9"/><circle cx="8.3" cy="3" r=".9"/><circle cx="13.1" cy="3" r=".9"/><circle cx="17" cy="3" r=".9"/><circle cx="5.9" cy="6.5" r=".9"/><circle cx="10.7" cy="6.5" r=".9"/><circle cx="15.3" cy="6.5" r=".9"/><circle cx="3.5" cy="10" r=".9"/><circle cx="8.3" cy="10" r=".9"/><circle cx="13.1" cy="10" r=".9"/><circle cx="17" cy="10" r=".9"/><circle cx="5.9" cy="13.5" r=".9"/><circle cx="10.7" cy="13.5" r=".9"/><circle cx="15.3" cy="13.5" r=".9"/></g></g></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
   <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1.3"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2"/><path d="M7.5 8.5h6M7.5 12h6M7.5 15.5h4"/></symbol>
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M3 7.5h12.5v9H3z"/><path d="M15.5 10.5l5-3v9l-5-3"/><circle cx="7" cy="12" r="1.6"/></symbol>
@@ -936,8 +951,9 @@ a.ib-item:hover{background:var(--surface-2)}
         <a class="hb hb-flow" href="#/crew" id="hbFlow"><div class="hb-h"><svg class="i"><use href="#i-team"/></svg>Crew</div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-usage" href="#/usage" id="hbUsage"><div class="hb-h"><svg class="i"><use href="#i-gauge"/></svg>AI usage<span class="spacer"></span><span class="u-live">LIVE</span></div><div class="hb-b">Loading…</div></a>
         <a class="hb hb-brand" href="#/inbox" data-ibgo="ibLeadsCard" id="hbLeads"><div class="hb-h"><svg class="bi bi-flag"><use href="#b-flag"/></svg>Website leads</div><div class="hb-b">Loading…</div></a>
-        <a class="hb hb-brand" href="#/inbox" data-ibgo="ibMailCard" id="hbGmail"><div class="hb-h"><svg class="bi"><use href="#b-gmail"/></svg>Gmail</div><div class="hb-b">Loading…</div></a>
-        <a class="hb hb-brand" href="#/inbox" data-ibgo="ibCalCard" id="hbOutlook"><div class="hb-h"><svg class="bi"><use href="#b-outlook"/></svg>Outlook</div><div class="hb-b">Loading…</div></a>
+        <a class="hb hb-logo" href="https://mail.google.com/" target="_blank" rel="noopener" id="hbGmail" aria-label="Open Gmail" title="Open Gmail"><svg><use href="#b-gmail"/></svg></a>
+        <a class="hb hb-logo" href="https://outlook.live.com/mail/" target="_blank" rel="noopener" id="hbOutlook" aria-label="Open Outlook" title="Open Outlook"><svg><use href="#b-outlook"/></svg></a>
+        <a class="hb hb-cal" href="https://outlook.live.com/calendar/" target="_blank" rel="noopener" id="hbCal" title="Open your Outlook calendar"><div class="hb-h"><svg class="i"><use href="#i-cal"/></svg>Calendar<span class="spacer"></span><span class="mc-month"></span></div><div class="hb-b"></div></a>
         <a class="hb" href="#/weather" id="hbWeather"><div class="hb-h"><svg class="i"><use href="#i-sun"/></svg>Weather</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/news" id="hbNews"><div class="hb-h"><svg class="i"><use href="#i-news"/></svg>News</div><div class="hb-b">Loading…</div></a>
         <a class="hb" href="#/cameras" id="hbCams"><div class="hb-h"><svg class="i"><use href="#i-cam"/></svg>Cameras</div><div class="hb-b"></div></a>
@@ -2517,13 +2533,10 @@ function ibBadge(u){
 async function renderInboxTile(){
   const u = await inboxNow(), box = id => $(`#${id} .hb-b`);
   if (!box("hbLeads")) return;
-  if (!u){ ["hbLeads", "hbGmail", "hbOutlook"].forEach(id => box(id).innerHTML = `<div class="hb-sub">Unavailable${IB.err ? ": " + esc(IB.err) : ""}</div>`); return; }
+  if (!u){ box("hbLeads").innerHTML = `<div class="hb-sub">Unavailable${IB.err ? ": " + esc(IB.err) : ""}</div>`; renderMiniCal(null); return; }
   ibBadge(u);
-  const ext = (id, url) => { const a = $("#" + id); if (url){ a.href = url; a.target = "_blank"; a.rel = "noopener"; } else { a.href = "#/inbox"; a.removeAttribute("target"); } };
-  ext("hbGmail", u.connected.gmail ? ibGmailHome(u) : null);
-  ext("hbOutlook", u.connected.outlook ? "https://outlook.live.com/mail/" : u.connected.ics ? "https://outlook.live.com/calendar/" : null);
+  $("#hbGmail").href = u.connected.gmail ? ibGmailHome(u) : "https://mail.google.com/";
   const c = u.connected, E = u.errors || {}, setup = what => `<div class="hb-sub">Not connected yet. Connect ${what} on the Leads &amp; inbox page.</div><div class="hb-foot">Set up →</div>`;
-  const people = acct => u.mail.filter(m => m.acct === acct && !m.bulk), unread = acct => people(acct).filter(m => m.unread).length;
   const dateLine = kinds => { const d = u.dates.find(x => kinds.includes(x.kind)); return d ? `<div class="hb-line"><span class="hb-tag">Date</span>${esc(d.who)}: <b>${esc(ibWhen(d.start, d.has_time))}</b>${d.free === true ? " · free" : d.free === false ? " · clashes" : ""}</div>` : ""; };
 
   // Website leads
@@ -2534,21 +2547,23 @@ async function renderInboxTile(){
     ${dateLine(["lead"])}
     <div class="hb-foot">${last ? "Latest " + esc(ago(last.created_at)) + " · " : ""}patrioticwebsites.com</div>`;
 
-  // Gmail
-  const g = people("gmail");
-  box("hbGmail").innerHTML = !c.gmail ? setup("Gmail") : E.gmail ? `<div class="hb-sub u-err">${esc(E.gmail)}</div>` : `
-    <div class="hb-big">${unread("gmail")}<small>unread</small></div>
-    ${g.slice(0, 2).map(m => `<div class="hb-line"><b>${esc(m.from_name)}</b> · ${esc(m.subject)}</div>`).join("") || `<div class="hb-sub">No emails from people lately</div>`}
-    <div class="hb-foot">${esc(u.accounts?.gmail || "")}</div>`;
-
-  // Outlook: mail when signed in, plus the calendar
-  const o = people("outlook"), now = new Date(), next = u.events.find(e => new Date(e.end) > now && !e.allday);
-  const todayN = u.events.filter(e => new Date(e.start).toDateString() === now.toDateString()).length, calOn = c.outlook || c.ics;
-  box("hbOutlook").innerHTML = !calOn && !c.outlook ? setup("Outlook") : (E.outlook || E.calendar) && !next ? `<div class="hb-sub u-err">${esc(E.outlook || E.calendar)}</div>` : `
-    ${c.outlook ? `<div class="hb-big">${unread("outlook")}<small>unread</small></div>` : `<div class="hb-big">${todayN}<small>today</small></div>`}
-    ${next ? `<div class="hb-line">Next: <b>${esc(next.title)}</b> · ${esc(ibWhen(next.start))}</div>` : `<div class="hb-sub">Nothing on your calendar soon</div>`}
-    ${dateLine(["gmail", "outlook"]) || (c.outlook && o[0] ? `<div class="hb-line"><b>${esc(o[0].from_name)}</b> · ${esc(o[0].subject)}</div>` : "")}
-    <div class="hb-foot">${u.dates.length ? u.dates.length + " date" + (u.dates.length === 1 ? "" : "s") + " to confirm" : c.outlook ? "Mail + calendar" : "Calendar"}</div>`;
+  renderMiniCal(u);
+}
+// Mini month calendar: today highlighted, a dot on days with events. Clicking the box opens Outlook's calendar.
+function renderMiniCal(u){
+  const el = $("#hbCal .hb-b"), now = new Date(), y = now.getFullYear(), mo = now.getMonth();
+  $("#hbCal .mc-month").textContent = now.toLocaleDateString([], {month: "long"});
+  const busy = new Set((u?.events || []).map(e => new Date(e.start).toDateString()));
+  const first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
+  let cells = ["S", "M", "T", "W", "T", "F", "S"].map(d => `<span class="mc-wd">${d}</span>`).join("") + "<span></span>".repeat(first);
+  for (let d = 1; d <= days; d++){
+    const day = new Date(y, mo, d), cls = [d === now.getDate() && "mc-today", d < now.getDate() && "mc-past", busy.has(day.toDateString()) && "mc-ev"].filter(Boolean).join(" ");
+    cells += `<span${cls ? ` class="${cls}"` : ""}>${d}</span>`;
+  }
+  const calOn = u?.connected?.outlook || u?.connected?.ics, next = (u?.events || []).find(e => new Date(e.end) > now);
+  const line = !u ? "" : !calOn ? `<div class="mc-next">Connect your calendar on Leads &amp; inbox to see events</div>`
+    : next ? `<div class="mc-next">Next: <b>${esc(next.title)}</b> · ${esc(next.allday ? ibWhen(next.start, false) : ibWhen(next.start))}</div>` : `<div class="mc-next">Nothing coming up</div>`;
+  el.innerHTML = `<div class="mc">${cells}</div>${line}`;
 }
 // Clicking a box opens Leads & inbox at that box's section.
 document.addEventListener("click", e => { const a = e.target.closest("[data-ibgo]"); if (a && a.getAttribute("href").startsWith("#")) IB.scrollTo = a.dataset.ibgo; });
