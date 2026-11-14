@@ -143,6 +143,11 @@ def build():
         } if any(c.values()) else {"connected": c}
     except Exception as e:
         state["inbox"] = {"error": f"Couldn't load ({e.__class__.__name__})"}
+    # Video Studio: the finished videos (the studio itself runs on the PC)
+    vids = sorted((p for p in (ROOT / "outputs" / "videos").glob("*") if p.suffix.lower() in (".mp4", ".webm", ".mov") and p.is_file()),
+                  key=lambda p: p.stat().st_mtime, reverse=True)
+    state["videos"] = {"count": len(vids), "items": [{"name": p.name, "bytes": p.stat().st_size,
+                       "modified": datetime.fromtimestamp(p.stat().st_mtime).astimezone().isoformat(timespec="seconds")} for p in vids[:10]]}
     briefs = sorted((ROOT / "outputs" / "briefs").glob("*.md"), reverse=True)
     if briefs:
         text = re.sub(r"\[(\d+|[^\]]{0,80})\]\([^)]*\)", r"\1", server.read(briefs[0]))   # drop link targets
